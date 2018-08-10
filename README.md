@@ -13,7 +13,7 @@ between different base-two and base-ten size units.
   and `size::EXBIBYTE` or `size::GB` and `size::GIGABYTE`),
 * a `Unit` enum that defines the base-two and base-ten units,
 * a `Size<T>` enum that can be used to hold a typed file size
-  (e.g. `let size = Size::Terabyte(4);`),
+  (e.g. `let size = Size::Terabytes(4);`),
 * an `std::Display` impl for `Size` to display sizes in a human-readable format,
 * a `Size.to_string(..)` method that allows you to specify the base of the human-readable
   units and their style (smart, abbreviated, or full and their lowercase variants)
@@ -44,14 +44,15 @@ fn main() {
         let byte_count2 = Size::Mebibytes(0.040055);
         assert_eq!(byte_count.bytes(), byte_count2.bytes());
 
-        // And for those of you that haven't yet drank the base-two Kool-Aid:
+        // And for those of you that haven't yet drunk the base-two Kool-Aid:
         let byte_count = Size::Kilobytes(42);
         assert_eq!(byte_count.bytes(), 42_000);
 
-        // prints "41 KiB, I say!"
         println!("{}, I say!", byte_count);
-        // prints "42 KB, I meant!"
+        // prints "41 KiB, I say!"
+
         println!("{}, I meant!", byte_count.to_string(Base::Base10, Style::Abbreviated));
+        // prints "42 KB, I meant!"
 }
 ```
 

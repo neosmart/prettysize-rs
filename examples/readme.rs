@@ -16,8 +16,9 @@ fn main() {
         let byte_count = Size::Kilobytes(42);
         assert_eq!(byte_count.bytes(), 42_000);
 
-        // prints "41 KiB, I say!"
         println!("{}, I say!", byte_count);
-        // prints "42 KB, I meant!"
+        // prints "41 KiB, I say!"
+
         println!("{}, I meant!", byte_count.to_string(Base::Base10, Style::Abbreviated));
+        // prints "42 KB, I meant!"
 }
