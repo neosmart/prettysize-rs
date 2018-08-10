@@ -69,24 +69,24 @@ pub enum Units {
 
 impl Units {
     fn text(&self)
-        -> (&'static str, &'static str, &'static str, &'static str, &'static str, &'static str)
+        -> (&'static str, &'static str, &'static str, &'static str)
     {
         match &self {
-            &Byte => ("byte", "bytes", "Byte", "Bytes", "b", "B"),
+            &Byte => ("byte", "Byte", "b", "B"),
 
-            &Kilobyte => ("kilobyte", "kilobytes", "Kilobyte", "Kilobytes", "kb", "KB"),
-            &Megabyte => ("megabyte", "megabytes", "Megabyte", "Megabytes", "mb", "MB"),
-            &Gigabyte => ("gigabyte", "gigabytes", "Gigabyte", "Gigabytes", "gb", "GB"),
-            &Terabyte => ("terabyte", "terabytes", "Terabyte", "Terabytes", "tb", "TB"),
-            &Petabyte => ("petabyte", "petabytes", "Petabyte", "Petabytes", "pb", "PB"),
-            &Exabyte =>  ("exabyte",  "exabytes",  "Exabyte",  "Exabytes",  "eb", "EB"),
+            &Kilobyte => ("kilobyte", "Kilobyte", "kb", "KB"),
+            &Megabyte => ("megabyte", "Megabyte", "mb", "MB"),
+            &Gigabyte => ("gigabyte", "Gigabyte", "gb", "GB"),
+            &Terabyte => ("terabyte", "Terabyte", "tb", "TB"),
+            &Petabyte => ("petabyte", "Petabyte", "pb", "PB"),
+            &Exabyte =>  ("exabyte",  "Exabyte",  "eb", "EB"),
 
-            &Kibibyte => ("kibibyte", "kibibytes", "Kibibyte", "Kibibytes", "kib", "KiB",),
-            &Mebibyte => ("mebibyte", "mebibytes", "Mebibyte", "Mebibytes", "mib", "MiB",),
-            &Gibibyte => ("gibibyte", "gibibytes", "Gibibyte", "Gibibytes", "gib", "GiB",),
-            &Pebibyte => ("pebibyte", "pebibytes", "Pebibyte", "Pebibytes", "pib", "PiB",),
-            &Tebibyte => ("tebibyte", "tebibytes", "Tebibyte", "Tebibytes", "tib", "TiB",),
-            &Exbibyte => ("exbibyte", "exbibytes", "Exbibyte", "Exbibytes", "eib", "EiB",),
+            &Kibibyte => ("kibibyte", "Kibibyte", "kib", "KiB",),
+            &Mebibyte => ("mebibyte", "Mebibyte", "mib", "MiB",),
+            &Gibibyte => ("gibibyte", "Gibibyte", "gib", "GiB",),
+            &Pebibyte => ("pebibyte", "Pebibyte", "pib", "PiB",),
+            &Tebibyte => ("tebibyte", "Tebibyte", "tib", "TiB",),
+            &Exbibyte => ("exbibyte", "Exbibyte", "eib", "EiB",),
         }
     }
 
@@ -100,16 +100,16 @@ impl Units {
                 1 => match style {
                     Style::Smart => panic!("already covered above"),
                     Style::FullLowerCase => write!(fmt, " {}", self.text().0),
-                    Style::Full => write!(fmt, " {}", self.text().2),
-                    Style::AbbreviatedLowerCase => write!(fmt, " {}", self.text().4),
-                    Style::Abbreviated => write!(fmt, " {}", self.text().5),
+                    Style::Full => write!(fmt, " {}", self.text().1),
+                    Style::AbbreviatedLowerCase => write!(fmt, " {}", self.text().2),
+                    Style::Abbreviated => write!(fmt, " {}", self.text().3),
                 },
                 _ => match style {
                     Style::Smart => panic!("already covered above"),
-                    Style::FullLowerCase => write!(fmt, " {}", self.text().1),
-                    Style::Full => write!(fmt, " {}", self.text().3),
-                    Style::AbbreviatedLowerCase => write!(fmt, " {}", self.text().4),
-                    Style::Abbreviated => write!(fmt, " {}", self.text().5),
+                    Style::FullLowerCase => write!(fmt, " {}s", self.text().0),
+                    Style::Full => write!(fmt, " {}s", self.text().1),
+                    Style::AbbreviatedLowerCase => write!(fmt, " {}", self.text().2),
+                    Style::Abbreviated => write!(fmt, " {}", self.text().3),
                 },
             },
         }
