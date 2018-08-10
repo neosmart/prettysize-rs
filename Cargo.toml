@@ -1,0 +1,7 @@
+[package]
+name = "prettysize-rs"
+version = "0.1.0"
+authors = ["Mahmoud Al-Qudsi <mqudsi@neosmart.net>"]
+
+[dependencies]
+num-traits = "0.2"
