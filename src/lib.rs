@@ -153,7 +153,7 @@ impl<T> Size<T>
 where
     T: ToPrimitive,
 {
-    fn bytes(&self) -> usize {
+    pub fn bytes(&self) -> usize {
         use Size::*;
 
         match &self {
