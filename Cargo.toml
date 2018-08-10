@@ -1,7 +1,14 @@
 [package]
-name = "prettysize-rs"
+name = "size"
 version = "0.1.0"
-authors = ["Mahmoud Al-Qudsi <mqudsi@neosmart.net>"]
+authors = ["Mahmoud Al-Qudsi <mqudsi@neosmart.net>", "NeoSmart Technologies"]
+description = "Units and formatting for file sizes in base2 and base10"
+homepage = "https://github.com/neosmart/prettysize-rs"
+repository = "https://github.com/neosmart/prettysize-rs"
+readme = "README.md"
+keywords = ["bytes", "prettysize", "size", "units", "formatting"]
+categories = ["value-formatting"]
+license = "MIT"
 
 [dependencies]
 num-traits = "0.2"
