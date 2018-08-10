@@ -2,7 +2,7 @@ extern crate num_traits;
 
 use num_traits::ToPrimitive;
 use std::fmt;
-use Units::*;
+use Unit::*;
 
 #[cfg(test)]
 mod tests;
@@ -51,7 +51,7 @@ pub enum Base {
     Base10,
 }
 
-pub enum Units {
+pub enum Unit {
     Byte,
     Kibibyte,
     Kilobyte,
@@ -67,7 +67,7 @@ pub enum Units {
     Exabyte,
 }
 
-impl Units {
+impl Unit {
     fn text(&self)
         -> (&'static str, &'static str, &'static str, &'static str)
     {
@@ -93,7 +93,7 @@ impl Units {
     fn format(&self, mut fmt: &mut fmt::Formatter, bytes: usize, style: &Style) -> fmt::Result {
         match style {
             Style::Smart => match &self {
-                &Units::Byte => self.format(&mut fmt, bytes, &Style::FullLowerCase),
+                &Unit::Byte => self.format(&mut fmt, bytes, &Style::FullLowerCase),
                 _ => self.format(&mut fmt, bytes, &Style::Abbreviated),
             },
             style @ _ => match bytes {
@@ -200,7 +200,7 @@ where
 struct FormatRule {
     less_than: usize,
     formatter: fn(&mut fmt::Formatter, bytes: usize) -> fmt::Result,
-    unit: Units,
+    unit: Unit,
 }
 
 const BASE10_RULES: [FormatRule; 20] = [
