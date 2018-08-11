@@ -69,6 +69,7 @@ released to the general public under the terms of the MIT public license.
 
 ## To-Do
 
+* Providing a `FromStr` impl to parse file sizes,
 * Implementing direct unit-to-unit conversion,
 * Implementing format specifiers to allow using `format!(..)` directly to obtain output in
   the desired base and style,
