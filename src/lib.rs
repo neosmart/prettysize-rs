@@ -10,41 +10,41 @@ mod tests;
 const DEFAULT_BASE: Base = Base::Base2;
 const DEFAULT_STYLE: Style = Style::Smart;
 
-pub const BYTE:     usize = 1;
-pub const KILOBYTE: usize = 1000;
-pub const MEGABYTE: usize = 1000 * KILOBYTE;
-pub const GIGABYTE: usize = 1000 * MEGABYTE;
-pub const TERABYTE: usize = 1000 * MEGABYTE;
-pub const PETABYTE: usize = 1000 * TERABYTE;
-pub const EXABYTE:  usize = 1000 * PETABYTE;
+pub const BYTE:     u64 = 1;
+pub const KILOBYTE: u64 = 1000;
+pub const MEGABYTE: u64 = 1000 * KILOBYTE;
+pub const GIGABYTE: u64 = 1000 * MEGABYTE;
+pub const TERABYTE: u64 = 1000 * MEGABYTE;
+pub const PETABYTE: u64 = 1000 * TERABYTE;
+pub const EXABYTE:  u64 = 1000 * PETABYTE;
 
-pub const B:  usize = BYTE;
-pub const KB: usize = KILOBYTE;
-pub const MB: usize = MEGABYTE;
-pub const GB: usize = GIGABYTE;
-pub const TB: usize = TERABYTE;
-pub const PB: usize = PETABYTE;
-pub const EB: usize = EXABYTE;
+pub const B:  u64 = BYTE;
+pub const KB: u64 = KILOBYTE;
+pub const MB: u64 = MEGABYTE;
+pub const GB: u64 = GIGABYTE;
+pub const TB: u64 = TERABYTE;
+pub const PB: u64 = PETABYTE;
+pub const EB: u64 = EXABYTE;
 
-pub const KIBIBYTE: usize = 1 << 10;
-pub const MEBIBYTE: usize = 1 << 20;
-pub const GIBIBYTE: usize = 1 << 30;
-pub const TEBIBYTE: usize = 1 << 40;
-pub const PEBIBYTE: usize = 1 << 50;
-pub const EXBIBYTE: usize = 1 << 60;
+pub const KIBIBYTE: u64 = 1 << 10;
+pub const MEBIBYTE: u64 = 1 << 20;
+pub const GIBIBYTE: u64 = 1 << 30;
+pub const TEBIBYTE: u64 = 1 << 40;
+pub const PEBIBYTE: u64 = 1 << 50;
+pub const EXBIBYTE: u64 = 1 << 60;
 
 #[allow(non_upper_case_globals)]
-pub const KiB: usize = KIBIBYTE;
+pub const KiB: u64 = KIBIBYTE;
 #[allow(non_upper_case_globals)]
-pub const MiB: usize = MEBIBYTE;
+pub const MiB: u64 = MEBIBYTE;
 #[allow(non_upper_case_globals)]
-pub const GiB: usize = GIBIBYTE;
+pub const GiB: u64 = GIBIBYTE;
 #[allow(non_upper_case_globals)]
-pub const TiB: usize = TEBIBYTE;
+pub const TiB: u64 = TEBIBYTE;
 #[allow(non_upper_case_globals)]
-pub const PiB: usize = PEBIBYTE;
+pub const PiB: u64 = PEBIBYTE;
 #[allow(non_upper_case_globals)]
-pub const EiB: usize = EXBIBYTE;
+pub const EiB: u64 = EXBIBYTE;
 
 pub enum Base {
     Base2,
@@ -90,7 +90,7 @@ impl Unit {
         }
     }
 
-    fn format(&self, mut fmt: &mut fmt::Formatter, bytes: usize, style: &Style) -> fmt::Result {
+    fn format(&self, mut fmt: &mut fmt::Formatter, bytes: u64, style: &Style) -> fmt::Result {
         match style {
             Style::Smart => match &self {
                 &Unit::Byte => self.format(&mut fmt, bytes, &Style::FullLowerCase),
@@ -163,7 +163,7 @@ impl<T> Size<T>
 where
     T: ToPrimitive,
 {
-    pub fn bytes(&self) -> usize {
+    pub fn bytes(&self) -> u64 {
         use Size::*;
 
         match &self {
@@ -180,7 +180,7 @@ where
             &Tebibytes(x) => x.to_f64().unwrap() * TEBIBYTE as f64,
             &Pebibytes(x) => x.to_f64().unwrap() * PEBIBYTE as f64,
             &Exbibytes(x) => x.to_f64().unwrap() * EXBIBYTE as f64,
-        }.to_usize()
+        }.to_u64()
         .unwrap()
     }
 
@@ -212,15 +212,15 @@ where
 }
 
 struct FormatRule {
-    less_than: usize,
-    formatter: fn(&mut fmt::Formatter, bytes: usize) -> fmt::Result,
+    less_than: u64,
+    formatter: fn(&mut fmt::Formatter, bytes: u64) -> fmt::Result,
     unit: Unit,
 }
 
 const BASE10_RULES: [FormatRule; 20] = [
     FormatRule {
         less_than: 0,
-        formatter: |_, _| panic!("usize less than zero!"),
+        formatter: |_, _| panic!("u64 less than zero!"),
         unit: Byte,
     },
     FormatRule {
@@ -230,92 +230,92 @@ const BASE10_RULES: [FormatRule; 20] = [
     },
     FormatRule {
         less_than: 10 * KILOBYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.2}", bytes as f64 / ((1usize * KILOBYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.2}", bytes as f64 / ((1u64 * KILOBYTE) as f64)),
         unit: Kilobyte,
     },
     FormatRule {
         less_than: 100 * KILOBYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.1}", bytes as f64 / ((1usize * KILOBYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.1}", bytes as f64 / ((1u64 * KILOBYTE) as f64)),
         unit: Kilobyte,
     },
     FormatRule {
         less_than: 1 * MEGABYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.0}", bytes as f64 / ((1usize * KILOBYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.0}", bytes as f64 / ((1u64 * KILOBYTE) as f64)),
         unit: Kilobyte,
     },
     FormatRule {
         less_than: 10 * MEGABYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.2}", bytes as f64 / ((1usize * MEGABYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.2}", bytes as f64 / ((1u64 * MEGABYTE) as f64)),
         unit: Megabyte,
     },
     FormatRule {
         less_than: 100 * MEGABYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.1}", bytes as f64 / ((1usize * MEGABYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.1}", bytes as f64 / ((1u64 * MEGABYTE) as f64)),
         unit: Megabyte,
     },
     FormatRule {
         less_than: 1 * GIGABYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.0}", bytes as f64 / ((1usize * MEGABYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.0}", bytes as f64 / ((1u64 * MEGABYTE) as f64)),
         unit: Megabyte,
     },
     FormatRule {
         less_than: 10 * GIGABYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.2}", bytes as f64 / ((1usize * GIGABYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.2}", bytes as f64 / ((1u64 * GIGABYTE) as f64)),
         unit: Gigabyte,
     },
     FormatRule {
         less_than: 100 * GIGABYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.1}", bytes as f64 / ((1usize * GIGABYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.1}", bytes as f64 / ((1u64 * GIGABYTE) as f64)),
         unit: Gigabyte,
     },
     FormatRule {
         less_than: 1 * TERABYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.0}", bytes as f64 / ((1usize * GIGABYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.0}", bytes as f64 / ((1u64 * GIGABYTE) as f64)),
         unit: Gigabyte,
     },
     FormatRule {
         less_than: 10 * TERABYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.2}", bytes as f64 / ((1usize * TERABYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.2}", bytes as f64 / ((1u64 * TERABYTE) as f64)),
         unit: Terabyte,
     },
     FormatRule {
         less_than: 100 * TERABYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.1}", bytes as f64 / ((1usize * TERABYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.1}", bytes as f64 / ((1u64 * TERABYTE) as f64)),
         unit: Terabyte,
     },
     FormatRule {
         less_than: 1 * PETABYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.0}", bytes as f64 / ((1usize * TERABYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.0}", bytes as f64 / ((1u64 * TERABYTE) as f64)),
         unit: Terabyte,
     },
     FormatRule {
         less_than: 10 * PETABYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.2}", bytes as f64 / ((1usize * PETABYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.2}", bytes as f64 / ((1u64 * PETABYTE) as f64)),
         unit: Petabyte,
     },
     FormatRule {
         less_than: 100 * PETABYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.1}", bytes as f64 / ((1usize * PETABYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.1}", bytes as f64 / ((1u64 * PETABYTE) as f64)),
         unit: Petabyte,
     },
     FormatRule {
         less_than: 1 * EXABYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.0}", bytes as f64 / ((1usize * PETABYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.0}", bytes as f64 / ((1u64 * PETABYTE) as f64)),
         unit: Petabyte,
     },
     FormatRule {
         less_than: 10 * EXABYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.2}", bytes as f64 / ((1usize * EXABYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.2}", bytes as f64 / ((1u64 * EXABYTE) as f64)),
         unit: Exabyte,
     },
     FormatRule {
         less_than: 100 * EXABYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.1}", bytes as f64 / ((1usize * EXABYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.1}", bytes as f64 / ((1u64 * EXABYTE) as f64)),
         unit: Exabyte,
     },
     FormatRule {
-        less_than: usize::max_value(),
-        formatter: |fmt, bytes| write!(fmt, "{:0}", bytes as f64 / ((1usize * EXABYTE) as f64)),
+        less_than: u64::max_value(),
+        formatter: |fmt, bytes| write!(fmt, "{:0}", bytes as f64 / ((1u64 * EXABYTE) as f64)),
         unit: Exabyte,
     },
 ];
@@ -323,7 +323,7 @@ const BASE10_RULES: [FormatRule; 20] = [
 const BASE2_RULES: [FormatRule; 19] = [
     FormatRule {
         less_than: 0,
-        formatter: |_, _| panic!("usize less than zero!"),
+        formatter: |_, _| panic!("u64 less than zero!"),
         unit: Byte,
     },
     FormatRule {
@@ -333,87 +333,87 @@ const BASE2_RULES: [FormatRule; 19] = [
     },
     FormatRule {
         less_than: 10 * KIBIBYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.2}", bytes as f64 / ((1usize * KIBIBYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.2}", bytes as f64 / ((1u64 * KIBIBYTE) as f64)),
         unit: Kibibyte,
     },
     FormatRule {
         less_than: 100 * KIBIBYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.1}", bytes as f64 / ((1usize * KIBIBYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.1}", bytes as f64 / ((1u64 * KIBIBYTE) as f64)),
         unit: Kibibyte,
     },
     FormatRule {
         less_than: 1 * MEBIBYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.0}", bytes as f64 / ((1usize * KIBIBYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.0}", bytes as f64 / ((1u64 * KIBIBYTE) as f64)),
         unit: Kibibyte,
     },
     FormatRule {
         less_than: 10 * MEBIBYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.2}", bytes as f64 / ((1usize * MEBIBYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.2}", bytes as f64 / ((1u64 * MEBIBYTE) as f64)),
         unit: Mebibyte,
     },
     FormatRule {
         less_than: 100 * MEBIBYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.1}", bytes as f64 / ((1usize * MEBIBYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.1}", bytes as f64 / ((1u64 * MEBIBYTE) as f64)),
         unit: Mebibyte,
     },
     FormatRule {
         less_than: 1 * GIBIBYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.0}", bytes as f64 / ((1usize * MEBIBYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.0}", bytes as f64 / ((1u64 * MEBIBYTE) as f64)),
         unit: Mebibyte,
     },
     FormatRule {
         less_than: 10 * GIBIBYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.2}", bytes as f64 / ((1usize * GIBIBYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.2}", bytes as f64 / ((1u64 * GIBIBYTE) as f64)),
         unit: Gibibyte,
     },
     FormatRule {
         less_than: 100 * GIBIBYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.1}", bytes as f64 / ((1usize * GIBIBYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.1}", bytes as f64 / ((1u64 * GIBIBYTE) as f64)),
         unit: Gibibyte,
     },
     FormatRule {
         less_than: 1 * TEBIBYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.0}", bytes as f64 / ((1usize * GIBIBYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.0}", bytes as f64 / ((1u64 * GIBIBYTE) as f64)),
         unit: Gibibyte,
     },
     FormatRule {
         less_than: 10 * TEBIBYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.2}", bytes as f64 / ((1usize * TEBIBYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.2}", bytes as f64 / ((1u64 * TEBIBYTE) as f64)),
         unit: Tebibyte,
     },
     FormatRule {
         less_than: 100 * TEBIBYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.1}", bytes as f64 / ((1usize * TEBIBYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.1}", bytes as f64 / ((1u64 * TEBIBYTE) as f64)),
         unit: Tebibyte,
     },
     FormatRule {
         less_than: 1 * PEBIBYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.0}", bytes as f64 / ((1usize * TEBIBYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.0}", bytes as f64 / ((1u64 * TEBIBYTE) as f64)),
         unit: Tebibyte,
     },
     FormatRule {
         less_than: 10 * PEBIBYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.2}", bytes as f64 / ((1usize * PEBIBYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.2}", bytes as f64 / ((1u64 * PEBIBYTE) as f64)),
         unit: Pebibyte,
     },
     FormatRule {
         less_than: 100 * PEBIBYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.1}", bytes as f64 / ((1usize * PEBIBYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.1}", bytes as f64 / ((1u64 * PEBIBYTE) as f64)),
         unit: Pebibyte,
     },
     FormatRule {
         less_than: 1 * EXBIBYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.0}", bytes as f64 / ((1usize * PEBIBYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.0}", bytes as f64 / ((1u64 * PEBIBYTE) as f64)),
         unit: Pebibyte,
     },
     FormatRule {
         less_than: 10 * EXBIBYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.2}", bytes as f64 / ((1usize * EXBIBYTE) as f64)),
+        formatter: |fmt, bytes| write!(fmt, "{:.2}", bytes as f64 / ((1u64 * EXBIBYTE) as f64)),
         unit: Exbibyte,
     },
     FormatRule {
-        less_than: usize::max_value(),
-        formatter: |fmt, bytes| write!(fmt, "{:0}", bytes as f64 / ((1usize * EXBIBYTE) as f64)),
+        less_than: u64::max_value(),
+        formatter: |fmt, bytes| write!(fmt, "{:0}", bytes as f64 / ((1u64 * EXBIBYTE) as f64)),
         unit: Exbibyte,
     },
 ];
