@@ -1,6 +1,6 @@
 [package]
 name = "size"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Mahmoud Al-Qudsi <mqudsi@neosmart.net>", "NeoSmart Technologies"]
 description = "Units and formatting for file sizes in base2 and base10"
 homepage = "https://github.com/neosmart/prettysize-rs"
