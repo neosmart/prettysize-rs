@@ -36,3 +36,30 @@ fn size_addition() {
     let size = Size::Mebibytes(20) + Size::Mebibytes(22);
     assert_eq!(size, Size::Mebibytes(42));
 }
+
+#[test]
+fn primitive_multiplication() {
+    let size = &Size::Gigabytes(12) * 7;
+    assert_eq!(size.bytes(), 84000000000);
+    let size = Size::Gigabytes(12) * 7;
+    assert_eq!(size.bytes(), 84000000000);
+
+    // and the other way around
+    let size = 7 * Size::Gigabytes(12);
+    assert_eq!(size.bytes(), 84000000000);
+
+    // and with other types
+    let size = &Size::Gigabytes(12) * 7.0;
+    assert_eq!(size.bytes(), 84000000000);
+    let size = 7.0 * Size::Gigabytes(12);
+    assert_eq!(size.bytes(), 84000000000);
+}
+
+#[test]
+fn primitive_division() {
+    let size = &Size::Gigabytes(12) / 13f64;
+    assert_eq!(size.bytes(), 923076923);
+
+    let size = Size::Gigabytes(12.0) / 13;
+    assert_eq!(size.bytes(), 923076923);
+}
