@@ -217,7 +217,7 @@ struct FormatRule {
     unit: Unit,
 }
 
-const BASE10_RULES: [FormatRule; 20] = [
+const BASE10_RULES: [FormatRule; 19] = [
     FormatRule {
         less_than: 0,
         formatter: |_, _| panic!("u64 less than zero!"),
@@ -306,11 +306,6 @@ const BASE10_RULES: [FormatRule; 20] = [
     FormatRule {
         less_than: 10 * EXABYTE,
         formatter: |fmt, bytes| write!(fmt, "{:.2}", bytes as f64 / ((1u64 * EXABYTE) as f64)),
-        unit: Exabyte,
-    },
-    FormatRule {
-        less_than: 100 * EXABYTE,
-        formatter: |fmt, bytes| write!(fmt, "{:.1}", bytes as f64 / ((1u64 * EXABYTE) as f64)),
         unit: Exabyte,
     },
     FormatRule {
