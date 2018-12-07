@@ -9,6 +9,7 @@ readme = "README.md"
 keywords = ["bytes", "prettysize", "size", "units", "formatting"]
 categories = ["value-formatting"]
 license = "MIT"
+edition = "2018"
 
 [dependencies]
-num-traits = "0.2"
+num-traits = { version = "0.2", default-features = false }

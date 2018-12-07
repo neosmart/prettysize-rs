@@ -1,4 +1,4 @@
-use Size;
+use crate::Size;
 
 #[test]
 fn unit_tests() {

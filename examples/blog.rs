@@ -2,7 +2,7 @@
 // https://neosmart.net/blog/2018/prettysize-for-rust/
 extern crate size;
 
-use size::Size;
+use size::{MiB, Size};
 
 fn main() {
     let bytes = 42 * MiB;

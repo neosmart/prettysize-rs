@@ -1,8 +1,6 @@
-extern crate num_traits;
-
+use self::Unit::*;
 use num_traits::ToPrimitive;
 use std::fmt;
-use Unit::*;
 
 #[cfg(test)]
 mod tests;
@@ -10,15 +8,15 @@ mod tests;
 const DEFAULT_BASE: Base = Base::Base2;
 const DEFAULT_STYLE: Style = Style::Smart;
 
-pub const BYTE:     u64 = 1;
+pub const BYTE: u64 = 1;
 pub const KILOBYTE: u64 = 1000;
 pub const MEGABYTE: u64 = 1000 * KILOBYTE;
 pub const GIGABYTE: u64 = 1000 * MEGABYTE;
 pub const TERABYTE: u64 = 1000 * GIGABYTE;
 pub const PETABYTE: u64 = 1000 * TERABYTE;
-pub const EXABYTE:  u64 = 1000 * PETABYTE;
+pub const EXABYTE: u64 = 1000 * PETABYTE;
 
-pub const B:  u64 = BYTE;
+pub const B: u64 = BYTE;
 pub const KB: u64 = KILOBYTE;
 pub const MB: u64 = MEGABYTE;
 pub const GB: u64 = GIGABYTE;
@@ -68,9 +66,7 @@ pub enum Unit {
 }
 
 impl Unit {
-    fn text(&self)
-        -> (&'static str, &'static str, &'static str, &'static str)
-    {
+    fn text(&self) -> (&'static str, &'static str, &'static str, &'static str) {
         match &self {
             &Byte => ("byte", "Byte", "b", "B"),
 
@@ -79,14 +75,14 @@ impl Unit {
             &Gigabyte => ("gigabyte", "Gigabyte", "gb", "GB"),
             &Terabyte => ("terabyte", "Terabyte", "tb", "TB"),
             &Petabyte => ("petabyte", "Petabyte", "pb", "PB"),
-            &Exabyte =>  ("exabyte",  "Exabyte",  "eb", "EB"),
+            &Exabyte => ("exabyte", "Exabyte", "eb", "EB"),
 
-            &Kibibyte => ("kibibyte", "Kibibyte", "kib", "KiB",),
-            &Mebibyte => ("mebibyte", "Mebibyte", "mib", "MiB",),
-            &Gibibyte => ("gibibyte", "Gibibyte", "gib", "GiB",),
-            &Pebibyte => ("pebibyte", "Pebibyte", "pib", "PiB",),
-            &Tebibyte => ("tebibyte", "Tebibyte", "tib", "TiB",),
-            &Exbibyte => ("exbibyte", "Exbibyte", "eib", "EiB",),
+            &Kibibyte => ("kibibyte", "Kibibyte", "kib", "KiB"),
+            &Mebibyte => ("mebibyte", "Mebibyte", "mib", "MiB"),
+            &Gibibyte => ("gibibyte", "Gibibyte", "gib", "GiB"),
+            &Pebibyte => ("pebibyte", "Pebibyte", "pib", "PiB"),
+            &Tebibyte => ("tebibyte", "Tebibyte", "tib", "TiB"),
+            &Exbibyte => ("exbibyte", "Exbibyte", "eib", "EiB"),
         }
     }
 
@@ -149,10 +145,13 @@ where
     }
 }
 
-struct Fmt<F>(pub F) where F: Fn(&mut fmt::Formatter) -> fmt::Result;
+struct Fmt<F>(pub F)
+where
+    F: Fn(&mut fmt::Formatter) -> fmt::Result;
 
 impl<F> fmt::Debug for Fmt<F>
-    where F: Fn(&mut fmt::Formatter) -> fmt::Result
+where
+    F: Fn(&mut fmt::Formatter) -> fmt::Result,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         (self.0)(f)
@@ -164,7 +163,7 @@ where
     T: ToPrimitive,
 {
     pub fn bytes(&self) -> u64 {
-        use Size::*;
+        use self::Size::*;
 
         match &self {
             &Bytes(x) => x.to_f64().unwrap(),
@@ -173,14 +172,15 @@ where
             &Gigabytes(x) => x.to_f64().unwrap() * GIGABYTE as f64,
             &Terabytes(x) => x.to_f64().unwrap() * TERABYTE as f64,
             &Petabytes(x) => x.to_f64().unwrap() * PETABYTE as f64,
-            &Exabytes(x)  => x.to_f64().unwrap() * EXABYTE  as f64,
+            &Exabytes(x) => x.to_f64().unwrap() * EXABYTE as f64,
             &Kibibytes(x) => x.to_f64().unwrap() * KIBIBYTE as f64,
             &Mebibytes(x) => x.to_f64().unwrap() * MEBIBYTE as f64,
             &Gibibytes(x) => x.to_f64().unwrap() * GIBIBYTE as f64,
             &Tebibytes(x) => x.to_f64().unwrap() * TEBIBYTE as f64,
             &Pebibytes(x) => x.to_f64().unwrap() * PEBIBYTE as f64,
             &Exbibytes(x) => x.to_f64().unwrap() * EXBIBYTE as f64,
-        }.to_u64()
+        }
+        .to_u64()
         .unwrap()
     }
 
@@ -412,4 +412,3 @@ const BASE2_RULES: [FormatRule; 19] = [
         unit: Exbibyte,
     },
 ];
-
