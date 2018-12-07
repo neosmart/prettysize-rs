@@ -145,6 +145,15 @@ where
     }
 }
 
+impl<T> std::fmt::Debug for Size<T>
+where
+    T: ToPrimitive,
+{
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{} bytes", self.bytes())
+    }
+}
+
 struct Fmt<F>(pub F)
 where
     F: Fn(&mut fmt::Formatter) -> fmt::Result;
