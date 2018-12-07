@@ -154,6 +154,15 @@ where
     }
 }
 
+impl<T> PartialEq for Size<T>
+where
+    T: ToPrimitive,
+{
+    fn eq(&self, other: &Self) -> bool {
+        self.bytes() == other.bytes()
+    }
+}
+
 struct Fmt<F>(pub F)
 where
     F: Fn(&mut fmt::Formatter) -> fmt::Result;
