@@ -14,7 +14,7 @@ pub const BYTE:     u64 = 1;
 pub const KILOBYTE: u64 = 1000;
 pub const MEGABYTE: u64 = 1000 * KILOBYTE;
 pub const GIGABYTE: u64 = 1000 * MEGABYTE;
-pub const TERABYTE: u64 = 1000 * MEGABYTE;
+pub const TERABYTE: u64 = 1000 * GIGABYTE;
 pub const PETABYTE: u64 = 1000 * TERABYTE;
 pub const EXABYTE:  u64 = 1000 * PETABYTE;
 
