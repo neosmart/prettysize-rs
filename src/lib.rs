@@ -154,11 +154,12 @@ where
     }
 }
 
-impl<T> PartialEq for Size<T>
+impl<T, U> PartialEq<Size<U>> for Size<T>
 where
     T: ToPrimitive,
+    U: ToPrimitive,
 {
-    fn eq(&self, other: &Self) -> bool {
+    fn eq(&self, other: &Size<U>) -> bool {
         self.bytes() == other.bytes()
     }
 }
