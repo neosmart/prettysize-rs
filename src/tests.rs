@@ -25,3 +25,14 @@ fn size_equality() {
         "Testing equality of two identical sizes expressed in different types"
     );
 }
+
+#[test]
+fn size_addition() {
+    // as a reference...
+    let size = Size::Mebibytes(20) + &Size::Mebibytes(22);
+    assert_eq!(size, Size::Mebibytes(42));
+
+    // and not as a reference
+    let size = Size::Mebibytes(20) + Size::Mebibytes(22);
+    assert_eq!(size, Size::Mebibytes(42));
+}

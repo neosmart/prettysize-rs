@@ -1,9 +1,10 @@
+mod ops;
+#[cfg(test)]
+mod tests;
+
 use self::Unit::*;
 use num_traits::ToPrimitive;
 use std::fmt;
-
-#[cfg(test)]
-mod tests;
 
 const DEFAULT_BASE: Base = Base::Base2;
 const DEFAULT_STYLE: Style = Style::Smart;
