@@ -1,4 +1,5 @@
 use crate::Size;
+use std::str::FromStr;
 
 #[test]
 fn unit_tests() {
@@ -62,4 +63,25 @@ fn primitive_division() {
 
     let size = Size::Gigabytes(12.0) / 13;
     assert_eq!(size.bytes(), 923076923);
+}
+
+#[test]
+fn size_from_str() {
+    let size = Size::<f64>::from_str("200");
+    assert_eq!(size.unwrap(), Size::Bytes(200));
+
+    let size = Size::<f64>::from_str("200 bytes");
+    assert_eq!(size.unwrap(), Size::Bytes(200));
+
+    let size = Size::<f64>::from_str("200 KiB");
+    assert_eq!(size.unwrap(), Size::Kibibytes(200));
+
+    let size = Size::<f64>::from_str("2.50 MiB");
+    assert_eq!(size.unwrap(), Size::Kibibytes(2560));
+
+    let size = Size::<f64>::from_str("2G");
+    assert_eq!(size.unwrap(), Size::Gigabytes(2));
+
+    let size = Size::<f64>::from_str("~");
+    assert_eq!(format!("{:?}", size.err().unwrap()), "TokenError(Unmatch)");
 }

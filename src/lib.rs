@@ -1,10 +1,13 @@
 mod ops;
+mod parse;
 #[cfg(test)]
 mod tests;
 
 use self::Unit::*;
+use num_traits::FromPrimitive;
 use num_traits::ToPrimitive;
 use std::fmt;
+use std::str::FromStr;
 
 const DEFAULT_BASE: Base = Base::Base2;
 const DEFAULT_STYLE: Style = Style::Smart;
@@ -113,7 +116,7 @@ impl Unit {
     }
 }
 
-pub enum Size<T: ToPrimitive> {
+pub enum Size<T> {
     Bytes(T),
     Kibibytes(T),
     Kilobytes(T),
@@ -432,3 +435,40 @@ const BASE2_RULES: [FormatRule; 19] = [
         unit: Exbibyte,
     },
 ];
+
+impl<T> FromStr for Size<T>
+where
+    T: FromPrimitive,
+{
+    type Err = parse::ScanError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use self::Size::*;
+
+        let mut lex = parse::Lexer::new(s);
+        let num = lex.read_number()?;
+        let unit = match lex.read_unit() {
+            Err(parse::ScanError::TokenError(parse::Error::EOF)) => Ok(Unit::Byte),
+            unit @ _ => unit,
+        }?;
+        lex.read_eof()?;
+
+        let num: T = FromPrimitive::from_f64(num).unwrap();
+        let size = match unit {
+            Unit::Byte => Bytes::<T>(num),
+            Unit::Kibibyte => Kibibytes::<T>(num),
+            Unit::Kilobyte => Kilobytes::<T>(num),
+            Unit::Mebibyte => Mebibytes::<T>(num),
+            Unit::Megabyte => Megabytes::<T>(num),
+            Unit::Gibibyte => Gibibytes::<T>(num),
+            Unit::Gigabyte => Gigabytes::<T>(num),
+            Unit::Tebibyte => Tebibytes::<T>(num),
+            Unit::Terabyte => Terabytes::<T>(num),
+            Unit::Pebibyte => Pebibytes::<T>(num),
+            Unit::Petabyte => Petabytes::<T>(num),
+            Unit::Exbibyte => Exbibytes::<T>(num),
+            Unit::Exabyte => Exabytes::<T>(num),
+        };
+        Ok(size)
+    }
+}
