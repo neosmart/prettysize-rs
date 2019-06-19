@@ -19,6 +19,8 @@ between different base-two and base-ten size units.
 * an `std::Display` impl for `Size` to display sizes in a human-readable format,
 * a `Size.to_string(..)` method that allows you to specify the base of the human-readable
   units and their style (smart, abbreviated, or full and their lowercase variants)
+* parse file sizes with `FromStr`
+  (e.g. `Size::<f64>::from_str("2.50 MiB")`)
 
 ## Usage
 
@@ -71,7 +73,6 @@ released to the general public under the terms of the MIT public license.
 
 ## To-Do
 
-* Providing a `FromStr` impl to parse file sizes,
 * Implementing direct unit-to-unit conversion,
 * Implementing format specifiers to allow using `format!(..)` directly to obtain output in
   the desired base and style,
