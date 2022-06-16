@@ -1,6 +1,8 @@
 extern crate size;
+#[cfg(feature = "std")]
 use size::{Base, Size, Style};
 
+#[cfg(feature = "std")]
 fn main() {
     let byte_count = 42 * size::KiB;
     assert_eq!(43__008, byte_count);
@@ -25,3 +27,6 @@ fn main() {
     );
     // prints "42 KB, I meant!"
 }
+
+#[cfg(not(feature = "std"))]
+fn main() {}

@@ -1,12 +1,24 @@
+#![cfg_attr(not(feature = "std"), no_std)]
+
 mod ops;
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod tests_nostd;
 
+use core::fmt;
+#[cfg(feature = "std")]
 use self::Unit::*;
 use num_traits::AsPrimitive;
-use std::fmt;
 
+#[cfg(feature = "std")]
+type Underlying = f64;
+#[cfg(not(feature = "std"))]
+type Underlying = i64;
+
+#[cfg(feature = "std")]
 const DEFAULT_BASE: Base = Base::Base2;
+#[cfg(feature = "std")]
 const DEFAULT_STYLE: Style = Style::Smart;
 
 pub const BYTE: i64 = 1;
@@ -45,6 +57,7 @@ pub const PiB: i64 = PEBIBYTE;
 #[allow(non_upper_case_globals)]
 pub const EiB: i64 = EXBIBYTE;
 
+#[cfg(feature = "std")]
 pub enum Base {
     Base2,
     Base10,
@@ -66,6 +79,7 @@ pub enum Unit {
     Exabyte,
 }
 
+#[cfg(feature = "std")]
 impl Unit {
     fn text(&self) -> (&'static str, &'static str, &'static str, &'static str) {
         match &self {
@@ -149,6 +163,7 @@ impl<T> Size<T> {
     pub const fn EB(t: T) -> Self { Self::Exabytes(t) }
 }
 
+#[cfg(feature = "std")]
 pub enum Style {
     Abbreviated,
     AbbreviatedLowerCase,
@@ -157,6 +172,7 @@ pub enum Style {
     FullLowerCase,
 }
 
+#[cfg(feature = "std")]
 impl<T> std::fmt::Display for Size<T>
 where
     T: AsPrimitive<f64>,
@@ -166,9 +182,9 @@ where
     }
 }
 
-impl<T> std::fmt::Debug for Size<T>
+impl<T> core::fmt::Debug for Size<T>
 where
-    T: AsPrimitive<f64>
+    T: AsPrimitive<Underlying>
 {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         write!(fmt, "{} bytes", self.bytes())
@@ -177,8 +193,8 @@ where
 
 impl<T, U> PartialEq<Size<U>> for Size<T>
 where
-    T: AsPrimitive<f64>,
-    U: AsPrimitive<f64>,
+    T: AsPrimitive<Underlying>,
+    U: AsPrimitive<Underlying>,
 {
     fn eq(&self, other: &Size<U>) -> bool {
         self.bytes() == other.bytes()
@@ -200,32 +216,34 @@ where
 
 impl<T> Size<T>
 where
-    T: AsPrimitive<f64>
+    T: AsPrimitive<Underlying>
 {
     pub fn bytes(&self) -> i64 {
         use self::Size::*;
 
         (match &self {
             &Bytes(x) => x.as_(),
-            &Kilobytes(x) => x.as_() * KILOBYTE as f64,
-            &Megabytes(x) => x.as_() * MEGABYTE as f64,
-            &Gigabytes(x) => x.as_() * GIGABYTE as f64,
-            &Terabytes(x) => x.as_() * TERABYTE as f64,
-            &Petabytes(x) => x.as_() * PETABYTE as f64,
-            &Exabytes(x)  => x.as_() * EXABYTE  as f64,
-            &Kibibytes(x) => x.as_() * KIBIBYTE as f64,
-            &Mebibytes(x) => x.as_() * MEBIBYTE as f64,
-            &Gibibytes(x) => x.as_() * GIBIBYTE as f64,
-            &Tebibytes(x) => x.as_() * TEBIBYTE as f64,
-            &Pebibytes(x) => x.as_() * PEBIBYTE as f64,
-            &Exbibytes(x) => x.as_() * EXBIBYTE as f64,
+            &Kilobytes(x) => x.as_() * KILOBYTE as Underlying,
+            &Megabytes(x) => x.as_() * MEGABYTE as Underlying,
+            &Gigabytes(x) => x.as_() * GIGABYTE as Underlying,
+            &Terabytes(x) => x.as_() * TERABYTE as Underlying,
+            &Petabytes(x) => x.as_() * PETABYTE as Underlying,
+            &Exabytes(x)  => x.as_() * EXABYTE  as Underlying,
+            &Kibibytes(x) => x.as_() * KIBIBYTE as Underlying,
+            &Mebibytes(x) => x.as_() * MEBIBYTE as Underlying,
+            &Gibibytes(x) => x.as_() * GIBIBYTE as Underlying,
+            &Tebibytes(x) => x.as_() * TEBIBYTE as Underlying,
+            &Pebibytes(x) => x.as_() * PEBIBYTE as Underlying,
+            &Exbibytes(x) => x.as_() * EXBIBYTE as Underlying,
         }) as i64
     }
 
+    #[cfg(feature = "std")]
     pub fn to_string(&self, base: Base, style: Style) -> String {
         return format!("{:?}", Fmt(|f| self.format(f, &base, &style)));
     }
 
+    #[cfg(feature = "std")]
     fn format(&self, mut fmt: &mut fmt::Formatter, base: &Base, style: &Style) -> fmt::Result {
         let bytes = match self.bytes() {
             x@ 0.. => x,
@@ -245,13 +263,13 @@ where
         const BASE10_TEMP: usize = BASE10_RULES.len() - 1;
         let rule = match base {
             Base::Base2 => match BASE2_RULES.binary_search_by_key(&bytes, |rule| rule.less_than) {
-                Ok(BASE2_TEMP) => &BASE2_RULES[BASE2_RULES.len() - 1],
+                Ok(BASE2_TEMP) => &BASE2_RULES[BASE2_TEMP],
                 Ok(index) => &BASE2_RULES[index + 1],
                 Err(index) => &BASE2_RULES[index],
             },
             Base::Base10 => {
                 match BASE10_RULES.binary_search_by_key(&bytes, |rule| rule.less_than) {
-                    Ok(BASE10_TEMP) => &BASE10_RULES[BASE10_RULES.len() - 1],
+                    Ok(BASE10_TEMP) => &BASE10_RULES[BASE10_TEMP],
                     Ok(index) => &BASE10_RULES[index + 1],
                     Err(index) => &BASE10_RULES[index],
                 }
@@ -265,18 +283,15 @@ where
     }
 }
 
+#[cfg(feature = "std")]
 struct FormatRule {
     less_than: i64,
     formatter: fn(&mut fmt::Formatter, bytes: i64) -> fmt::Result,
     unit: Unit,
 }
 
-const BASE10_RULES: [FormatRule; 18] = [
-    FormatRule {
-        less_than: 0,
-        formatter: |_, _| unreachable!("format for less than zero!"),
-        unit: Byte,
-    },
+#[cfg(feature = "std")]
+const BASE10_RULES: [FormatRule; 17] = [
     FormatRule {
         less_than: 1 * KILOBYTE,
         formatter: |fmt, bytes| write!(fmt, "{:.0}", bytes),
@@ -364,12 +379,8 @@ const BASE10_RULES: [FormatRule; 18] = [
     },
 ];
 
-const BASE2_RULES: [FormatRule; 18] = [
-    FormatRule {
-        less_than: 0,
-        formatter: |_, _| unreachable!("format for less than zero!"),
-        unit: Byte,
-    },
+#[cfg(feature = "std")]
+const BASE2_RULES: [FormatRule; 17] = [
     FormatRule {
         less_than: 1 * KIBIBYTE,
         formatter: |fmt, bytes| write!(fmt, "{:.0}", bytes),

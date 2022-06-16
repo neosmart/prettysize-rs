@@ -3,20 +3,14 @@
 //! them. Meanwhile, `17MiB / 2` is perfectly rational, but `12KB + 14` isn't (the RHS unit isn't
 //! defined).
 
-use crate::Size;
+use crate::{Size, Underlying};
 use core::ops::{Add, Div, Mul, Sub};
 use num_traits::AsPrimitive;
 
-trait PrimFloat {
-}
-
-impl PrimFloat for f32 {}
-impl PrimFloat for f64 {}
-
 impl<T, U> Add<&Size<U>> for &Size<T>
 where
-    T: AsPrimitive<f64>,
-    U: AsPrimitive<f64>,
+    T: AsPrimitive<Underlying>,
+    U: AsPrimitive<Underlying>,
 {
     type Output = Size<i64>;
 
@@ -27,8 +21,8 @@ where
 
 impl<T, U> Add<Size<U>> for &Size<T>
 where
-    T: AsPrimitive<f64>,
-    U: AsPrimitive<f64>,
+    T: AsPrimitive<Underlying>,
+    U: AsPrimitive<Underlying>,
 {
     type Output = Size<i64>;
 
@@ -39,8 +33,8 @@ where
 
 impl<T, U> Add<&Size<U>> for Size<T>
 where
-    T: AsPrimitive<f64>,
-    U: AsPrimitive<f64>,
+    T: AsPrimitive<Underlying>,
+    U: AsPrimitive<Underlying>,
 {
     type Output = Size<i64>;
 
@@ -51,8 +45,8 @@ where
 
 impl<T, U> Add<Size<U>> for Size<T>
 where
-    T: AsPrimitive<f64>,
-    U: AsPrimitive<f64>,
+    T: AsPrimitive<Underlying>,
+    U: AsPrimitive<Underlying>,
 {
     type Output = Size<i64>;
 
@@ -63,8 +57,8 @@ where
 
 impl<T, U> Sub<&Size<U>> for &Size<T>
 where
-    T: AsPrimitive<f64>,
-    U: AsPrimitive<f64>,
+    T: AsPrimitive<Underlying>,
+    U: AsPrimitive<Underlying>,
 {
     type Output = Size<i64>;
 
@@ -75,8 +69,8 @@ where
 
 impl<T, U> Sub<Size<U>> for &Size<T>
 where
-    T: AsPrimitive<f64>,
-    U: AsPrimitive<f64>,
+    T: AsPrimitive<Underlying>,
+    U: AsPrimitive<Underlying>,
 {
     type Output = Size<i64>;
 
@@ -87,8 +81,8 @@ where
 
 impl<T, U> Sub<&Size<U>> for Size<T>
 where
-    T: AsPrimitive<f64>,
-    U: AsPrimitive<f64>,
+    T: AsPrimitive<Underlying>,
+    U: AsPrimitive<Underlying>,
 {
     type Output = Size<i64>;
 
@@ -99,8 +93,8 @@ where
 
 impl<T, U> Sub<Size<U>> for Size<T>
 where
-    T: AsPrimitive<f64>,
-    U: AsPrimitive<f64>,
+    T: AsPrimitive<Underlying>,
+    U: AsPrimitive<Underlying>,
 {
     type Output = Size<i64>;
 
@@ -111,25 +105,25 @@ where
 
 impl<T, U> Mul<U> for Size<T>
 where
-    T: AsPrimitive<f64>,
-    U: AsPrimitive<f64>,
+    T: AsPrimitive<Underlying>,
+    U: AsPrimitive<Underlying>,
 {
     type Output = Size<i64>;
 
     fn mul(self, other: U) -> Self::Output {
-        Size::Bytes((self.bytes() as f64 * other.as_()) as i64)
+        Size::Bytes((self.bytes() as Underlying * other.as_()) as i64)
     }
 }
 
 impl<T, U> Mul<U> for &Size<T>
 where
-    T: AsPrimitive<f64>,
-    U: AsPrimitive<f64>,
+    T: AsPrimitive<Underlying>,
+    U: AsPrimitive<Underlying>,
 {
     type Output = Size<i64>;
 
     fn mul(self, other: U) -> Self::Output {
-        Size::Bytes((self.bytes() as f64 * other.as_()) as i64)
+        Size::Bytes((self.bytes() as Underlying * other.as_()) as i64)
     }
 }
 
@@ -137,7 +131,7 @@ where
 /// multiplication should be commutative.
 impl<T> Mul<Size<T>> for i64
 where
-    T: AsPrimitive<f64>,
+    T: AsPrimitive<Underlying>,
 {
     type Output = Size<i64>;
 
@@ -150,7 +144,7 @@ where
 /// multiplication should be commutative.
 impl<T> Mul<&Size<T>> for i64
 where
-    T: AsPrimitive<f64>,
+    T: AsPrimitive<Underlying>,
 {
     type Output = Size<i64>;
 
@@ -161,9 +155,10 @@ where
 
 /// Defined to allow multiplying an untyped number by a Size<T>, because
 /// multiplication should be commutative.
+#[cfg(feature = "std")]
 impl<T> Mul<Size<T>> for f64
 where
-    T: AsPrimitive<f64>,
+    T: AsPrimitive<Underlying>,
 {
     type Output = Size<i64>;
 
@@ -174,9 +169,10 @@ where
 
 /// Defined to allow multiplying an untyped number by a Size<T>, because
 /// multiplication should be commutative.
+#[cfg(feature = "std")]
 impl<T> Mul<&Size<T>> for f64
 where
-    T: AsPrimitive<f64>,
+    T: AsPrimitive<Underlying>,
 {
     type Output = Size<i64>;
 
@@ -187,24 +183,24 @@ where
 
 impl<T, U> Div<U> for &Size<T>
 where
-    T: AsPrimitive<f64>,
-    U: AsPrimitive<f64>,
+    T: AsPrimitive<Underlying>,
+    U: AsPrimitive<Underlying>,
 {
     type Output = Size<i64>;
 
     fn div(self, other: U) -> Self::Output {
-        Size::Bytes((self.bytes() as f64 / other.as_()) as i64)
+        Size::Bytes((self.bytes() as Underlying / other.as_()) as i64)
     }
 }
 
 impl<T, U> Div<U> for Size<T>
 where
-    T: AsPrimitive<f64>,
-    U: AsPrimitive<f64>,
+    T: AsPrimitive<Underlying>,
+    U: AsPrimitive<Underlying>,
 {
     type Output = Size<i64>;
 
     fn div(self, other: U) -> Self::Output {
-        Size::Bytes((self.bytes() as f64 / other.as_()) as i64)
+        Size::Bytes((self.bytes() as Underlying / other.as_()) as i64)
     }
 }
