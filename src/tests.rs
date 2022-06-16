@@ -8,6 +8,13 @@ fn unit_tests() {
 }
 
 #[test]
+fn negative_tests() {
+    assert_eq!("-200 bytes", format!("{}", Size::Bytes(-200)));
+    assert_eq!("-200 KiB", format!("{}", Size::Kibibytes(-200)));
+    assert_eq!("-2.00 MiB", format!("{}", Size::Kibibytes(-2048)));
+}
+
+#[test]
 fn size_equality() {
     assert_eq!(
         Size::Bytes(200),
@@ -51,7 +58,7 @@ fn primitive_multiplication() {
     // and with other types
     let size = &Size::Gigabytes(12) * 7.0;
     assert_eq!(size.bytes(), 84000000000);
-    let size = 7.0 * Size::Gigabytes(12);
+    let size = 7.0 * &Size::Gigabytes(12);
     assert_eq!(size.bytes(), 84000000000);
 }
 
