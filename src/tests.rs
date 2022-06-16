@@ -15,6 +15,15 @@ fn negative_tests() {
 }
 
 #[test]
+fn integral_limits() {
+    assert_eq!("8 EiB", format!("{}", Size::Bytes(i64::max_value())));
+    assert_eq!("-8 EiB", format!("{}", Size::Bytes(i64::min_value())));
+
+    assert_eq!("8 EiB", format!("{}", Size::Bytes(u64::max_value())));
+    assert_eq!("0 bytes", format!("{}", Size::Bytes(u64::min_value())));
+}
+
+#[test]
 fn size_equality() {
     assert_eq!(
         Size::Bytes(200),

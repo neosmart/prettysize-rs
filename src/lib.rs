@@ -225,17 +225,27 @@ where
             x@ 0.. => x,
             y => {
                 write!(fmt, "-")?;
-                y.abs()
+
+                // The absolute magnitude of T::min_value() for a signed number is one more than
+                // that of T::max_value(), meaning T::min_value().abs() will panic.
+                match y.checked_abs() {
+                    Some(abs) => abs,
+                    None => i64::max_value(),
+                }
             }
         };
 
+        const BASE2_TEMP: usize = BASE2_RULES.len() - 1;
+        const BASE10_TEMP: usize = BASE10_RULES.len() - 1;
         let rule = match base {
             Base::Base2 => match BASE2_RULES.binary_search_by_key(&bytes, |rule| rule.less_than) {
+                Ok(BASE2_TEMP) => &BASE2_RULES[BASE2_RULES.len() - 1],
                 Ok(index) => &BASE2_RULES[index + 1],
                 Err(index) => &BASE2_RULES[index],
             },
             Base::Base10 => {
                 match BASE10_RULES.binary_search_by_key(&bytes, |rule| rule.less_than) {
+                    Ok(BASE10_TEMP) => &BASE10_RULES[BASE10_RULES.len() - 1],
                     Ok(index) => &BASE10_RULES[index + 1],
                     Err(index) => &BASE10_RULES[index],
                 }
