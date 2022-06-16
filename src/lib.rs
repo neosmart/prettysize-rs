@@ -114,33 +114,39 @@ impl Unit {
 }
 
 #[derive(Copy, Clone)]
+#[non_exhaustive]
 pub enum Size<T> {
-    B(T),
     Bytes(T),
-    KiB(T),
     Kibibytes(T),
-    KB(T),
     Kilobytes(T),
-    MiB(T),
     Mebibytes(T),
-    MB(T),
     Megabytes(T),
-    GiB(T),
     Gibibytes(T),
-    GB(T),
     Gigabytes(T),
-    TiB(T),
     Tebibytes(T),
-    TB(T),
     Terabytes(T),
-    PiB(T),
     Pebibytes(T),
-    PB(T),
     Petabytes(T),
-    EiB(T),
     Exbibytes(T),
-    EB(T),
     Exabytes(T),
+}
+
+impl<T> Size<T> {
+    #![allow(non_snake_case)]
+
+    pub const fn B(t: T) -> Self { Self::Bytes(t) }
+    pub const fn KiB(t: T) -> Self { Self::Kibibytes(t) }
+    pub const fn KB(t: T) -> Self { Self::Kilobytes(t) }
+    pub const fn MiB(t: T) -> Self { Self::Mebibytes(t) }
+    pub const fn MB(t: T) -> Self { Self::Megabytes(t) }
+    pub const fn GiB(t: T) -> Self { Self::Gibibytes(t) }
+    pub const fn GB(t: T) -> Self { Self::Gigabytes(t) }
+    pub const fn TiB(t: T) -> Self { Self::Tebibytes(t) }
+    pub const fn TB(t: T) -> Self { Self::Terabytes(t) }
+    pub const fn PiB(t: T) -> Self { Self::Pebibytes(t) }
+    pub const fn PB(t: T) -> Self { Self::Petabytes(t) }
+    pub const fn EiB(t: T) -> Self { Self::Exbibytes(t) }
+    pub const fn EB(t: T) -> Self { Self::Exabytes(t) }
 }
 
 pub enum Style {
@@ -200,19 +206,19 @@ where
         use self::Size::*;
 
         (match &self {
-            &Bytes(x) | &B(x) => x.as_(),
-            &Kilobytes(x) | &KB(x) => x.as_() * KILOBYTE as f64,
-            &Megabytes(x) | &MB(x) => x.as_() * MEGABYTE as f64,
-            &Gigabytes(x) | &GB(x) => x.as_() * GIGABYTE as f64,
-            &Terabytes(x) | &TB(x) => x.as_() * TERABYTE as f64,
-            &Petabytes(x) | &PB(x) => x.as_() * PETABYTE as f64,
-            &Exabytes(x)  | &EB(x) => x.as_() * EXABYTE  as f64,
-            &Kibibytes(x) | &KiB(x) => x.as_() * KIBIBYTE as f64,
-            &Mebibytes(x) | &MiB(x) => x.as_() * MEBIBYTE as f64,
-            &Gibibytes(x) | &GiB(x) => x.as_() * GIBIBYTE as f64,
-            &Tebibytes(x) | &TiB(x) => x.as_() * TEBIBYTE as f64,
-            &Pebibytes(x) | &PiB(x) => x.as_() * PEBIBYTE as f64,
-            &Exbibytes(x) | &EiB(x) => x.as_() * EXBIBYTE as f64,
+            &Bytes(x) => x.as_(),
+            &Kilobytes(x) => x.as_() * KILOBYTE as f64,
+            &Megabytes(x) => x.as_() * MEGABYTE as f64,
+            &Gigabytes(x) => x.as_() * GIGABYTE as f64,
+            &Terabytes(x) => x.as_() * TERABYTE as f64,
+            &Petabytes(x) => x.as_() * PETABYTE as f64,
+            &Exabytes(x)  => x.as_() * EXABYTE  as f64,
+            &Kibibytes(x) => x.as_() * KIBIBYTE as f64,
+            &Mebibytes(x) => x.as_() * MEBIBYTE as f64,
+            &Gibibytes(x) => x.as_() * GIBIBYTE as f64,
+            &Tebibytes(x) => x.as_() * TEBIBYTE as f64,
+            &Pebibytes(x) => x.as_() * PEBIBYTE as f64,
+            &Exbibytes(x) => x.as_() * EXBIBYTE as f64,
         }) as i64
     }
 
