@@ -3,7 +3,7 @@ mod ops;
 mod tests;
 
 use self::Unit::*;
-use num_traits::ToPrimitive;
+use num_traits::AsPrimitive;
 use std::fmt;
 
 const DEFAULT_BASE: Base = Base::Base2;
@@ -76,7 +76,7 @@ impl Unit {
             &Gigabyte => ("gigabyte", "Gigabyte", "gb", "GB"),
             &Terabyte => ("terabyte", "Terabyte", "tb", "TB"),
             &Petabyte => ("petabyte", "Petabyte", "pb", "PB"),
-            &Exabyte => ("exabyte", "Exabyte", "eb", "EB"),
+            &Exabyte  => ("exabyte",  "Exabyte",  "eb", "EB"),
 
             &Kibibyte => ("kibibyte", "Kibibyte", "kib", "KiB"),
             &Mebibyte => ("mebibyte", "Mebibyte", "mib", "MiB"),
@@ -113,7 +113,7 @@ impl Unit {
     }
 }
 
-pub enum Size<T: ToPrimitive> {
+pub enum Size<T> {
     Bytes(T),
     Kibibytes(T),
     Kilobytes(T),
@@ -139,7 +139,7 @@ pub enum Style {
 
 impl<T> std::fmt::Display for Size<T>
 where
-    T: ToPrimitive,
+    T: AsPrimitive<f64>,
 {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         self.format(fmt, &DEFAULT_BASE, &DEFAULT_STYLE)
@@ -148,7 +148,7 @@ where
 
 impl<T> std::fmt::Debug for Size<T>
 where
-    T: ToPrimitive,
+    T: AsPrimitive<f64>
 {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         write!(fmt, "{} bytes", self.bytes())
@@ -157,8 +157,8 @@ where
 
 impl<T, U> PartialEq<Size<U>> for Size<T>
 where
-    T: ToPrimitive,
-    U: ToPrimitive,
+    T: AsPrimitive<f64>,
+    U: AsPrimitive<f64>,
 {
     fn eq(&self, other: &Size<U>) -> bool {
         self.bytes() == other.bytes()
@@ -180,28 +180,26 @@ where
 
 impl<T> Size<T>
 where
-    T: ToPrimitive,
+    T: AsPrimitive<f64>
 {
     pub fn bytes(&self) -> u64 {
         use self::Size::*;
 
-        match &self {
-            &Bytes(x) => x.to_f64().unwrap(),
-            &Kilobytes(x) => x.to_f64().unwrap() * KILOBYTE as f64,
-            &Megabytes(x) => x.to_f64().unwrap() * MEGABYTE as f64,
-            &Gigabytes(x) => x.to_f64().unwrap() * GIGABYTE as f64,
-            &Terabytes(x) => x.to_f64().unwrap() * TERABYTE as f64,
-            &Petabytes(x) => x.to_f64().unwrap() * PETABYTE as f64,
-            &Exabytes(x) => x.to_f64().unwrap() * EXABYTE as f64,
-            &Kibibytes(x) => x.to_f64().unwrap() * KIBIBYTE as f64,
-            &Mebibytes(x) => x.to_f64().unwrap() * MEBIBYTE as f64,
-            &Gibibytes(x) => x.to_f64().unwrap() * GIBIBYTE as f64,
-            &Tebibytes(x) => x.to_f64().unwrap() * TEBIBYTE as f64,
-            &Pebibytes(x) => x.to_f64().unwrap() * PEBIBYTE as f64,
-            &Exbibytes(x) => x.to_f64().unwrap() * EXBIBYTE as f64,
-        }
-        .to_u64()
-        .unwrap()
+        (match &self {
+            &Bytes(x) => x.as_(),
+            &Kilobytes(x) => x.as_() * KILOBYTE as f64,
+            &Megabytes(x) => x.as_() * MEGABYTE as f64,
+            &Gigabytes(x) => x.as_() * GIGABYTE as f64,
+            &Terabytes(x) => x.as_() * TERABYTE as f64,
+            &Petabytes(x) => x.as_() * PETABYTE as f64,
+            &Exabytes(x)  => x.as_() * EXABYTE  as f64,
+            &Kibibytes(x) => x.as_() * KIBIBYTE as f64,
+            &Mebibytes(x) => x.as_() * MEBIBYTE as f64,
+            &Gibibytes(x) => x.as_() * GIBIBYTE as f64,
+            &Tebibytes(x) => x.as_() * TEBIBYTE as f64,
+            &Pebibytes(x) => x.as_() * PEBIBYTE as f64,
+            &Exbibytes(x) => x.as_() * EXBIBYTE as f64,
+        }) as u64
     }
 
     pub fn to_string(&self, base: Base, style: Style) -> String {

@@ -33,7 +33,7 @@ fn size_addition() {
     assert_eq!(size, Size::Mebibytes(42));
 
     // and not as a reference
-    let size = Size::Mebibytes(20) + Size::Mebibytes(22);
+    let size = Size::Mebibytes(20) + Size::Mebibytes(22_f64);
     assert_eq!(size, Size::Mebibytes(42));
 }
 
