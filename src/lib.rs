@@ -95,14 +95,14 @@ impl Unit {
             },
             style @ _ => match bytes {
                 1 => match style {
-                    Style::Smart => panic!("already covered above"),
+                    Style::Smart => unreachable!("already covered above"),
                     Style::FullLowerCase => write!(fmt, " {}", self.text().0),
                     Style::Full => write!(fmt, " {}", self.text().1),
                     Style::AbbreviatedLowerCase => write!(fmt, " {}", self.text().2),
                     Style::Abbreviated => write!(fmt, " {}", self.text().3),
                 },
                 _ => match style {
-                    Style::Smart => panic!("already covered above"),
+                    Style::Smart => unreachable!("already covered above"),
                     Style::FullLowerCase => write!(fmt, " {}s", self.text().0),
                     Style::Full => write!(fmt, " {}s", self.text().1),
                     Style::AbbreviatedLowerCase => write!(fmt, " {}", self.text().2),
