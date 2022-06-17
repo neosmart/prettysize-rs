@@ -4,7 +4,7 @@ use size::{Base, Size, Style};
 
 #[cfg(feature = "std")]
 fn main() {
-    let byte_count = 42 * size::KiB;
+    let byte_count = 42 * size::consts::KiB;
     assert_eq!(43__008, byte_count);
 
     let byte_count = Size::Kilobytes(42);

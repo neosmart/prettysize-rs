@@ -42,6 +42,22 @@ fn size_equality() {
         Size::Mebibytes(2f64),
         "Testing equality of two identical sizes expressed in different types"
     );
+    assert_eq!(
+        Size::Kibibytes(2u8),
+        Size::Kilobytes(2.048),
+        "Testing equality of two identical sizes expressed in different types"
+    );
+    assert_eq!(
+        &Size::Kibibytes(2u8),
+        &Size::Kilobytes(2.048),
+        "Testing equality of two Size references"
+    );
+}
+
+#[test]
+fn size_cmp() {
+    assert!(Size::Bytes(1) > Size::Bytes(0), "Comparison of two Size types directly");
+    assert!(&Size::KiB(1) >= &Size::KB(1), "Comparison of two Size types via their references");
 }
 
 #[test]
@@ -80,4 +96,32 @@ fn primitive_division() {
 
     let size = Size::Gigabytes(12.0) / 13;
     assert_eq!(size.bytes(), 923076923);
+}
+
+/// Floats that cannot be expressed as an `i64` may be instantiated, but give undefined results
+/// when operated on.
+#[test]
+fn nan_size() {
+    let size = Size::Bytes(f32::NAN);
+    let _ = size + Size::Bytes(1);
+    let _ = format!("{}", size);
+}
+
+/// Floats that cannot be expressed as an `i64` may be instantiated, but give undefined results
+/// when operated on. The code below panics in debug mode but continues with undefined results in
+/// release mode.
+#[test]
+fn overflow_size() {
+    use std::panic;
+
+    // This value is well out of the range of an i64, but is a perfectly valid floating point value.
+    let result = panic::catch_unwind(|| {
+        let _ = Size::Bytes(7.3E200_f64) + Size::KiB(2);
+    });
+
+    if cfg!(debug_assertions) {
+        assert!(result.is_err());
+    } else {
+        assert!(result.is_ok());
+    }
 }

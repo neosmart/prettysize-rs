@@ -3,11 +3,11 @@
 extern crate size;
 
 #[cfg(feature = "std")]
-use size::{MiB, Size};
+use size::{Size, consts};
 
 #[cfg(feature = "std")]
 fn main() {
-    let bytes = 42 * MiB;
+    let bytes = 42 * consts::MiB;
     assert_eq!(bytes, 44040192);
 
     let bytes = Size::Mebibytes(42);
