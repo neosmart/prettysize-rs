@@ -1,13 +1,13 @@
 # PrettySize, rust edition
 
-[![crates.io](https://img.shields.io/crates/v/size.svg)](https://crates.io/crates/size) [![docs.rs](https://docs.rs/size/badge.svg)](https://docs.rs/crate/size)
+[![crates.io](https://img.shields.io/crates/v/size.svg)](https://crates.io/crates/size) [![docs.rs](https://docs.rs/size/badge.svg)](https://docs.rs/size/latest/size/)
 
 A comprehensive file size crate for rust applications, meant to be light and effective.
 Includes utilities for human-readable formatting of file sizes as well as converting
 between different base-two and base-ten size units and performing both mathematical and
 logical operations on strongly-typed file sizes.
 
-[See the crate documentation](https://docs.rs/crate/size) for a more complete summary of
+[See the crate documentation](https://docs.rs/size/latest/size/) for a more complete summary of
 what this crate can do and how to use it.
 
 ## Features
