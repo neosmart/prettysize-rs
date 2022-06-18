@@ -169,7 +169,7 @@ pub mod consts {
     pub const MB: i64 = MEGABYTE;
     /// Abbreviated base-10 "gigabyte" constant, equal to 1000 megabytes. Identical to [`GIGABYTE`].
     pub const GB: i64 = GIGABYTE;
-    /// Abbreviated base-10 "terabyte" constant, equal to 1000 megabytes. Identical to [`TERABYTE`].
+    /// Abbreviated base-10 "terabyte" constant, equal to 1000 gigabytes. Identical to [`TERABYTE`].
     pub const TB: i64 = TERABYTE;
     /// Abbreviated base-10 "petabyte" constant, equal to 1000 terabytes. Identical to [`PETABYTE`].
     pub const PB: i64 = PETABYTE;
@@ -189,17 +189,17 @@ pub mod consts {
     /// Base-2 "exbibyte" constant, equal to 2^60 bytes.
     pub const EXBIBYTE: i64 = 1 << 60;
 
-    /// Abbreviated base-2 "kibibyte" constant, equal to 1000 bytes. Identical to [`KIBIBYTE`].
+    /// Abbreviated base-2 "kibibyte" constant, equal to 1024 bytes. Identical to [`KIBIBYTE`].
     pub const KiB: i64 = KIBIBYTE;
-    /// Abbreviated base-2 "mebibyte" constant, equal to 1000 kilobytes. Identical to [`MEBIBYTE`].
+    /// Abbreviated base-2 "mebibyte" constant, equal to 1024 kibibytes. Identical to [`MEBIBYTE`].
     pub const MiB: i64 = MEBIBYTE;
-    /// Abbreviated base-2 "gibibyte" constant, equal to 1000 megabytes. Identical to [`GIBIBYTE`].
+    /// Abbreviated base-2 "gibibyte" constant, equal to 1024 mebibytes. Identical to [`GIBIBYTE`].
     pub const GiB: i64 = GIBIBYTE;
-    /// Abbreviated base-2 "tebibyte" constant, equal to 1000 megabytes. Identical to [`TEBIBYTE`].
+    /// Abbreviated base-2 "tebibyte" constant, equal to 1024 gibibytes. Identical to [`TEBIBYTE`].
     pub const TiB: i64 = TEBIBYTE;
-    /// Abbreviated base-2 "pebibyte" constant, equal to 1000 terabytes. Identical to [`PEBIBYTE`].
+    /// Abbreviated base-2 "pebibyte" constant, equal to 1024 tebibytes. Identical to [`PEBIBYTE`].
     pub const PiB: i64 = PEBIBYTE;
-    /// Abbreviated base-2 "exbibyte" constant, equal to 1000 petabytes. Identical to [`EXBIBYTE`].
+    /// Abbreviated base-2 "exbibyte" constant, equal to 1024 pebibytes. Identical to [`EXBIBYTE`].
     pub const EiB: i64 = EXBIBYTE;
 }
 
@@ -234,7 +234,7 @@ pub enum Unit {
     Gibibyte,
     /// The base-10 "gigabyte" unit, equal to 1000 megabytes.
     Gigabyte,
-    /// The base-2 "tebibyte" unit, equal to 1024 mebibytes.
+    /// The base-2 "tebibyte" unit, equal to 1024 gibibytes.
     Tebibyte,
     /// The base-10 "terabyte" unit, equal to 1000 gigabytes.
     Terabyte,
