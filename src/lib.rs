@@ -244,6 +244,7 @@ pub mod consts {
 /// [`Base::Base10`] is the "usual" units like [`Unit::Kilobyte`] and [`Unit::Exabyte`], while
 /// [`Base::Base2`] is the SI/memory units like [`Unit::Mebibyte`] and [`Unit::Tebibyte`], (more
 /// often referred to as "MiB" and "TiB", respectively).
+#[non_exhaustive]
 #[cfg(feature = "std")]
 pub enum Base {
     /// Base-2 units like [`Unit::Kibibyte`] and [`Unit::Mebibyte`], more often referred to via
@@ -256,6 +257,7 @@ pub enum Base {
 }
 
 /// A collection of units used to refer to sizes, for all supported bases.
+#[non_exhaustive]
 pub enum Unit {
     /// The basic "byte" unit, used by both base-2 and base-10 styles.
     Byte,
