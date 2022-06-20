@@ -130,7 +130,7 @@ use core::fmt;
 #[cfg(feature = "std")]
 use self::Unit::*;
 use self::consts::*;
-use num_traits::AsPrimitive;
+use crate::sealed::AsIntermediate;
 
 #[cfg(feature = "std")]
 type Intermediate = f64;
@@ -142,35 +142,44 @@ const DEFAULT_BASE: Base = Base::Base2;
 #[cfg(feature = "std")]
 const DEFAULT_STYLE: Style = Style::Smart;
 
-// pub trait AsI64 {
-//     fn as_i64(&self) -> i64;
-// }
-//
-// macro_rules! as_i64 {
-//     ($type:ty) => {
-//         impl AsI64 for $type {
-//             fn as_i64(&self) -> i64 { *self as i64 }
-//         }
-//     }
-// }
-//
-// as_i64!(u8);
-// as_i64!(u16);
-// as_i64!(u32);
-// as_i64!(i8);
-// as_i64!(i16);
-// as_i64!(i32);
-// as_i64!(i64);
-//
-// impl AsI64 for u64 {
-//     fn as_i64(&self) -> i64 {
-//         const TEMP: u64 = i64::MAX as u64;
-//         match *self {
-//             0..=TEMP => *self as i64,
-//             _ => i64::MAX,
-//         }
-//     }
-// }
+mod sealed {
+    use super::Intermediate;
+
+    pub trait AsIntermediate: Sized {
+        fn as_(self) -> Intermediate;
+    }
+
+    macro_rules! as_intermediate {
+        ($type:ty) => {
+            impl AsIntermediate for $type {
+                fn as_(self) -> Intermediate { self as Intermediate }
+            }
+        };
+        ($type:ty, true) => {
+            impl AsIntermediate for $type {
+                fn as_(self) -> Intermediate {
+                    const MIN: $type = Intermediate::MIN as $type;
+                    const MAX: $type = Intermediate::MAX as $type;
+
+                    if self < MIN { MIN as Intermediate }
+                    else if self > MAX { MAX as Intermediate }
+                    else { self as Intermediate }
+                }
+            }
+        };
+    }
+
+    as_intermediate!(u8);
+    as_intermediate!(u16);
+    as_intermediate!(u32);
+    as_intermediate!(u64);
+    as_intermediate!(i8);
+    as_intermediate!(i16);
+    as_intermediate!(i32);
+    as_intermediate!(i64);
+    as_intermediate!(f32);
+    as_intermediate!(f64);
+}
 
 /// A collection of constants for base-2 and base-10 units.
 pub mod consts {
@@ -372,42 +381,42 @@ impl Size {
     }
 
     /// Express a size in kilobytes. Actual size is 10^3 \* the value.
-    pub fn from_kilobytes<T: AsPrimitive<Intermediate>>(value: T) -> Self {
+    pub fn from_kilobytes<T: AsIntermediate>(value: T) -> Self {
         Self {
             bytes: (value.as_() * KILOBYTE as Intermediate) as i64
         }
     }
 
     /// Express a size in megabytes. Actual size is 10^6 \* the value.
-    pub fn from_megabytes<T: AsPrimitive<Intermediate>>(value: T) -> Self {
+    pub fn from_megabytes<T: AsIntermediate>(value: T) -> Self {
         Self {
             bytes: (value.as_() * MEGABYTE as Intermediate) as i64
         }
     }
 
     /// Express a size in gigabytes. Actual size is 10^9 \* the value.
-    pub fn from_gigabytes<T: AsPrimitive<Intermediate>>(value: T) -> Self {
+    pub fn from_gigabytes<T: AsIntermediate>(value: T) -> Self {
         Self {
             bytes: (value.as_() * GIGABYTE as Intermediate) as i64
         }
     }
 
     /// Express a size in terabytes. Actual size is 10^12 \* the value.
-    pub fn from_terabytes<T: AsPrimitive<Intermediate>>(value: T) -> Self {
+    pub fn from_terabytes<T: AsIntermediate>(value: T) -> Self {
         Self {
             bytes: (value.as_() * TERABYTE as Intermediate) as i64
         }
     }
 
     /// Express a size in petabytes. Actual size is 10^15 \* the value.
-    pub fn from_petabytes<T: AsPrimitive<Intermediate>>(value: T) -> Self {
+    pub fn from_petabytes<T: AsIntermediate>(value: T) -> Self {
         Self {
             bytes: (value.as_() * PETABYTE as Intermediate) as i64
         }
     }
 
     /// Express a size in exabytes. Actual size is 10^18 \* the value.
-    pub fn from_exabytes<T: AsPrimitive<Intermediate>>(value: T) -> Self {
+    pub fn from_exabytes<T: AsIntermediate>(value: T) -> Self {
         Self {
             bytes: (value.as_() * EXABYTE as Intermediate) as i64
         }
@@ -415,60 +424,60 @@ impl Size {
 
     #[inline]
     /// Express a size in kilobytes, as a shortcut for using [`Size::from_kilobytes()`].
-    pub fn from_kb<T: AsPrimitive<Intermediate>>(value: T) -> Self { Self::from_kilobytes(value) }
+    pub fn from_kb<T: AsIntermediate>(value: T) -> Self { Self::from_kilobytes(value) }
     #[inline]
     /// Express a size in megabytes, as a shortcut for using [`Size::from_megabytes()`].
-    pub fn from_mb<T: AsPrimitive<Intermediate>>(value: T) -> Self { Self::from_megabytes(value) }
+    pub fn from_mb<T: AsIntermediate>(value: T) -> Self { Self::from_megabytes(value) }
     #[inline]
     /// Express a size in gigabytes, as a shortcut for using [`Size::from_gigabytes()`].
-    pub fn from_gb<T: AsPrimitive<Intermediate>>(value: T) -> Self { Self::from_gigabytes(value) }
+    pub fn from_gb<T: AsIntermediate>(value: T) -> Self { Self::from_gigabytes(value) }
     #[inline]
     /// Express a size in terabytes, as a shortcut for using [`Size::from_terabytes()`].
-    pub fn from_tb<T: AsPrimitive<Intermediate>>(value: T) -> Self { Self::from_terabytes(value) }
+    pub fn from_tb<T: AsIntermediate>(value: T) -> Self { Self::from_terabytes(value) }
     #[inline]
     /// Express a size in petabytes, as a shortcut for using [`Size::from_petabytes()`].
-    pub fn from_pb<T: AsPrimitive<Intermediate>>(value: T) -> Self { Self::from_petabytes(value) }
+    pub fn from_pb<T: AsIntermediate>(value: T) -> Self { Self::from_petabytes(value) }
     #[inline]
     /// Express a size in exabytes, as a shortcut for using [`Size::from_exabytes()`].
-    pub fn from_eb<T: AsPrimitive<Intermediate>>(value: T) -> Self { Self::from_exabytes(value) }
+    pub fn from_eb<T: AsIntermediate>(value: T) -> Self { Self::from_exabytes(value) }
 
     /// Express a size in kibibytes. Actual size is 2^10 \* the value.
-    pub fn from_kibibytes<T: AsPrimitive<Intermediate>>(value: T) -> Self {
+    pub fn from_kibibytes<T: AsIntermediate>(value: T) -> Self {
         Self {
             bytes: (value.as_() * KIBIBYTE as Intermediate) as i64
         }
     }
 
     /// Express a size in mebibytes. Actual size is 2^20 \* the value.
-    pub fn from_mebibytes<T: AsPrimitive<Intermediate>>(value: T) -> Self {
+    pub fn from_mebibytes<T: AsIntermediate>(value: T) -> Self {
         Self {
             bytes: (value.as_() * MEBIBYTE as Intermediate) as i64
         }
     }
 
     /// Express a size in gibibytes. Actual size is 2^30 \* the value.
-    pub fn from_gibibytes<T: AsPrimitive<Intermediate>>(value: T) -> Self {
+    pub fn from_gibibytes<T: AsIntermediate>(value: T) -> Self {
         Self {
             bytes: (value.as_() * GIBIBYTE as Intermediate) as i64
         }
     }
 
     /// Express a size in tebibytes. Actual size is 2^40 \* the value.
-    pub fn from_tebibytes<T: AsPrimitive<Intermediate>>(value: T) -> Self {
+    pub fn from_tebibytes<T: AsIntermediate>(value: T) -> Self {
         Self {
             bytes: (value.as_() * TEBIBYTE as Intermediate) as i64
         }
     }
 
     /// Express a size in pebibytes. Actual size is 2^50 \* the value.
-    pub fn from_pebibytes<T: AsPrimitive<Intermediate>>(value: T) -> Self {
+    pub fn from_pebibytes<T: AsIntermediate>(value: T) -> Self {
         Self {
             bytes: (value.as_() * PEBIBYTE as Intermediate) as i64
         }
     }
 
     /// Express a size in exbibytes. Actual size is 2^60 \* the value.
-    pub fn from_exbibytes<T: AsPrimitive<Intermediate>>(value: T) -> Self {
+    pub fn from_exbibytes<T: AsIntermediate>(value: T) -> Self {
         Self {
             bytes: (value.as_() * EXBIBYTE as Intermediate) as i64
         }
@@ -476,22 +485,22 @@ impl Size {
 
     #[inline]
     /// Express a size in kibibytes, as a shortcut for using [`Size::from_kibibytes()`].
-    pub fn from_kib<T: AsPrimitive<Intermediate>>(value: T) -> Self { Self::from_kibibytes(value) }
+    pub fn from_kib<T: AsIntermediate>(value: T) -> Self { Self::from_kibibytes(value) }
     #[inline]
     /// Express a size in mebibytes, as a shortcut for using [`Size::from_mebibytes()`].
-    pub fn from_mib<T: AsPrimitive<Intermediate>>(value: T) -> Self { Self::from_mebibytes(value) }
+    pub fn from_mib<T: AsIntermediate>(value: T) -> Self { Self::from_mebibytes(value) }
     #[inline]
     /// Express a size in gibibytes, as a shortcut for using [`Size::from_gibibytes()`].
-    pub fn from_gib<T: AsPrimitive<Intermediate>>(value: T) -> Self { Self::from_gibibytes(value) }
+    pub fn from_gib<T: AsIntermediate>(value: T) -> Self { Self::from_gibibytes(value) }
     #[inline]
     /// Express a size in tebibytes, as a shortcut for using [`Size::from_tebibytes()`].
-    pub fn from_tib<T: AsPrimitive<Intermediate>>(value: T) -> Self { Self::from_tebibytes(value) }
+    pub fn from_tib<T: AsIntermediate>(value: T) -> Self { Self::from_tebibytes(value) }
     #[inline]
     /// Express a size in pebibytes, as a shortcut for using [`Size::from_pebibytes()`].
-    pub fn from_pib<T: AsPrimitive<Intermediate>>(value: T) -> Self { Self::from_pebibytes(value) }
+    pub fn from_pib<T: AsIntermediate>(value: T) -> Self { Self::from_pebibytes(value) }
     #[inline]
     /// Express a size in exbibytes, as a shortcut for using [`Size::from_exbibytes()`].
-    pub fn from_eib<T: AsPrimitive<Intermediate>>(value: T) -> Self { Self::from_exbibytes(value) }
+    pub fn from_eib<T: AsIntermediate>(value: T) -> Self { Self::from_exbibytes(value) }
 }
 
 // The original `size` approach was a rust enum with each unit expressed as a different variant, but
@@ -506,83 +515,83 @@ impl Size
 
     #[inline]
     /// Express a size in bytes.
-    pub fn Bytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_bytes(t.as_() as i64) }
+    pub fn Bytes<T: AsIntermediate>(t: T) -> Self { Self::from_bytes(t.as_() as i64) }
     #[inline]
     /// Express a size in kibibytes. Actual size is 2^10 \* the value.
-    pub fn Kibibytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_kibibytes(t) }
+    pub fn Kibibytes<T: AsIntermediate>(t: T) -> Self { Self::from_kibibytes(t) }
     #[inline]
     /// Express a size in kilobytes. Actual size is 10^3 \* the value.
-    pub fn Kilobytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_kilobytes(t) }
+    pub fn Kilobytes<T: AsIntermediate>(t: T) -> Self { Self::from_kilobytes(t) }
     #[inline]
     /// Express a size in mebibytes. Actual size is 2^20 \* the value.
-    pub fn Mebibytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_mebibytes(t) }
+    pub fn Mebibytes<T: AsIntermediate>(t: T) -> Self { Self::from_mebibytes(t) }
     #[inline]
     /// Express a size in megabytes. Actual size is 10^6 \* the value.
-    pub fn Megabytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_megabytes(t) }
+    pub fn Megabytes<T: AsIntermediate>(t: T) -> Self { Self::from_megabytes(t) }
     #[inline]
     /// Express a size in gibibytes. Actual size is 2^30 \* the value.
-    pub fn Gibibytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_gibibytes(t) }
+    pub fn Gibibytes<T: AsIntermediate>(t: T) -> Self { Self::from_gibibytes(t) }
     #[inline]
     /// Express a size in gigabytes. Actual size is 10^9 \* the value.
-    pub fn Gigabytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_gigabytes(t) }
+    pub fn Gigabytes<T: AsIntermediate>(t: T) -> Self { Self::from_gigabytes(t) }
     #[inline]
     /// Express a size in tebibytes. Actual size is 2^40 \* the value.
-    pub fn Tebibytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_tebibytes(t) }
+    pub fn Tebibytes<T: AsIntermediate>(t: T) -> Self { Self::from_tebibytes(t) }
     #[inline]
     /// Express a size in terabytes. Actual size is 10^12 \* the value.
-    pub fn Terabytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_terabytes(t) }
+    pub fn Terabytes<T: AsIntermediate>(t: T) -> Self { Self::from_terabytes(t) }
     #[inline]
     /// Express a size in pebibytes. Actual size is 2^50 \* the value.
-    pub fn Pebibytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_pebibytes(t) }
+    pub fn Pebibytes<T: AsIntermediate>(t: T) -> Self { Self::from_pebibytes(t) }
     #[inline]
     /// Express a size in petabytes. Actual size is 10^15 \* the value.
-    pub fn Petabytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_petabytes(t) }
+    pub fn Petabytes<T: AsIntermediate>(t: T) -> Self { Self::from_petabytes(t) }
     #[inline]
     /// Express a size in exbibytes. Actual size is 2^60 \* the value.
-    pub fn Exbibytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_exbibytes(t) }
+    pub fn Exbibytes<T: AsIntermediate>(t: T) -> Self { Self::from_exbibytes(t) }
     #[inline]
     /// Express a size in exabytes. Actual size is 10^18 \* the value.
-    pub fn Exabytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_exabytes(t) }
+    pub fn Exabytes<T: AsIntermediate>(t: T) -> Self { Self::from_exabytes(t) }
 
     #[inline]
     /// Express a size in bytes, as a shortcut for using [`Size::Bytes`].
-    pub fn B<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_bytes(t.as_() as i64) }
+    pub fn B<T: AsIntermediate>(t: T) -> Self { Self::from_bytes(t.as_() as i64) }
     #[inline]
     /// Express a size in kibibytes, as a shortcut for using [`Size::Kibibytes`].
-    pub fn KiB<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_kib(t) }
+    pub fn KiB<T: AsIntermediate>(t: T) -> Self { Self::from_kib(t) }
     #[inline]
     /// Express a size in kilobytes, as a shortcut for using [`Size::Kilobytes`].
-    pub fn KB<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_kb(t) }
+    pub fn KB<T: AsIntermediate>(t: T) -> Self { Self::from_kb(t) }
     #[inline]
     /// Express a size in mebibytes, as a shortcut for using [`Size::Mebibytes`].
-    pub fn MiB<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_mib(t) }
+    pub fn MiB<T: AsIntermediate>(t: T) -> Self { Self::from_mib(t) }
     #[inline]
     /// Express a size in megabytes, as a shortcut for using [`Size::Megabytes`].
-    pub fn MB<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_mb(t) }
+    pub fn MB<T: AsIntermediate>(t: T) -> Self { Self::from_mb(t) }
     #[inline]
     /// Express a size in gibibytes, as a shortcut for using [`Size::Gibibytes`].
-    pub fn GiB<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_gib(t) }
+    pub fn GiB<T: AsIntermediate>(t: T) -> Self { Self::from_gib(t) }
     #[inline]
     /// Express a size in gigabytes, as a shortcut for using [`Size::Gigabytes`].
-    pub fn GB<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_gb(t) }
+    pub fn GB<T: AsIntermediate>(t: T) -> Self { Self::from_gb(t) }
     #[inline]
     /// Express a size in tebibytes, as a shortcut for using [`Size::Tebibytes`].
-    pub fn TiB<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_tib(t) }
+    pub fn TiB<T: AsIntermediate>(t: T) -> Self { Self::from_tib(t) }
     #[inline]
     /// Express a size in terabytes, as a shortcut for using [`Size::Terabytes`].
-    pub fn TB<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_tb(t) }
+    pub fn TB<T: AsIntermediate>(t: T) -> Self { Self::from_tb(t) }
     #[inline]
     /// Express a size in pebibytes, as a shortcut for using [`Size::Pebibytes`].
-    pub fn PiB<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_pib(t) }
+    pub fn PiB<T: AsIntermediate>(t: T) -> Self { Self::from_pib(t) }
     #[inline]
     /// Express a size in petabytes, as a shortcut for using [`Size::Petabytes`].
-    pub fn PB<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_pb(t) }
+    pub fn PB<T: AsIntermediate>(t: T) -> Self { Self::from_pb(t) }
     #[inline]
     /// Express a size in exbibytes, as a shortcut for using [`Size::Exbibytes`].
-    pub fn EiB<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_eib(t) }
+    pub fn EiB<T: AsIntermediate>(t: T) -> Self { Self::from_eib(t) }
     #[inline]
     /// Express a size in exabytes, as a shortcut for using [`Size::Exabytes`].
-    pub fn EB<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_eb(t) }
+    pub fn EB<T: AsIntermediate>(t: T) -> Self { Self::from_eb(t) }
 }
 
 /// An enumeration of supported styles to be used when formatting/printing a [`Size`] type,

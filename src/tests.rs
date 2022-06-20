@@ -23,6 +23,18 @@ fn integral_limits() {
 
     assert_eq!("8 EiB", format!("{}", Size::Bytes(u64::max_value())));
     assert_eq!("0 bytes", format!("{}", Size::Bytes(u64::min_value())));
+
+    assert_eq!("8 EiB", format!("{}", Size::Bytes(f64::MAX)));
+    assert_eq!("-8 EiB", format!("{}", Size::Bytes(f64::MIN)));
+}
+
+#[test]
+/// Make sure invalid floats don't panic. The *actual* result is officially undefined by this
+/// crate's API contract.
+fn invalid_floats() {
+    assert_eq!("0 bytes", format!("{}", Size::Bytes(f64::NAN)));
+    assert_eq!("8 EiB", format!("{}", Size::Bytes(f64::INFINITY)));
+    assert_eq!("-8 EiB", format!("{}", Size::Bytes(f64::NEG_INFINITY)));
 }
 
 #[test]

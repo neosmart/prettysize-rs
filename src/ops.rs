@@ -35,9 +35,8 @@
 //! undefined results in release mode. This applies even if the `Size` being interacted with is
 //! currently backed by a double-precision type (e.g. using `Size`).
 
-use crate::{Size, Intermediate};
+use crate::{AsIntermediate, Intermediate, Size};
 use core::ops::{Add, Div, Mul, Sub};
-use num_traits::AsPrimitive;
 
 impl Add<&Size> for &Size
 {
@@ -113,7 +112,7 @@ impl Sub<Size> for Size
 
 impl<T> Mul<T> for Size
 where
-    T: AsPrimitive<Intermediate>,
+    T: AsIntermediate,
 {
     type Output = Size;
 
@@ -124,7 +123,7 @@ where
 
 impl<T> Mul<T> for &Size
 where
-    T: AsPrimitive<Intermediate>,
+    T: AsIntermediate,
 {
     type Output = Size;
 
@@ -179,7 +178,7 @@ impl Mul<&Size> for f64
 
 impl<T> Div<T> for &Size
 where
-    T: AsPrimitive<Intermediate>,
+    T: AsIntermediate,
 {
     type Output = Size;
 
@@ -190,7 +189,7 @@ where
 
 impl<T> Div<T> for Size
 where
-    T: AsPrimitive<Intermediate>,
+    T: AsIntermediate,
 {
     type Output = Size;
 
