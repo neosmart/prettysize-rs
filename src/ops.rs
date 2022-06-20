@@ -1,4 +1,4 @@
-//! Implementations of basic arithmetic operations on `Size<T>`. Only operations that make sense are
+//! Implementations of basic arithmetic operations on `Size`. Only operations that make sense are
 //! implemented, e.g. while it is OK to add two `Size` objects, it does not make sense to multiply
 //! them. Meanwhile, `17MiB / 2` is perfectly rational and returns a size equivalent  to `3.5 MiB`,
 //! but `12KB + 14` isn't (as the addition of a scalar value to a sized type is undefined) -- on the
@@ -33,206 +33,168 @@
 //! the bounds of an `i64` are not supported (i.e. they will not be promoted to a
 //! floating-point-backed `Size` instance) and will panic in debug mode or silently fail with
 //! undefined results in release mode. This applies even if the `Size` being interacted with is
-//! currently backed by a double-precision type (e.g. using `Size<f64>`).
+//! currently backed by a double-precision type (e.g. using `Size`).
 
-use crate::{Size, Underlying};
+use crate::{Size, Intermediate};
 use core::ops::{Add, Div, Mul, Sub};
 use num_traits::AsPrimitive;
 
-impl<T, U> Add<&Size<U>> for &Size<T>
-where
-    T: AsPrimitive<Underlying>,
-    U: AsPrimitive<Underlying>,
+impl Add<&Size> for &Size
 {
-    type Output = Size<i64>;
+    type Output = Size;
 
-    fn add(self, other: &Size<U>) -> Self::Output {
+    fn add(self, other: &Size) -> Self::Output {
         Size::Bytes(self.bytes() + other.bytes())
     }
 }
 
-impl<T, U> Add<Size<U>> for &Size<T>
-where
-    T: AsPrimitive<Underlying>,
-    U: AsPrimitive<Underlying>,
+impl Add<Size> for &Size
 {
-    type Output = Size<i64>;
+    type Output = Size;
 
-    fn add(self, other: Size<U>) -> Self::Output {
+    fn add(self, other: Size) -> Self::Output {
         Size::Bytes(self.bytes() + other.bytes())
     }
 }
 
-impl<T, U> Add<&Size<U>> for Size<T>
-where
-    T: AsPrimitive<Underlying>,
-    U: AsPrimitive<Underlying>,
+impl Add<&Size> for Size
 {
-    type Output = Size<i64>;
+    type Output = Size;
 
-    fn add(self, other: &Size<U>) -> Self::Output {
+    fn add(self, other: &Size) -> Self::Output {
         Size::Bytes(self.bytes() + other.bytes())
     }
 }
 
-impl<T, U> Add<Size<U>> for Size<T>
-where
-    T: AsPrimitive<Underlying>,
-    U: AsPrimitive<Underlying>,
+impl Add<Size> for Size
 {
-    type Output = Size<i64>;
+    type Output = Size;
 
-    fn add(self, other: Size<U>) -> Self::Output {
+    fn add(self, other: Size) -> Self::Output {
         Size::Bytes(self.bytes() + other.bytes())
     }
 }
 
-impl<T, U> Sub<&Size<U>> for &Size<T>
-where
-    T: AsPrimitive<Underlying>,
-    U: AsPrimitive<Underlying>,
+impl Sub<&Size> for &Size
 {
-    type Output = Size<i64>;
+    type Output = Size;
 
-    fn sub(self, other: &Size<U>) -> Self::Output {
+    fn sub(self, other: &Size) -> Self::Output {
         Size::Bytes(self.bytes() as i64 - other.bytes() as i64)
     }
 }
 
-impl<T, U> Sub<Size<U>> for &Size<T>
-where
-    T: AsPrimitive<Underlying>,
-    U: AsPrimitive<Underlying>,
+impl Sub<Size> for &Size
 {
-    type Output = Size<i64>;
+    type Output = Size;
 
-    fn sub(self, other: Size<U>) -> Self::Output {
+    fn sub(self, other: Size) -> Self::Output {
         Size::Bytes(self.bytes() as i64 - other.bytes() as i64)
     }
 }
 
-impl<T, U> Sub<&Size<U>> for Size<T>
-where
-    T: AsPrimitive<Underlying>,
-    U: AsPrimitive<Underlying>,
+impl Sub<&Size> for Size
 {
-    type Output = Size<i64>;
+    type Output = Size;
 
-    fn sub(self, other: &Size<U>) -> Self::Output {
+    fn sub(self, other: &Size) -> Self::Output {
         Size::Bytes(self.bytes() as i64 - other.bytes() as i64)
     }
 }
 
-impl<T, U> Sub<Size<U>> for Size<T>
-where
-    T: AsPrimitive<Underlying>,
-    U: AsPrimitive<Underlying>,
+impl Sub<Size> for Size
 {
-    type Output = Size<i64>;
+    type Output = Size;
 
-    fn sub(self, other: Size<U>) -> Self::Output {
+    fn sub(self, other: Size) -> Self::Output {
         Size::Bytes(self.bytes() as i64 - other.bytes() as i64)
     }
 }
 
-impl<T, U> Mul<U> for Size<T>
+impl<T> Mul<T> for Size
 where
-    T: AsPrimitive<Underlying>,
-    U: AsPrimitive<Underlying>,
+    T: AsPrimitive<Intermediate>,
 {
-    type Output = Size<i64>;
+    type Output = Size;
 
-    fn mul(self, other: U) -> Self::Output {
-        Size::Bytes((self.bytes() as Underlying * other.as_()) as i64)
+    fn mul(self, other: T) -> Self::Output {
+        Size::Bytes((self.bytes() as Intermediate * other.as_()) as i64)
     }
 }
 
-impl<T, U> Mul<U> for &Size<T>
+impl<T> Mul<T> for &Size
 where
-    T: AsPrimitive<Underlying>,
-    U: AsPrimitive<Underlying>,
+    T: AsPrimitive<Intermediate>,
 {
-    type Output = Size<i64>;
+    type Output = Size;
 
-    fn mul(self, other: U) -> Self::Output {
-        Size::Bytes((self.bytes() as Underlying * other.as_()) as i64)
+    fn mul(self, other: T) -> Self::Output {
+        Size::Bytes((self.bytes() as Intermediate * other.as_()) as i64)
     }
 }
 
-/// Defined to allow multiplying an untyped number by a Size<T>, because
+/// Defined to allow multiplying an untyped number by a Size, because
 /// multiplication should be commutative.
-impl<T> Mul<Size<T>> for i64
-where
-    T: AsPrimitive<Underlying>,
+impl Mul<Size> for i64
 {
-    type Output = Size<i64>;
+    type Output = Size;
 
-    fn mul(self, other: Size<T>) -> Self::Output {
-        Size::Bytes((self as i64 * other.bytes()) as i64)
+    fn mul(self, other: Size) -> Self::Output {
+        Size::Bytes((self as Intermediate * other.bytes() as Intermediate) as i64)
     }
 }
 
-/// Defined to allow multiplying an untyped number by a Size<T>, because
+/// Defined to allow multiplying an untyped number by a Size, because
 /// multiplication should be commutative.
-impl<T> Mul<&Size<T>> for i64
-where
-    T: AsPrimitive<Underlying>,
+impl Mul<&Size> for i64
 {
-    type Output = Size<i64>;
+    type Output = Size;
 
-    fn mul(self, other: &Size<T>) -> Self::Output {
-        Size::Bytes((self as i64 * other.bytes()) as i64)
+    fn mul(self, other: &Size) -> Self::Output {
+        Size::Bytes((self as Intermediate * other.bytes() as Intermediate) as i64)
     }
 }
 
-/// Defined to allow multiplying an untyped number by a Size<T>, because
+/// Defined to allow multiplying an untyped number by a Size, because
 /// multiplication should be commutative.
-#[cfg(feature = "std")]
-impl<T> Mul<Size<T>> for f64
-where
-    T: AsPrimitive<Underlying>,
+impl Mul<Size> for f64
 {
-    type Output = Size<i64>;
+    type Output = Size;
 
-    fn mul(self, other: Size<T>) -> Self::Output {
-        Size::Bytes((self * other.bytes() as f64) as i64)
+    fn mul(self, other: Size) -> Self::Output {
+        Size::Bytes((self as Intermediate * other.bytes() as Intermediate) as i64)
     }
 }
 
-/// Defined to allow multiplying an untyped number by a Size<T>, because
+/// Defined to allow multiplying an untyped number by a Size, because
 /// multiplication should be commutative.
-#[cfg(feature = "std")]
-impl<T> Mul<&Size<T>> for f64
-where
-    T: AsPrimitive<Underlying>,
+impl Mul<&Size> for f64
 {
-    type Output = Size<i64>;
+    type Output = Size;
 
-    fn mul(self, other: &Size<T>) -> Self::Output {
-        Size::Bytes((self * other.bytes() as f64) as i64)
+    fn mul(self, other: &Size) -> Self::Output {
+        Size::Bytes((self as Intermediate * other.bytes() as Intermediate) as i64)
     }
 }
 
-impl<T, U> Div<U> for &Size<T>
+impl<T> Div<T> for &Size
 where
-    T: AsPrimitive<Underlying>,
-    U: AsPrimitive<Underlying>,
+    T: AsPrimitive<Intermediate>,
 {
-    type Output = Size<i64>;
+    type Output = Size;
 
-    fn div(self, other: U) -> Self::Output {
-        Size::Bytes((self.bytes() as Underlying / other.as_()) as i64)
+    fn div(self, other: T) -> Self::Output {
+        Size::Bytes((self.bytes() as Intermediate / other.as_()) as i64)
     }
 }
 
-impl<T, U> Div<U> for Size<T>
+impl<T> Div<T> for Size
 where
-    T: AsPrimitive<Underlying>,
-    U: AsPrimitive<Underlying>,
+    T: AsPrimitive<Intermediate>,
 {
-    type Output = Size<i64>;
+    type Output = Size;
 
-    fn div(self, other: U) -> Self::Output {
-        Size::Bytes((self.bytes() as Underlying / other.as_()) as i64)
+    fn div(self, other: T) -> Self::Output {
+        Size::Bytes((self.bytes() as Intermediate / other.as_()) as i64)
     }
 }

@@ -133,14 +133,44 @@ use self::consts::*;
 use num_traits::AsPrimitive;
 
 #[cfg(feature = "std")]
-type Underlying = f64;
+type Intermediate = f64;
 #[cfg(not(feature = "std"))]
-type Underlying = i64;
+type Intermediate = i64;
 
 #[cfg(feature = "std")]
 const DEFAULT_BASE: Base = Base::Base2;
 #[cfg(feature = "std")]
 const DEFAULT_STYLE: Style = Style::Smart;
+
+// pub trait AsI64 {
+//     fn as_i64(&self) -> i64;
+// }
+//
+// macro_rules! as_i64 {
+//     ($type:ty) => {
+//         impl AsI64 for $type {
+//             fn as_i64(&self) -> i64 { *self as i64 }
+//         }
+//     }
+// }
+//
+// as_i64!(u8);
+// as_i64!(u16);
+// as_i64!(u32);
+// as_i64!(i8);
+// as_i64!(i16);
+// as_i64!(i32);
+// as_i64!(i64);
+//
+// impl AsI64 for u64 {
+//     fn as_i64(&self) -> i64 {
+//         const TEMP: u64 = i64::MAX as u64;
+//         match *self {
+//             0..=TEMP => *self as i64,
+//             _ => i64::MAX,
+//         }
+//     }
+// }
 
 /// A collection of constants for base-2 and base-10 units.
 pub mod consts {
@@ -250,7 +280,7 @@ pub enum Unit {
 
 #[cfg(feature = "std")]
 impl Unit {
-    fn text(&self) -> (&'static str, &'static str, &'static str, &'static str) {
+    const fn text(&self) -> (&'static str, &'static str, &'static str, &'static str) {
         match &self {
             &Byte => ("byte", "Byte", "b", "B"),
 
@@ -310,65 +340,249 @@ impl Unit {
 /// assert_eq!(Size::Kibibytes(2_u8), Size::Kilobytes(2.048_f64));
 /// ```
 #[derive(Copy, Clone)]
-#[non_exhaustive]
-pub enum Size<T> {
-    /// Express a size in bytes.
-    Bytes(T),
-    /// Express a size in kibibytes. Actual size is 2^10 \* the value.
-    Kibibytes(T),
-    /// Express a size in kilobytes. Actual size is 10^3 \* the value.
-    Kilobytes(T),
-    /// Express a size in kibibytes. Actual size is 2^20 \* the value.
-    Mebibytes(T),
-    /// Express a size in kilobytes. Actual size is 10^6 \* the value.
-    Megabytes(T),
-    /// Express a size in kibibytes. Actual size is 2^30 \* the value.
-    Gibibytes(T),
-    /// Express a size in kilobytes. Actual size is 10^9 \* the value.
-    Gigabytes(T),
-    /// Express a size in kibibytes. Actual size is 2^40 \* the value.
-    Tebibytes(T),
-    /// Express a size in kilobytes. Actual size is 10^12 \* the value.
-    Terabytes(T),
-    /// Express a size in kibibytes. Actual size is 2^50 \* the value.
-    Pebibytes(T),
-    /// Express a size in kilobytes. Actual size is 10^15 \* the value.
-    Petabytes(T),
-    /// Express a size in kibibytes. Actual size is 2^60 \* the value.
-    Exbibytes(T),
-    /// Express a size in kilobytes. Actual size is 10^18 \* the value.
-    Exabytes(T),
+pub struct Size {
+    bytes: i64,
 }
 
-impl<T> Size<T> {
+impl Size {
+    /// Initialize a `Size` from the provided value, in bytes. This is a constant function and may
+    /// be used in a `const` context.
+    ///
+    /// Unlike the other "from" functions (e.g. [`from_kilobytes()`]), it is not generic because
+    /// a) trait methods may not be declared `const`, and
+    /// b) it's always safe to use `as i64` on whatever type you're actually passing into
+    /// `from_bytes()` without any (additional) loss of precision as compared to passing in an
+    /// arbitrary numeric type, since there is no math required to calculate the equivalent size in
+    /// bytes.
+    ///
+    /// To further illustrate this point, let's look at this hypothetical initialization of a `Size`
+    /// from a floating-point literal: `let s = Size::from_kib(2.5);` - when the conversion from
+    /// "2.5 KiB" to "bytes" happens internally, the result is equivalent to `(2.5 * 1024.0) as i64`
+    /// and yields the correct result of 2560 bytes. But if `from_kib` weren't generic and you
+    /// needed to use `as i64` (i.e. `Size::from_kib(2.5 as i64)`), the calculated size in bytes
+    /// would start from an already-truncated `2_i64` and yield an incorrect answer of 2048 bytes
+    /// (`(2.5 as i64) * 1024`). However, with `from_bytes()`, there can be no loss of precision
+    /// (or, pedantically, even truncation) when `as i64` is used since the file size, expressed in
+    /// bytes, must always be a whole number; meaning it is safe to perform the integer
+    /// conversion/rounding at the call site itself and `Size::from_bytes(float_val as i64)` would
+    /// necessarily always yield the same result as a hypothetically generic/type-agnostic
+    /// `Size::from_bytes::<f64>(float_val)`.
+    pub const fn from_bytes(bytes: i64) -> Self {
+        Self { bytes }
+    }
+
+    /// Express a size in kilobytes. Actual size is 10^3 \* the value.
+    pub fn from_kilobytes<T: AsPrimitive<Intermediate>>(value: T) -> Self {
+        Self {
+            bytes: (value.as_() * KILOBYTE as Intermediate) as i64
+        }
+    }
+
+    /// Express a size in megabytes. Actual size is 10^6 \* the value.
+    pub fn from_megabytes<T: AsPrimitive<Intermediate>>(value: T) -> Self {
+        Self {
+            bytes: (value.as_() * MEGABYTE as Intermediate) as i64
+        }
+    }
+
+    /// Express a size in gigabytes. Actual size is 10^9 \* the value.
+    pub fn from_gigabytes<T: AsPrimitive<Intermediate>>(value: T) -> Self {
+        Self {
+            bytes: (value.as_() * GIGABYTE as Intermediate) as i64
+        }
+    }
+
+    /// Express a size in terabytes. Actual size is 10^12 \* the value.
+    pub fn from_terabytes<T: AsPrimitive<Intermediate>>(value: T) -> Self {
+        Self {
+            bytes: (value.as_() * TERABYTE as Intermediate) as i64
+        }
+    }
+
+    /// Express a size in petabytes. Actual size is 10^15 \* the value.
+    pub fn from_petabytes<T: AsPrimitive<Intermediate>>(value: T) -> Self {
+        Self {
+            bytes: (value.as_() * PETABYTE as Intermediate) as i64
+        }
+    }
+
+    /// Express a size in exabytes. Actual size is 10^18 \* the value.
+    pub fn from_exabytes<T: AsPrimitive<Intermediate>>(value: T) -> Self {
+        Self {
+            bytes: (value.as_() * EXABYTE as Intermediate) as i64
+        }
+    }
+
+    #[inline]
+    /// Express a size in kilobytes, as a shortcut for using [`Size::from_kilobytes()`].
+    pub fn from_kb<T: AsPrimitive<Intermediate>>(value: T) -> Self { Self::from_kilobytes(value) }
+    #[inline]
+    /// Express a size in megabytes, as a shortcut for using [`Size::from_megabytes()`].
+    pub fn from_mb<T: AsPrimitive<Intermediate>>(value: T) -> Self { Self::from_megabytes(value) }
+    #[inline]
+    /// Express a size in gigabytes, as a shortcut for using [`Size::from_gigabytes()`].
+    pub fn from_gb<T: AsPrimitive<Intermediate>>(value: T) -> Self { Self::from_gigabytes(value) }
+    #[inline]
+    /// Express a size in terabytes, as a shortcut for using [`Size::from_terabytes()`].
+    pub fn from_tb<T: AsPrimitive<Intermediate>>(value: T) -> Self { Self::from_terabytes(value) }
+    #[inline]
+    /// Express a size in petabytes, as a shortcut for using [`Size::from_petabytes()`].
+    pub fn from_pb<T: AsPrimitive<Intermediate>>(value: T) -> Self { Self::from_petabytes(value) }
+    #[inline]
+    /// Express a size in exabytes, as a shortcut for using [`Size::from_exabytes()`].
+    pub fn from_eb<T: AsPrimitive<Intermediate>>(value: T) -> Self { Self::from_exabytes(value) }
+
+    /// Express a size in kibibytes. Actual size is 2^10 \* the value.
+    pub fn from_kibibytes<T: AsPrimitive<Intermediate>>(value: T) -> Self {
+        Self {
+            bytes: (value.as_() * KIBIBYTE as Intermediate) as i64
+        }
+    }
+
+    /// Express a size in mebibytes. Actual size is 2^20 \* the value.
+    pub fn from_mebibytes<T: AsPrimitive<Intermediate>>(value: T) -> Self {
+        Self {
+            bytes: (value.as_() * MEBIBYTE as Intermediate) as i64
+        }
+    }
+
+    /// Express a size in gibibytes. Actual size is 2^30 \* the value.
+    pub fn from_gibibytes<T: AsPrimitive<Intermediate>>(value: T) -> Self {
+        Self {
+            bytes: (value.as_() * GIBIBYTE as Intermediate) as i64
+        }
+    }
+
+    /// Express a size in tebibytes. Actual size is 2^40 \* the value.
+    pub fn from_tebibytes<T: AsPrimitive<Intermediate>>(value: T) -> Self {
+        Self {
+            bytes: (value.as_() * TEBIBYTE as Intermediate) as i64
+        }
+    }
+
+    /// Express a size in pebibytes. Actual size is 2^50 \* the value.
+    pub fn from_pebibytes<T: AsPrimitive<Intermediate>>(value: T) -> Self {
+        Self {
+            bytes: (value.as_() * PEBIBYTE as Intermediate) as i64
+        }
+    }
+
+    /// Express a size in exbibytes. Actual size is 2^60 \* the value.
+    pub fn from_exbibytes<T: AsPrimitive<Intermediate>>(value: T) -> Self {
+        Self {
+            bytes: (value.as_() * EXBIBYTE as Intermediate) as i64
+        }
+    }
+
+    #[inline]
+    /// Express a size in kibibytes, as a shortcut for using [`Size::from_kibibytes()`].
+    pub fn from_kib<T: AsPrimitive<Intermediate>>(value: T) -> Self { Self::from_kibibytes(value) }
+    #[inline]
+    /// Express a size in mebibytes, as a shortcut for using [`Size::from_mebibytes()`].
+    pub fn from_mib<T: AsPrimitive<Intermediate>>(value: T) -> Self { Self::from_mebibytes(value) }
+    #[inline]
+    /// Express a size in gibibytes, as a shortcut for using [`Size::from_gibibytes()`].
+    pub fn from_gib<T: AsPrimitive<Intermediate>>(value: T) -> Self { Self::from_gibibytes(value) }
+    #[inline]
+    /// Express a size in tebibytes, as a shortcut for using [`Size::from_tebibytes()`].
+    pub fn from_tib<T: AsPrimitive<Intermediate>>(value: T) -> Self { Self::from_tebibytes(value) }
+    #[inline]
+    /// Express a size in pebibytes, as a shortcut for using [`Size::from_pebibytes()`].
+    pub fn from_pib<T: AsPrimitive<Intermediate>>(value: T) -> Self { Self::from_pebibytes(value) }
+    #[inline]
+    /// Express a size in exbibytes, as a shortcut for using [`Size::from_exbibytes()`].
+    pub fn from_eib<T: AsPrimitive<Intermediate>>(value: T) -> Self { Self::from_exbibytes(value) }
+}
+
+// The original `size` approach was a rust enum with each unit expressed as a different variant, but
+// that was never really a "rusty" solution and didn't actually match how size calculation was
+// handled (with each value being converted to an f64/i64 before calculating the total bytes or the
+// mathematical sum/difference/product/etc). The impl block below is for backwards
+// source-compatibility purposes (with functions masquerading as enum variants).
+#[doc(hidden)]
+impl Size
+{
     #![allow(non_snake_case)]
 
+    #[inline]
+    /// Express a size in bytes.
+    pub fn Bytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_bytes(t.as_() as i64) }
+    #[inline]
+    /// Express a size in kibibytes. Actual size is 2^10 \* the value.
+    pub fn Kibibytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_kibibytes(t) }
+    #[inline]
+    /// Express a size in kilobytes. Actual size is 10^3 \* the value.
+    pub fn Kilobytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_kilobytes(t) }
+    #[inline]
+    /// Express a size in mebibytes. Actual size is 2^20 \* the value.
+    pub fn Mebibytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_mebibytes(t) }
+    #[inline]
+    /// Express a size in megabytes. Actual size is 10^6 \* the value.
+    pub fn Megabytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_megabytes(t) }
+    #[inline]
+    /// Express a size in gibibytes. Actual size is 2^30 \* the value.
+    pub fn Gibibytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_gibibytes(t) }
+    #[inline]
+    /// Express a size in gigabytes. Actual size is 10^9 \* the value.
+    pub fn Gigabytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_gigabytes(t) }
+    #[inline]
+    /// Express a size in tebibytes. Actual size is 2^40 \* the value.
+    pub fn Tebibytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_tebibytes(t) }
+    #[inline]
+    /// Express a size in terabytes. Actual size is 10^12 \* the value.
+    pub fn Terabytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_terabytes(t) }
+    #[inline]
+    /// Express a size in pebibytes. Actual size is 2^50 \* the value.
+    pub fn Pebibytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_pebibytes(t) }
+    #[inline]
+    /// Express a size in petabytes. Actual size is 10^15 \* the value.
+    pub fn Petabytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_petabytes(t) }
+    #[inline]
+    /// Express a size in exbibytes. Actual size is 2^60 \* the value.
+    pub fn Exbibytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_exbibytes(t) }
+    #[inline]
+    /// Express a size in exabytes. Actual size is 10^18 \* the value.
+    pub fn Exabytes<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_exabytes(t) }
+
+    #[inline]
     /// Express a size in bytes, as a shortcut for using [`Size::Bytes`].
-    pub const fn B(t: T) -> Self { Self::Bytes(t) }
+    pub fn B<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_bytes(t.as_() as i64) }
+    #[inline]
     /// Express a size in kibibytes, as a shortcut for using [`Size::Kibibytes`].
-    pub const fn KiB(t: T) -> Self { Self::Kibibytes(t) }
+    pub fn KiB<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_kib(t) }
+    #[inline]
     /// Express a size in kilobytes, as a shortcut for using [`Size::Kilobytes`].
-    pub const fn KB(t: T) -> Self { Self::Kilobytes(t) }
+    pub fn KB<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_kb(t) }
+    #[inline]
     /// Express a size in mebibytes, as a shortcut for using [`Size::Mebibytes`].
-    pub const fn MiB(t: T) -> Self { Self::Mebibytes(t) }
+    pub fn MiB<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_mib(t) }
+    #[inline]
     /// Express a size in megabytes, as a shortcut for using [`Size::Megabytes`].
-    pub const fn MB(t: T) -> Self { Self::Megabytes(t) }
+    pub fn MB<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_mb(t) }
+    #[inline]
     /// Express a size in gibibytes, as a shortcut for using [`Size::Gibibytes`].
-    pub const fn GiB(t: T) -> Self { Self::Gibibytes(t) }
+    pub fn GiB<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_gib(t) }
+    #[inline]
     /// Express a size in gigabytes, as a shortcut for using [`Size::Gigabytes`].
-    pub const fn GB(t: T) -> Self { Self::Gigabytes(t) }
+    pub fn GB<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_gb(t) }
+    #[inline]
     /// Express a size in tebibytes, as a shortcut for using [`Size::Tebibytes`].
-    pub const fn TiB(t: T) -> Self { Self::Tebibytes(t) }
+    pub fn TiB<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_tib(t) }
+    #[inline]
     /// Express a size in terabytes, as a shortcut for using [`Size::Terabytes`].
-    pub const fn TB(t: T) -> Self { Self::Terabytes(t) }
+    pub fn TB<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_tb(t) }
+    #[inline]
     /// Express a size in pebibytes, as a shortcut for using [`Size::Pebibytes`].
-    pub const fn PiB(t: T) -> Self { Self::Pebibytes(t) }
+    pub fn PiB<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_pib(t) }
+    #[inline]
     /// Express a size in petabytes, as a shortcut for using [`Size::Petabytes`].
-    pub const fn PB(t: T) -> Self { Self::Petabytes(t) }
+    pub fn PB<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_pb(t) }
+    #[inline]
     /// Express a size in exbibytes, as a shortcut for using [`Size::Exbibytes`].
-    pub const fn EiB(t: T) -> Self { Self::Exbibytes(t) }
+    pub fn EiB<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_eib(t) }
+    #[inline]
     /// Express a size in exabytes, as a shortcut for using [`Size::Exabytes`].
-    pub const fn EB(t: T) -> Self { Self::Exabytes(t) }
+    pub fn EB<T: AsPrimitive<Intermediate>>(t: T) -> Self { Self::from_eb(t) }
 }
 
 /// An enumeration of supported styles to be used when formatting/printing a [`Size`] type,
@@ -390,60 +604,44 @@ pub enum Style {
 }
 
 #[cfg(feature = "std")]
-impl<T> std::fmt::Display for Size<T>
-where
-    T: AsPrimitive<f64>,
+impl std::fmt::Display for Size
 {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         self.format(fmt, &DEFAULT_BASE, &DEFAULT_STYLE)
     }
 }
 
-impl<T> core::fmt::Debug for Size<T>
-where
-    T: AsPrimitive<Underlying>
+impl core::fmt::Debug for Size
 {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         write!(fmt, "{} bytes", self.bytes())
     }
 }
 
-impl<T, U> PartialEq<Size<U>> for Size<T>
-where
-    T: AsPrimitive<Underlying>,
-    U: AsPrimitive<Underlying>,
+impl PartialEq<Size> for Size
 {
-    fn eq(&self, other: &Size<U>) -> bool {
+    fn eq(&self, other: &Size) -> bool {
         self.bytes() == other.bytes()
     }
 }
 
-impl<T, U> PartialEq<&Size<U>> for Size<T>
-where
-    T: AsPrimitive<Underlying>,
-    U: AsPrimitive<Underlying>,
+impl PartialEq<&Size> for Size
 {
-    fn eq(&self, other: &&Size<U>) -> bool {
+    fn eq(&self, other: &&Size) -> bool {
         self.bytes() == other.bytes()
     }
 }
 
-impl<T, U> PartialOrd<Size<U>> for Size<T>
-where
-    T: AsPrimitive<Underlying>,
-    U: AsPrimitive<Underlying>,
+impl PartialOrd<Size> for Size
 {
-    fn partial_cmp(&self, other: &Size<U>) -> Option<core::cmp::Ordering> {
+    fn partial_cmp(&self, other: &Size) -> Option<core::cmp::Ordering> {
         self.bytes().partial_cmp(&other.bytes())
     }
 }
 
-impl<T, U> PartialOrd<&Size<U>> for Size<T>
-where
-    T: AsPrimitive<Underlying>,
-    U: AsPrimitive<Underlying>,
+impl PartialOrd<&Size> for Size
 {
-    fn partial_cmp(&self, other: &&Size<U>) -> Option<core::cmp::Ordering> {
+    fn partial_cmp(&self, other: &&Size) -> Option<core::cmp::Ordering> {
         self.bytes().partial_cmp(&other.bytes())
     }
 }
@@ -461,10 +659,9 @@ where
     }
 }
 
-impl<T> Size<T>
-where
-    T: AsPrimitive<Underlying>
+impl Size
 {
+    #[inline]
     /// Calculates the effective size in bytes of the type, useful for obtaining a plain/scalar
     /// representation of the full size represented by a [`Size`] object. This always returns an
     /// `i64` regardless of the underlying type originally used, to avoid (or at least mitigate)
@@ -477,23 +674,7 @@ where
     /// assert_eq!(Size::MiB(4_u8).bytes(), 4_194_304 as i64);
     /// ```
     pub fn bytes(&self) -> i64 {
-        use self::Size::*;
-
-        (match &self {
-            &Bytes(x) => x.as_(),
-            &Kilobytes(x) => x.as_() * KILOBYTE as Underlying,
-            &Megabytes(x) => x.as_() * MEGABYTE as Underlying,
-            &Gigabytes(x) => x.as_() * GIGABYTE as Underlying,
-            &Terabytes(x) => x.as_() * TERABYTE as Underlying,
-            &Petabytes(x) => x.as_() * PETABYTE as Underlying,
-            &Exabytes(x)  => x.as_() * EXABYTE  as Underlying,
-            &Kibibytes(x) => x.as_() * KIBIBYTE as Underlying,
-            &Mebibytes(x) => x.as_() * MEBIBYTE as Underlying,
-            &Gibibytes(x) => x.as_() * GIBIBYTE as Underlying,
-            &Tebibytes(x) => x.as_() * TEBIBYTE as Underlying,
-            &Pebibytes(x) => x.as_() * PEBIBYTE as Underlying,
-            &Exbibytes(x) => x.as_() * EXBIBYTE as Underlying,
-        }) as i64
+        self.bytes
     }
 
     /// Returns a textual representation of the [`Size`] for display purposes, giving control over
