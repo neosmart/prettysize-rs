@@ -114,9 +114,9 @@
 //! * All formatting/stringification of `Size` types is disabled.
 //! * `Size` no longer implements [`std::fmt::Display`] (`core::fmt::Debug` is still implemented).
 //! * The intermediate type used for mathematical operations on `Size` types is changed from `f64`
-//! to `i64` so that no implicit floating-point math is performed. `Size<f64>` types may still be
-//! used, but with the caveat that precision may be lost and truncation (instead of rounding) may be
-//! observed when performing mathematical operations on floating-point-backed `Size` types.
+//! to `i64` so that no implicit floating-point math is performed. To prevent inadvertent loss of
+//! precision, it is forbidden to pass in floating point values to the `Size` API under `no_std`
+//! mode.
 
 pub mod ops;
 #[cfg(test)]
@@ -175,7 +175,9 @@ mod sealed {
     as_intermediate!(i16);
     as_intermediate!(i32);
     as_intermediate!(i64);
+    #[cfg(feature = "std")]
     as_intermediate!(f32);
+    #[cfg(feature = "std")]
     as_intermediate!(f64);
 }
 
