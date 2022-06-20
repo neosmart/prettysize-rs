@@ -14,35 +14,34 @@
 //! natural and intuitive as possible, providing sensible defaults with zero boilerplate but also
 //! allowing the developer to manually control aspects how sizes are expressed as text if needed.
 //!
-//! The core [`Size`] type is a simple wrapper around any numeric type - you can use it with
-//! whatever primitive numeric type you wish, e.g. constructing a `Size<i64>` or a `Size<f32>` from
-//! whatever value you happen to have on hand. (Unlike many other generic-heavy rust crates, the
-//! choice of underlying type won't cause any type mismatches down the line, and you can easily and
-//! safely interoperate on a mixture of differently-backed `Size` types without fear.)
+//! The core [`Size`] type is a simple wrapper around a signed numeric value - it can be initialized
+//! using whatever primitive numeric type you wish, e.g. constructing a `Size` from an `i64` or from
+//! an `foo: f64` number of kilobytes.
 //!
 //! ## Using this crate and creating a `Size` object
-//! To use this crate, you only need to place a `using size::Size` at the top of your rust code,
-//! then pick the unit that matches the size you have on hand. Both base-2 (KiB, MiB, etc) and
-//! base-10 (KB, MB, etc) units are supported and are exposed via the same API. You can be either
-//! use the abbreviated form of the unit to instantiate your type, or use the full unit name to be
-//! more expressive. Here's an example:
+//!
+//! To use this crate, you only need to place `using size::Size` at the top of your rust code, then
+//! create a `Size` from a constructor/initializer that matches the size you have on hand. Both
+//! base-2 (KiB, MiB, etc) and base-10 (KB, MB, etc) units are supported and are exposed via the
+//! same API. You can be either use the abbreviated form of the unit to instantiate your type, or
+//! use the full unit name to be more expressive. Here's an example:
 //!
 //! ```
 //! use size::Size;
 //!
-//! // Create a strongly-typed size object. We don't even need to pick an underlying type!
-//! let file1_size = Size::KiB(200);
+//! // Create a strongly-typed size object. We don't even need to specify a numeric type!
+//! let file1_size = Size::from_kib(200);
 //! // Create another Size instance, this time from a floating-point literal:
-//! let file2_size = Size::Kilobytes(20.1);
+//! let file2_size = Size::from_kilobytes(20.1);
 //! ```
 //!
-//! You can obtain a scalar `i64` value equivalent to the total number of bytes described by a
+//! You can obtain a scalar `i64` value equal to the total number of bytes described by a
 //! `Size` instance by calling [`Size::bytes()`] (see link for more info):
 //!
 //! ```
 //! use size::Size;
 //!
-//! let file_size = Size::GiB(4);
+//! let file_size = Size::from_gibibytes(4);
 //! assert_eq!(file_size.bytes(), 4_294_967_296);
 //! ```
 //!
@@ -52,26 +51,26 @@
 //! ```
 //! use size::Size;
 //!
-//! let size1 = Size::KiB(4.0 as f64);
-//! let size2 = Size::Bytes(4096 as u32);
+//! let size1 = Size::from_kib(4.0 as f64);
+//! let size2 = Size::from_bytes(4096 as i64);
 //! assert_eq!(size1, size2);
 //!
-//! let size1 = Size::KiB(7);
-//! let size2 = Size::KB(7);
+//! let size1 = Size::from_kib(7);
+//! let size2 = Size::from_kb(7);
 //! assert!(&size2 < &size1);
 //! ```
 //!
 //! ## Textual representation
 //!
 //! The majority of users will be interested in this crate for its ability to "pretty print" sizes
-//! with little ceremony and great results. All `Size<T>` instances implement both
+//! with little ceremony and great results. All `Size` instances implement both
 //! [`std::fmt::Display`] and [`std::fmt::Debug`], so you can just directly `format!(...)` or
 //! `println!(...)` with whatever `Size` you have on hand:
 //!
 //! ```
 //! use size::Size;
 //!
-//! let file_size = Size::Bytes(1_340_249);
+//! let file_size = Size::from_bytes(1_340_249);
 //! let textual = format!("{}", file_size); // "1.28 MiB"
 //! assert_eq!(textual.as_str(), "1.28 MiB");
 //! ```
@@ -83,8 +82,8 @@
 //! ```
 //! use size::{Size, Base, Style};
 //!
-//! let file_size = Size::Bytes(1_340_249); // same as before
-//! let textual_size = format!("{}", file_size.to_string(Base::Base10, Style::FullLowerCase));
+//! let file_size = Size::from_bytes(1_340_249); // same as before
+//! let textual_size = format!("{}", file_size.to_string(Base::Base10, Style::FullLowercase));
 //! assert_eq!(textual_size, "1.34 megabytes".to_string());
 //! ```
 //!
@@ -96,11 +95,11 @@
 //! ```
 //! use size::Size;
 //!
-//! let sum = Size::MiB(2) + Size::KiB(200);
-//! assert_eq!(sum, Size::MB(2.301_952));
+//! let sum = Size::from_mib(2) + Size::from_kib(200);
+//! assert_eq!(sum, Size::from_mb(2.301_952));
 //!
-//! let size = Size::GB(4.2) / 2;
-//! assert_eq!(size, Size::GB(2.1));
+//! let size = Size::from_gb(4.2) / 2;
+//! assert_eq!(size, Size::from_gb(2.1));
 //! ```
 //!
 //! See the documentation of the [`ops`] module for more on this topic.
@@ -113,8 +112,7 @@
 //! limitations are observed:
 //!
 //! * All formatting/stringification of `Size` types is disabled.
-//! * `Size<T>` no longer implements [`std::fmt::Display`] (`core::fmt::Debug` is still
-//! implemented).
+//! * `Size` no longer implements [`std::fmt::Display`] (`core::fmt::Debug` is still implemented).
 //! * The intermediate type used for mathematical operations on `Size` types is changed from `f64`
 //! to `i64` so that no implicit floating-point math is performed. `Size<f64>` types may still be
 //! used, but with the caveat that precision may be lost and truncation (instead of rounding) may be
@@ -245,7 +243,7 @@ pub mod consts {
 /// An enumeration of supported bases to use for generating textual descriptions of sizes.
 /// [`Base::Base10`] is the "usual" units like [`Unit::Kilobyte`] and [`Unit::Exabyte`], while
 /// [`Base::Base2`] is the SI/memory units like [`Unit::Mebibyte`] and [`Unit::Tebibyte`], (more
-/// often referred to as "MiB" and "TiB" respectively).
+/// often referred to as "MiB" and "TiB", respectively).
 #[cfg(feature = "std")]
 pub enum Base {
     /// Base-2 units like [`Unit::Kibibyte`] and [`Unit::Mebibyte`], more often referred to via
@@ -339,14 +337,13 @@ impl Unit {
 /// a "size" as a strongly-typed, convertible type that can be used for textual formatting ("pretty
 /// printing") and mathematical operations.
 ///
-/// A size is expressed as a unit (any of the enum's discriminant values) and an associated numeric
-/// value (the generic `T` parameter). A size is "arbitrarily precise" in the sense that any backing
-/// unit may be used and operated on:
+/// A size can be created in terms of any supported unit and an associated numeric value of any
+/// type.
 ///
 /// ```
 /// use size::Size;
-/// // Identical sizes expressed in different units with different backing types:
-/// assert_eq!(Size::Kibibytes(2_u8), Size::Kilobytes(2.048_f64));
+/// // Identical sizes expressed in different units with different primitive types:
+/// assert_eq!(Size::from_kibibytes(2_u8), Size::from_kilobytes(2.048_f64));
 /// ```
 #[derive(Copy, Clone)]
 pub struct Size {
@@ -358,7 +355,7 @@ impl Size {
     /// be used in a `const` context.
     ///
     /// Unlike the other "from" functions (e.g. [`from_kilobytes()`]), it is not generic because
-    /// a) trait methods may not be declared `const`, and
+    /// a) trait methods (required to use a generic type) may not be declared as `const`, and
     /// b) it's always safe to use `as i64` on whatever type you're actually passing into
     /// `from_bytes()` without any (additional) loss of precision as compared to passing in an
     /// arbitrary numeric type, since there is no math required to calculate the equivalent size in
@@ -618,12 +615,12 @@ pub enum Style {
 impl Style {
     #[doc(hidden)]
     #[allow(non_upper_case_globals)]
-    /// A backwards-compatibile alias for [`Style::AbbreviatedLowerCase`]
+    /// A backwards-compatibile alias for [`Style::AbbreviatedLowercase`]
     pub const AbbreviatedLowerCase: Style = Style::AbbreviatedLowercase;
 
     #[doc(hidden)]
     #[allow(non_upper_case_globals)]
-    /// A backwards-compatibile alias for [`Style::FullLowerCase`]
+    /// A backwards-compatibile alias for [`Style::FullLowercase`]
     pub const FullLowerCase: Style = Style::FullLowercase;
 }
 
@@ -686,16 +683,15 @@ where
 impl Size
 {
     #[inline]
-    /// Calculates the effective size in bytes of the type, useful for obtaining a plain/scalar
+    /// Returns the effective size in bytes of the type, useful for obtaining a plain/scalar
     /// representation of the full size represented by a [`Size`] object. This always returns an
     /// `i64` regardless of the underlying type originally used, to avoid (or at least mitigate)
-    /// issues with integer overflow (e.g. when trying to retrieve
-    /// `Size::Terabyte(16_i32).bytes()`).
+    /// issues with integer overflow (e.g. when trying to retrieve `Size::from_tb(16_i32).bytes()`).
     ///
     /// Example:
     /// ```
     /// use size::Size;
-    /// assert_eq!(Size::MiB(4_u8).bytes(), 4_194_304 as i64);
+    /// assert_eq!(Size::from_mib(4_u8).bytes(), 4_194_304 as i64);
     /// ```
     pub fn bytes(&self) -> i64 {
         self.bytes

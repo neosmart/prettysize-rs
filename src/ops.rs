@@ -10,17 +10,17 @@
 //! use size::Size;
 //!
 //! // Perform scalar multiplication/division on a `Size`
-//! let s1 = Size::MiB(13) / 2;
-//! assert_eq!(s1, Size::MiB(6.5_f32));
+//! let s1 = Size::from_mib(13) / 2;
+//! assert_eq!(s1, Size::from_mib(6.5_f32));
 //!
 //! // Perform addition or subtraction of two `Size` instances,
 //! // regardless of their underlying types
-//! let s2 = Size::KiB(4) + Size::MB(8);
+//! let s2 = Size::from_kib(4) + Size::from_mb(8);
 //! assert_eq!(s2.bytes(), 8004096);
 //!
 //! // Express the negative difference between two sizes
-//! let s3 = Size::MiB(12) - Size::MiB(14.2_f64);
-//! assert_eq!(s3, Size::KiB(-2252.8));
+//! let s3 = Size::from_mib(12) - Size::from_mib(14.2_f64);
+//! assert_eq!(s3, Size::from_kib(-2252.8));
 //! ```
 //!
 //! Some other things you cannot do are multiply/divide two sizes (did you mean to multiply one size
@@ -32,8 +32,7 @@
 //! operations (or textual representation, for that matter) of that result in a size that exceeds
 //! the bounds of an `i64` are not supported (i.e. they will not be promoted to a
 //! floating-point-backed `Size` instance) and will panic in debug mode or silently fail with
-//! undefined results in release mode. This applies even if the `Size` being interacted with is
-//! currently backed by a double-precision type (e.g. using `Size`).
+//! undefined results in release mode.
 
 use crate::{AsIntermediate, Intermediate, Size};
 use core::ops::{Add, Div, Mul, Sub};
@@ -43,7 +42,7 @@ impl Add<&Size> for &Size
     type Output = Size;
 
     fn add(self, other: &Size) -> Self::Output {
-        Size::Bytes(self.bytes() + other.bytes())
+        Size::from_bytes(self.bytes() + other.bytes())
     }
 }
 
@@ -52,7 +51,7 @@ impl Add<Size> for &Size
     type Output = Size;
 
     fn add(self, other: Size) -> Self::Output {
-        Size::Bytes(self.bytes() + other.bytes())
+        Size::from_bytes(self.bytes() + other.bytes())
     }
 }
 
@@ -61,7 +60,7 @@ impl Add<&Size> for Size
     type Output = Size;
 
     fn add(self, other: &Size) -> Self::Output {
-        Size::Bytes(self.bytes() + other.bytes())
+        Size::from_bytes(self.bytes() + other.bytes())
     }
 }
 
@@ -70,7 +69,7 @@ impl Add<Size> for Size
     type Output = Size;
 
     fn add(self, other: Size) -> Self::Output {
-        Size::Bytes(self.bytes() + other.bytes())
+        Size::from_bytes(self.bytes() + other.bytes())
     }
 }
 
@@ -79,7 +78,7 @@ impl Sub<&Size> for &Size
     type Output = Size;
 
     fn sub(self, other: &Size) -> Self::Output {
-        Size::Bytes(self.bytes() as i64 - other.bytes() as i64)
+        Size::from_bytes(self.bytes() as i64 - other.bytes() as i64)
     }
 }
 
@@ -88,7 +87,7 @@ impl Sub<Size> for &Size
     type Output = Size;
 
     fn sub(self, other: Size) -> Self::Output {
-        Size::Bytes(self.bytes() as i64 - other.bytes() as i64)
+        Size::from_bytes(self.bytes() as i64 - other.bytes() as i64)
     }
 }
 
@@ -97,7 +96,7 @@ impl Sub<&Size> for Size
     type Output = Size;
 
     fn sub(self, other: &Size) -> Self::Output {
-        Size::Bytes(self.bytes() as i64 - other.bytes() as i64)
+        Size::from_bytes(self.bytes() as i64 - other.bytes() as i64)
     }
 }
 
@@ -106,7 +105,7 @@ impl Sub<Size> for Size
     type Output = Size;
 
     fn sub(self, other: Size) -> Self::Output {
-        Size::Bytes(self.bytes() as i64 - other.bytes() as i64)
+        Size::from_bytes(self.bytes() as i64 - other.bytes() as i64)
     }
 }
 
@@ -117,7 +116,7 @@ where
     type Output = Size;
 
     fn mul(self, other: T) -> Self::Output {
-        Size::Bytes((self.bytes() as Intermediate * other.as_()) as i64)
+        Size::from_bytes((self.bytes() as Intermediate * other.as_()) as i64)
     }
 }
 
@@ -128,51 +127,51 @@ where
     type Output = Size;
 
     fn mul(self, other: T) -> Self::Output {
-        Size::Bytes((self.bytes() as Intermediate * other.as_()) as i64)
+        Size::from_bytes((self.bytes() as Intermediate * other.as_()) as i64)
     }
 }
 
-/// Defined to allow multiplying an untyped number by a Size, because
+/// Defined to allow multiplying an untyped integral literal by a Size, because
 /// multiplication should be commutative.
 impl Mul<Size> for i64
 {
     type Output = Size;
 
     fn mul(self, other: Size) -> Self::Output {
-        Size::Bytes((self as Intermediate * other.bytes() as Intermediate) as i64)
+        Size::from_bytes((self as Intermediate * other.bytes() as Intermediate) as i64)
     }
 }
 
-/// Defined to allow multiplying an untyped number by a Size, because
+/// Defined to allow multiplying an untyped integral literal by a Size, because
 /// multiplication should be commutative.
 impl Mul<&Size> for i64
 {
     type Output = Size;
 
     fn mul(self, other: &Size) -> Self::Output {
-        Size::Bytes((self as Intermediate * other.bytes() as Intermediate) as i64)
+        Size::from_bytes((self as Intermediate * other.bytes() as Intermediate) as i64)
     }
 }
 
-/// Defined to allow multiplying an untyped number by a Size, because
+/// Defined to allow multiplying an untyped floating scalar by a Size, because
 /// multiplication should be commutative.
 impl Mul<Size> for f64
 {
     type Output = Size;
 
     fn mul(self, other: Size) -> Self::Output {
-        Size::Bytes((self as Intermediate * other.bytes() as Intermediate) as i64)
+        Size::from_bytes((self as Intermediate * other.bytes() as Intermediate) as i64)
     }
 }
 
-/// Defined to allow multiplying an untyped number by a Size, because
+/// Defined to allow multiplying an untyped floating scalar by a Size, because
 /// multiplication should be commutative.
 impl Mul<&Size> for f64
 {
     type Output = Size;
 
     fn mul(self, other: &Size) -> Self::Output {
-        Size::Bytes((self as Intermediate * other.bytes() as Intermediate) as i64)
+        Size::from_bytes((self as Intermediate * other.bytes() as Intermediate) as i64)
     }
 }
 
@@ -183,7 +182,7 @@ where
     type Output = Size;
 
     fn div(self, other: T) -> Self::Output {
-        Size::Bytes((self.bytes() as Intermediate / other.as_()) as i64)
+        Size::from_bytes((self.bytes() as Intermediate / other.as_()) as i64)
     }
 }
 
@@ -194,6 +193,6 @@ where
     type Output = Size;
 
     fn div(self, other: T) -> Self::Output {
-        Size::Bytes((self.bytes() as Intermediate / other.as_()) as i64)
+        Size::from_bytes((self.bytes() as Intermediate / other.as_()) as i64)
     }
 }
