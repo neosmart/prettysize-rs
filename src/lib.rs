@@ -303,22 +303,22 @@ impl Unit {
     fn format(&self, mut fmt: &mut fmt::Formatter, bytes: u64, style: &Style) -> fmt::Result {
         match style {
             Style::Smart => match &self {
-                &Unit::Byte => self.format(&mut fmt, bytes, &Style::FullLowerCase),
+                &Unit::Byte => self.format(&mut fmt, bytes, &Style::FullLowercase),
                 _ => self.format(&mut fmt, bytes, &Style::Abbreviated),
             },
             style @ _ => match bytes {
                 1 => match style {
                     Style::Smart => unreachable!("already covered above"),
-                    Style::FullLowerCase => write!(fmt, " {}", self.text().0),
+                    Style::FullLowercase => write!(fmt, " {}", self.text().0),
                     Style::Full => write!(fmt, " {}", self.text().1),
-                    Style::AbbreviatedLowerCase => write!(fmt, " {}", self.text().2),
+                    Style::AbbreviatedLowercase => write!(fmt, " {}", self.text().2),
                     Style::Abbreviated => write!(fmt, " {}", self.text().3),
                 },
                 _ => match style {
                     Style::Smart => unreachable!("already covered above"),
-                    Style::FullLowerCase => write!(fmt, " {}s", self.text().0),
+                    Style::FullLowercase => write!(fmt, " {}s", self.text().0),
                     Style::Full => write!(fmt, " {}s", self.text().1),
-                    Style::AbbreviatedLowerCase => write!(fmt, " {}", self.text().2),
+                    Style::AbbreviatedLowercase => write!(fmt, " {}", self.text().2),
                     Style::Abbreviated => write!(fmt, " {}", self.text().3),
                 },
             },
@@ -596,11 +596,26 @@ pub enum Style {
     /// Abbreviated style, e.g. "1024 KB" and "1.29 GiB"
     Abbreviated,
     /// Abbreviated, lowercase style, e.g. "1024 kb" and "1.29 gib"
-    AbbreviatedLowerCase,
+    AbbreviatedLowercase,
     /// Full unit name style, e.g. "1024 Kilobytes" and "1.29 Gibibytes"
     Full,
     /// Full, lowercase unit name style, e.g. "1024 kilobytes" and "1.29 gibibytes"
-    FullLowerCase,
+    FullLowercase,
+}
+
+// Backwards-compatibility associated constants to mimic `Style` variants to enable compilation of
+// older code. They are all hidden from the docs.
+#[cfg(feature = "std")]
+impl Style {
+    #[doc(hidden)]
+    #[allow(non_upper_case_globals)]
+    /// A backwards-compatibile alias for [`Style::AbbreviatedLowerCase`]
+    pub const AbbreviatedLowerCase: Style = Style::AbbreviatedLowercase;
+
+    #[doc(hidden)]
+    #[allow(non_upper_case_globals)]
+    /// A backwards-compatibile alias for [`Style::FullLowerCase`]
+    pub const FullLowerCase: Style = Style::FullLowercase;
 }
 
 #[cfg(feature = "std")]
