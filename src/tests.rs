@@ -46,6 +46,11 @@ fn invalid_floats() {
     assert_eq!("0 bytes", format!("{}", Size::from_kib(f64::NAN)));
     assert_eq!("8 EiB", format!("{}", Size::from_kib(f64::INFINITY)));
     assert_eq!("-8 EiB", format!("{}", Size::from_kib(f64::NEG_INFINITY)));
+
+    // Also test for the old-style API, which does no math at the point of creation
+    assert_eq!("0 bytes", format!("{}", Size::Bytes(f64::NAN)));
+    assert_eq!("8 EiB", format!("{}", Size::Bytes(f64::INFINITY)));
+    assert_eq!("-8 EiB", format!("{}", Size::Bytes(f64::NEG_INFINITY)));
 }
 
 #[test]
