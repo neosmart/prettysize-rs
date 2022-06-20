@@ -31,3 +31,19 @@ fn nostd_bytes() {
     assert_eq!(s1.bytes(), s2.bytes());
     assert_eq!(s1.bytes(), 36<<10);
 }
+
+#[test]
+fn nostd_integral_limits() {
+    // Test the old-style API, which does no math at the point of creation
+    assert_eq!(Size::from_bytes(i64::max_value()), Size::Bytes(u64::max_value()));
+    assert_eq!(Size::from_bytes(0), Size::Bytes(u64::min_value()));
+    assert_eq!(Size::from_bytes(i64::MAX), Size::Bytes(u64::MAX - 1));
+    assert_eq!(Size::from_bytes(i64::max_value()), Size::Bytes(u64::max_value() as f64));
+}
+
+#[test]
+fn nostd_float_limits() {
+    // Test the old-style API, which does no math at the point of creation
+    assert_eq!(Size::from_bytes(i64::max_value()), Size::Bytes(f64::MAX));
+    assert_eq!(Size::from_bytes(i64::min_value()), Size::Bytes(f64::MIN));
+}

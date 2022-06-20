@@ -153,14 +153,14 @@ mod sealed {
                 fn as_(self) -> Intermediate { self as Intermediate }
             }
         };
-        ($type:ty, true) => {
+        // A separate implementation is required for no_std's intermediate i64 to make sure u64::MAX
+        // is clamped to i64::MAX rather than cast directly to -1.
+        ($type:ty, clamp: true) => {
             impl AsIntermediate for $type {
                 fn as_(self) -> Intermediate {
-                    const MIN: $type = Intermediate::MIN as $type;
-                    const MAX: $type = Intermediate::MAX as $type;
+                    const SIGNED_MAX: $type = Intermediate::MAX as $type;
 
-                    if self < MIN { MIN as Intermediate }
-                    else if self > MAX { MAX as Intermediate }
+                    if self > SIGNED_MAX { SIGNED_MAX as Intermediate }
                     else { self as Intermediate }
                 }
             }
@@ -170,7 +170,7 @@ mod sealed {
     as_intermediate!(u8);
     as_intermediate!(u16);
     as_intermediate!(u32);
-    as_intermediate!(u64);
+    as_intermediate!(u64, clamp: true);
     as_intermediate!(i8);
     as_intermediate!(i16);
     as_intermediate!(i32);
@@ -693,7 +693,7 @@ impl Size
     /// use size::Size;
     /// assert_eq!(Size::from_mib(4_u8).bytes(), 4_194_304 as i64);
     /// ```
-    pub fn bytes(&self) -> i64 {
+    pub const fn bytes(&self) -> i64 {
         self.bytes
     }
 
