@@ -136,7 +136,7 @@ type Intermediate = i64;
 #[cfg(feature = "std")]
 const DEFAULT_BASE: Base = Base::Base2;
 #[cfg(feature = "std")]
-const DEFAULT_STYLE: Style = Style::Smart;
+const DEFAULT_STYLE: Style = Style::Default;
 
 mod sealed {
     use super::Intermediate;
@@ -311,20 +311,20 @@ impl Unit {
 
     fn format(&self, mut fmt: &mut fmt::Formatter, bytes: u64, style: &Style) -> fmt::Result {
         match style {
-            Style::Smart => match &self {
+            Style::Default => match &self {
                 &Unit::Byte => self.format(&mut fmt, bytes, &Style::FullLowercase),
                 _ => self.format(&mut fmt, bytes, &Style::Abbreviated),
             },
             style @ _ => match bytes {
                 1 => match style {
-                    Style::Smart => unreachable!("already covered above"),
+                    Style::Default => unreachable!("already covered above"),
                     Style::FullLowercase => write!(fmt, " {}", self.text().0),
                     Style::Full => write!(fmt, " {}", self.text().1),
                     Style::AbbreviatedLowercase => write!(fmt, " {}", self.text().2),
                     Style::Abbreviated => write!(fmt, " {}", self.text().3),
                 },
                 _ => match style {
-                    Style::Smart => unreachable!("already covered above"),
+                    Style::Default => unreachable!("already covered above"),
                     Style::FullLowercase => write!(fmt, " {}s", self.text().0),
                     Style::Full => write!(fmt, " {}s", self.text().1),
                     Style::AbbreviatedLowercase => write!(fmt, " {}", self.text().2),
@@ -598,9 +598,9 @@ impl Size
 #[cfg(feature = "std")]
 #[non_exhaustive]
 pub enum Style {
-    /// The default "smart" style, currently equal to [`Style::FullLowerCase`] when the final unit is
+    /// The default "smart" style, currently equal to [`Style::FullLowercase`] when the final unit is
     /// in bytes or [`Style::Abbreviated`] otherwise, e.g. "1024 bytes" and "1.29 GiB"
-    Smart,
+    Default,
     /// Abbreviated style, e.g. "1024 KB" and "1.29 GiB"
     Abbreviated,
     /// Abbreviated, lowercase style, e.g. "1024 kb" and "1.29 gib"
@@ -615,6 +615,11 @@ pub enum Style {
 // older code. They are all hidden from the docs.
 #[cfg(feature = "std")]
 impl Style {
+    #[doc(hidden)]
+    #[allow(non_upper_case_globals)]
+    /// A backwards-compatibile alias for [`Style::Default`]
+    pub const Smart: Style = Style::Default;
+
     #[doc(hidden)]
     #[allow(non_upper_case_globals)]
     /// A backwards-compatibile alias for [`Style::AbbreviatedLowercase`]
