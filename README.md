@@ -14,18 +14,18 @@ what this crate can do and how to use it.
 
 `PrettySize` provides
 
-* a `Size<T>` enum that can be used to hold a strongly-typed size
-  (e.g. `let size = Size::GiB(4);`) and perform operations on it,
+* a `Size` enum that can be used to hold a strongly-typed size
+  (e.g. `let size = Size::from_gigabytes(4);`) and perform operations on it,
 * definitions for the base-two and base-ten file size units defined as `pub const` in the
   `size::consts` namespace, available both in abbreviated and unabridged forms (i.e.
   `consts` and `consts::EXBIBYTE` or `consts::GB` and `consts::GIGABYTE`),
-* a `Unit` enum that defines the base-two and base-ten units,
 * an `std::Display` impl for `Size` to automatically display sizes in a human-readable
-  format,
+  format, automatically choosing the best size unit and numeric precision to
+  give the nicest results.
 * a `Size.to_string(..)` method that gives you more control over how sizes are converted
   to a textual representation, letting you to specify the base of the human-readable
   units and their style (smart, abbreviated, or full; plus their lowercase variants).
-* mathematical and logical operations on strongly-typed `Size<T>` values
+* mathematical and logical operations on strongly-typed `Size` values
 
 This crate can also be used in `no_std` mode (by compiling with default features
 disabled). This disables string conversion/formatting but keeps all the strongly-typed
@@ -37,18 +37,18 @@ Cargo.toml:
 
 ```toml
 [dependencies]
-size = "0.2"
+size = "0.3"
 ```
 
 and in your code:
 
 ```rust
-use size::{Base, Size, Style};
 use size::consts;
+use size::{Base, Size, Style};
 
 fn main() {
   // Create strongly-typed sizes:
-  let byte_count = Size::Kilobytes(42);
+  let byte_count = Size::from_kilobytes(42);
   assert_eq!(42_000, byte_count.bytes());
 
   // Use predefined scalar constants for the various units
@@ -56,11 +56,11 @@ fn main() {
   assert_eq!(43_008, byte_count);
 
   // `Size` can take any numeric type you throw at it
-  let byte_count = Size::MiB(0.040055);
+  let byte_count = Size::from_mib(0.040055);
   assert_eq!(byte_count.bytes(), 42_000);
 
   // And for those of you that haven't yet drunk the base-two Kool-Aid:
-  let byte_count = Size::Kilobytes(42);
+  let byte_count = Size::from_kib(42);
   assert_eq!(byte_count.bytes(), 42_000);
 
   println!("{}, I say!", byte_count);
@@ -70,17 +70,17 @@ fn main() {
   println!("{}, I meant!", byte_count.to_string(Base::Base10, Style::Abbreviated));
   // prints "42 KB, I meant!"
 
-  // Add and subtract strongly-typed sizes, even with different underlying types
-  let sum = Size::MB(1.0) + Size::KB(200);
+  // Add and subtract strongly-typed sizes, even from different underlying types
+  let sum = Size::from_mb(1.0) + Size::from_kb(200);
   assert_eq!(sum.bytes(), 1_200_000);
 
   // Multiply and divide strongly-typed sizes by scalar values
-  let new_size = Size::MiB(2) * 2;
-  assert_eq!(new_size, Size::MiB(4));
+  let new_size = Size::from_mib(2) * 2;
+  assert_eq!(new_size, Size::from_mib(4));
 
   // Compare sizes for equality or order
-  let size1 = Size::Gigabytes(2);
-  let size2 = Size::GiB(1.99);
+  let size1 = Size::from_gigabytes(2);
+  let size2 = Size::from_gibibytes(1.99);
   assert!(size1 < size2);
 }
 ```
