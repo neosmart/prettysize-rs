@@ -16,7 +16,7 @@
 //!
 //! The core [`Size`] type is a simple wrapper around a signed numeric value - it can be initialized
 //! using whatever primitive numeric type you wish, e.g. constructing a `Size` from an `i64` or from
-//! an `foo: f64` number of kilobytes.
+//! a `foo: f64` number of kilobytes.
 //!
 //! ## Using this crate and creating a `Size` object
 //!
@@ -45,8 +45,8 @@
 //! assert_eq!(file_size.bytes(), 4_294_967_296);
 //! ```
 //!
-//! All `Size` types can be directly compared (both for ordering and for equality) to one another
-//! (or to references of one another), regardless of their underlying type:
+//! All `Size` types can be directly compared (both for order and equality) to one another (or to
+//! references of one another), regardless of their underlying type:
 //!
 //! ```
 //! use size::Size;
@@ -83,7 +83,7 @@
 //! use size::{Size, Base, Style};
 //!
 //! let file_size = Size::from_bytes(1_340_249); // same as before
-//! let textual_size = format!("{}", file_size.to_string(Base::Base10, Style::FullLowercase));
+//! let textual_size = file_size.to_string(Base::Base10, Style::FullLowercase);
 //! assert_eq!(textual_size, "1.34 megabytes".to_string());
 //! ```
 //!
@@ -117,6 +117,13 @@
 //! to `i64` so that no implicit floating-point math is performed. To prevent inadvertent loss of
 //! precision, it is forbidden to pass in floating point values to the `Size` API under `no_std`
 //! mode.
+//!
+//! ## Other types and constants
+//!
+//! The `size` crate also exposes the following types/consts to help in dealing with file sizes:
+//! * [`Unit`], an enum with the various base-2 and base-10 units
+//! * The [`consts`] module contains various scalar defines for the various base-2 and base-10
+//! units, e.g. [`consts::BYTE`], [`consts::MEGABYTE`], and [`consts::KIBIBYTE`].
 
 pub mod ops;
 #[cfg(test)]
@@ -180,6 +187,16 @@ mod sealed {
 }
 
 /// A collection of constants for base-2 and base-10 units.
+///
+/// These can be used in a `const` context in conjunction with the `const` [`Size::from_bytes()`]
+/// function to create strongly-sized `Size` objects expressing various sizes, e.g.
+///
+/// ```
+/// use size::Size;
+/// use size::consts::*;
+///
+/// pub const TOTAL_SIZE: Size = Size::from_bytes(3 * MiB);
+/// ```
 pub mod consts {
     #![allow(non_upper_case_globals)]
 
@@ -241,6 +258,7 @@ pub mod consts {
 }
 
 /// An enumeration of supported bases to use for generating textual descriptions of sizes.
+///
 /// [`Base::Base10`] is the "usual" units like [`Unit::Kilobyte`] and [`Unit::Exabyte`], while
 /// [`Base::Base2`] is the SI/memory units like [`Unit::Mebibyte`] and [`Unit::Tebibyte`], (more
 /// often referred to as "MiB" and "TiB", respectively).
@@ -337,9 +355,9 @@ impl Unit {
     }
 }
 
-/// `Size` is the core type exposed by this crate and allows the developer to express the concept of
-/// a "size" as a strongly-typed, convertible type that can be used for textual formatting ("pretty
-/// printing") and mathematical operations.
+/// `Size` is the core type exposed by this crate and allows the developer to express a file size
+/// (or the general concept of a "size") as a strongly-typed, convertible type that can be used for
+/// textual formatting ("pretty printing") and mathematical operations.
 ///
 /// A size can be created in terms of any supported unit and an associated numeric value of any
 /// type.
@@ -358,7 +376,8 @@ impl Size {
     /// Initialize a `Size` from the provided value, in bytes. This is a constant function and may
     /// be used in a `const` context.
     ///
-    /// Unlike the other "from" functions (e.g. [`from_kilobytes()`]), it is not generic because
+    /// Unlike the other "from" functions (e.g. [`from_kilobytes()`](Size::from_kilobytes())), it is
+    /// not generic because
     /// a) trait methods (required to use a generic type) may not be declared as `const`, and
     /// b) it's always safe to use `as i64` on whatever type you're actually passing into
     /// `from_bytes()` without any (additional) loss of precision as compared to passing in an
@@ -373,7 +392,7 @@ impl Size {
     /// would start from an already-truncated `2_i64` and yield an incorrect answer of 2048 bytes
     /// (`(2.5 as i64) * 1024`). However, with `from_bytes()`, there can be no loss of precision
     /// (or, pedantically, even truncation) when `as i64` is used since the file size, expressed in
-    /// bytes, must always be a whole number; meaning it is safe to perform the integer
+    /// bytes, must always be a whole number; this means it is safe to perform the integer
     /// conversion/rounding at the call site itself and `Size::from_bytes(float_val as i64)` would
     /// necessarily always yield the same result as a hypothetically generic/type-agnostic
     /// `Size::from_bytes::<f64>(float_val)`.

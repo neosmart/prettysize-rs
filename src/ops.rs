@@ -1,8 +1,10 @@
-//! Implementations of basic arithmetic operations on `Size`. Only operations that make sense are
-//! implemented, e.g. while it is OK to add two `Size` objects, it does not make sense to multiply
-//! them. Meanwhile, `17MiB / 2` is perfectly rational and returns a size equivalent  to `3.5 MiB`,
-//! but `12KB + 14` isn't (as the addition of a scalar value to a sized type is undefined) -- on the
-//! other hand, `12KB + 14B` is both supported and perfectly fine.
+//! Implementations of basic arithmetic operations on/between `Size` values.
+//!
+//! Only operations that make sense are implemented, e.g. while it is OK to add two `Size` objects,
+//! it does not make sense to multiply them. Meanwhile, `17 MiB / 2` is perfectly rational and
+//! returns a size of `3.5 MiB`, but `12 KB + 14` isn't (as the addition of a scalar value to a
+//! sized type is undefined) -- on the other hand, `12 KB + 14 B` is both supported and perfectly
+//! fine.
 //!
 //! Some examples of supported mathematical operations:
 //!
@@ -16,7 +18,7 @@
 //! // Perform addition or subtraction of two `Size` instances,
 //! // regardless of their underlying types
 //! let s2 = Size::from_kib(4) + Size::from_mb(8);
-//! assert_eq!(s2.bytes(), 8004096);
+//! assert_eq!(s2.bytes(), 8_004_096);
 //!
 //! // Express the negative difference between two sizes
 //! let s3 = Size::from_mib(12) - Size::from_mib(14.2_f64);
