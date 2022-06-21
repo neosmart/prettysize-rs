@@ -175,7 +175,10 @@ mod sealed {
     as_intermediate!(u8);
     as_intermediate!(u16);
     as_intermediate!(u32);
+    #[cfg(not(feature = "std"))]
     as_intermediate!(u64, clamp: true);
+    #[cfg(feature = "std")]
+    as_intermediate!(u64);
     as_intermediate!(i8);
     as_intermediate!(i16);
     as_intermediate!(i32);
