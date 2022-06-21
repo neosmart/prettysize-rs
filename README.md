@@ -18,7 +18,7 @@ what this crate can do and how to use it.
   (e.g. `let size = Size::from_gigabytes(4);`) and perform operations on it,
 * definitions for the base-two and base-ten file size units defined as `pub const` in the
   `size::consts` namespace, available both in abbreviated and unabridged forms (i.e.
-  `consts` and `consts::EXBIBYTE` or `consts::GB` and `consts::GIGABYTE`),
+  `consts::KiB` and `consts::KIBIBYTE` or `consts::GB` and `consts::GIGABYTE`),
 * an `std::Display` impl for `Size` to automatically display sizes in a human-readable
   format, automatically choosing the best size unit and numeric precision to
   give the nicest results.
