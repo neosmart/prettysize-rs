@@ -260,6 +260,7 @@ pub mod consts {
 /// respectively).
 #[non_exhaustive]
 #[cfg(feature = "std")]
+#[derive(Copy, Clone, Debug)]
 pub enum Base {
     /// Base-2 units like "kibibyte" and "mebibyte", more often referred to via their abbreviations
     /// ("KiB" and "MiB", respectively). Each unit is 1024 times greater than the preceding one.
@@ -612,6 +613,7 @@ impl Size
 /// specifying how the unit should be spelled out.
 #[cfg(feature = "std")]
 #[non_exhaustive]
+#[derive(Copy, Clone, Debug)]
 pub enum Style {
     /// The default "smart" style, currently equal to [`Style::FullLowercase`] when the final unit is
     /// in bytes or [`Style::Abbreviated`] otherwise, e.g. "1024 bytes" and "1.29 GiB"
