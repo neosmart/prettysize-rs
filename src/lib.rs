@@ -117,13 +117,6 @@
 //! to `i64` so that no implicit floating-point math is performed. To prevent inadvertent loss of
 //! precision, it is forbidden to pass in floating point values to the `Size` API under `no_std`
 //! mode.
-//!
-//! ## Other types and constants
-//!
-//! The `size` crate also exposes the following types/consts to help in dealing with file sizes:
-//! * [`Unit`], an enum with the various base-2 and base-10 units
-//! * The [`consts`] module contains various scalar defines for the various base-2 and base-10
-//! units, e.g. [`consts::BYTE`], [`consts::MEGABYTE`], and [`consts::KIBIBYTE`].
 
 pub mod ops;
 #[cfg(test)]
@@ -262,24 +255,22 @@ pub mod consts {
 
 /// An enumeration of supported bases to use for generating textual descriptions of sizes.
 ///
-/// [`Base::Base10`] is the "usual" units like [`Unit::Kilobyte`] and [`Unit::Exabyte`], while
-/// [`Base::Base2`] is the SI/memory units like [`Unit::Mebibyte`] and [`Unit::Tebibyte`], (more
-/// often referred to as "MiB" and "TiB", respectively).
+/// [`Base::Base10`] is the "usual" units like "kilobyte" and "exabyte", while [`Base::Base2`] is
+/// the SI/memory units like "mebibyte" and "tebibyte", (more often referred to as "MiB" and "TiB",
+/// respectively).
 #[non_exhaustive]
 #[cfg(feature = "std")]
 pub enum Base {
-    /// Base-2 units like [`Unit::Kibibyte`] and [`Unit::Mebibyte`], more often referred to via
-    /// their abbreviations ("KiB" and "MiB", respectively). Each unit is 1024 times greater than
-    /// the preceding one.
+    /// Base-2 units like "kibibyte" and "mebibyte", more often referred to via their abbreviations
+    /// ("KiB" and "MiB", respectively). Each unit is 1024 times greater than the preceding one.
     Base2,
-    /// Base-10 units like [`Unit::Kilobyte`] and [`Unit::Megabyte`]. Each unit is 1000 times
-    /// greater than the preceding one.
+    /// Base-10 units like "kilobyte" and "megabyte". Each unit is 1000 times greater than the
+    /// preceding one.
     Base10,
 }
 
 /// A collection of units used to refer to sizes, for all supported bases.
-#[non_exhaustive]
-pub enum Unit {
+enum Unit {
     /// The basic "byte" unit, used by both base-2 and base-10 styles.
     Byte,
     /// The base-2 "kibibyte" unit, equal to 1024 bytes.
