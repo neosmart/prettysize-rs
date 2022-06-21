@@ -325,27 +325,21 @@ impl Unit {
     }
 
     fn format(&self, mut fmt: &mut fmt::Formatter, bytes: u64, style: &Style) -> fmt::Result {
-        match style {
-            Style::Default => match &self {
+        match (&style, bytes) {
+            (&Style::Default, _) => match &self {
                 &Unit::Byte => self.format(&mut fmt, bytes, &Style::FullLowercase),
                 _ => self.format(&mut fmt, bytes, &Style::Abbreviated),
             },
-            style @ _ => match bytes {
-                1 => match style {
-                    Style::Default => unreachable!("already covered above"),
-                    Style::FullLowercase => write!(fmt, " {}", self.text().0),
-                    Style::Full => write!(fmt, " {}", self.text().1),
-                    Style::AbbreviatedLowercase => write!(fmt, " {}", self.text().2),
-                    Style::Abbreviated => write!(fmt, " {}", self.text().3),
-                },
-                _ => match style {
-                    Style::Default => unreachable!("already covered above"),
-                    Style::FullLowercase => write!(fmt, " {}s", self.text().0),
-                    Style::Full => write!(fmt, " {}s", self.text().1),
-                    Style::AbbreviatedLowercase => write!(fmt, " {}", self.text().2),
-                    Style::Abbreviated => write!(fmt, " {}", self.text().3),
-                },
-            },
+
+            (&Style::FullLowercase, 1) => write!(fmt, " {}", self.text().0),
+            (&Style::Full, 1) => write!(fmt, " {}", self.text().1),
+            (&Style::AbbreviatedLowercase, 1) => write!(fmt, " {}", self.text().2),
+            (&Style::Abbreviated, 1) => write!(fmt, " {}", self.text().3),
+
+            (&Style::FullLowercase, _) => write!(fmt, " {}s", self.text().0),
+            (&Style::Full, _) => write!(fmt, " {}s", self.text().1),
+            (&Style::AbbreviatedLowercase, _) => write!(fmt, " {}", self.text().2),
+            (&Style::Abbreviated, _) => write!(fmt, " {}", self.text().3),
         }
     }
 }
@@ -359,6 +353,7 @@ impl Unit {
 ///
 /// ```
 /// use size::Size;
+///
 /// // Identical sizes expressed in different units with different primitive types:
 /// assert_eq!(Size::from_kibibytes(2_u8), Size::from_kilobytes(2.048_f64));
 /// ```
