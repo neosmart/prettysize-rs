@@ -30,9 +30,9 @@
 //! use size::Size;
 //!
 //! // Create a strongly-typed size object. We don't even need to specify a numeric type!
-//! let file1_size = Size::from_kib(200);
+//! let file1_size = Size::from_bytes(200);
 //! // Create another Size instance, this time from a floating-point literal:
-//! let file2_size = Size::from_kilobytes(20.1);
+//! let file2_size = Size::from_kb(20.1);
 //! ```
 //!
 //! You can obtain a scalar `i64` value equal to the total number of bytes described by a
