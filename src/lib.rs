@@ -20,11 +20,11 @@
 //!
 //! ## Using this crate and creating a `Size` object
 //!
-//! To use this crate, you only need to place `using size::Size` at the top of your rust code, then
+//! To use this crate, you only need to place `use size::Size` at the top of your rust code, then
 //! create a `Size` from a constructor/initializer that matches the size you have on hand. Both
 //! base-2 (KiB, MiB, etc) and base-10 (KB, MB, etc) units are supported and are exposed via the
-//! same API. You can be either use the abbreviated form of the unit to instantiate your type, or
-//! use the full unit name to be more expressive. Here's an example:
+//! same API. You can either use the abbreviated form of the unit to instantiate your type, or use
+//! the full unit name to be more expressive. Here's an example:
 //!
 //! ```
 //! use size::Size;
@@ -46,7 +46,7 @@
 //! ```
 //!
 //! All `Size` types can be directly compared (both for order and equality) to one another (or to
-//! references of one another), regardless of their underlying type:
+//! references of one another), regardless of their original type:
 //!
 //! ```
 //! use size::Size;
