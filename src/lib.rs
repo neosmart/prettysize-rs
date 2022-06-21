@@ -275,6 +275,7 @@ pub enum Base {
 }
 
 /// A collection of units used to refer to sizes, for all supported bases.
+#[cfg(feature = "std")]
 enum Unit {
     /// The basic "byte" unit, used by both base-2 and base-10 styles.
     Byte,
