@@ -142,6 +142,7 @@ mod sealed {
     use super::Intermediate;
 
     pub trait AsIntermediate: Sized {
+        // This is the same name and signature as `AsPrimitive` trait from the `num_traits` crate
         fn as_(self) -> Intermediate;
     }
 
@@ -158,8 +159,11 @@ mod sealed {
                 fn as_(self) -> Intermediate {
                     const SIGNED_MAX: $type = Intermediate::MAX as $type;
 
-                    if self > SIGNED_MAX { Intermediate::MAX }
-                    else { self as Intermediate }
+                    if self > SIGNED_MAX {
+                        Intermediate::MAX
+                    } else {
+                        self as Intermediate
+                    }
                 }
             }
         };
@@ -519,8 +523,7 @@ impl Size {
 // mathematical sum/difference/product/etc). The impl block below is for backwards
 // source-compatibility purposes (with functions masquerading as enum variants).
 #[doc(hidden)]
-impl Size
-{
+impl Size {
     #![allow(non_snake_case)]
 
     #[inline]
@@ -644,43 +647,37 @@ impl Style {
 }
 
 #[cfg(feature = "std")]
-impl std::fmt::Display for Size
-{
+impl std::fmt::Display for Size {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         self.format(fmt, &DEFAULT_BASE, &DEFAULT_STYLE)
     }
 }
 
-impl core::fmt::Debug for Size
-{
+impl core::fmt::Debug for Size {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         write!(fmt, "{} bytes", self.bytes())
     }
 }
 
-impl PartialEq<Size> for Size
-{
+impl PartialEq<Size> for Size {
     fn eq(&self, other: &Size) -> bool {
         self.bytes() == other.bytes()
     }
 }
 
-impl PartialEq<&Size> for Size
-{
+impl PartialEq<&Size> for Size {
     fn eq(&self, other: &&Size) -> bool {
         self.bytes() == other.bytes()
     }
 }
 
-impl PartialOrd<Size> for Size
-{
+impl PartialOrd<Size> for Size {
     fn partial_cmp(&self, other: &Size) -> Option<core::cmp::Ordering> {
         self.bytes().partial_cmp(&other.bytes())
     }
 }
 
-impl PartialOrd<&Size> for Size
-{
+impl PartialOrd<&Size> for Size {
     fn partial_cmp(&self, other: &&Size) -> Option<core::cmp::Ordering> {
         self.bytes().partial_cmp(&other.bytes())
     }
@@ -699,8 +696,7 @@ where
     }
 }
 
-impl Size
-{
+impl Size {
     #[inline]
     /// Returns the effective size in bytes of the type, useful for obtaining a plain/scalar
     /// representation of the full size represented by a [`Size`] object. This always returns an

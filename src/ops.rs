@@ -39,11 +39,11 @@
 use crate::{AsIntermediate, Intermediate, Size};
 use core::ops::{Add, Div, Mul, Sub};
 
-impl Add<&Size> for &Size
+impl Add<Size> for Size
 {
     type Output = Size;
 
-    fn add(self, other: &Size) -> Self::Output {
+    fn add(self, other: Size) -> Self::Output {
         Size::from_bytes(self.bytes() + other.bytes())
     }
 }
@@ -66,20 +66,20 @@ impl Add<&Size> for Size
     }
 }
 
-impl Add<Size> for Size
+impl Add<&Size> for &Size
 {
     type Output = Size;
 
-    fn add(self, other: Size) -> Self::Output {
+    fn add(self, other: &Size) -> Self::Output {
         Size::from_bytes(self.bytes() + other.bytes())
     }
 }
 
-impl Sub<&Size> for &Size
+impl Sub<Size> for Size
 {
     type Output = Size;
 
-    fn sub(self, other: &Size) -> Self::Output {
+    fn sub(self, other: Size) -> Self::Output {
         Size::from_bytes(self.bytes() as i64 - other.bytes() as i64)
     }
 }
@@ -102,11 +102,11 @@ impl Sub<&Size> for Size
     }
 }
 
-impl Sub<Size> for Size
+impl Sub<&Size> for &Size
 {
     type Output = Size;
 
-    fn sub(self, other: Size) -> Self::Output {
+    fn sub(self, other: &Size) -> Self::Output {
         Size::from_bytes(self.bytes() as i64 - other.bytes() as i64)
     }
 }
@@ -133,51 +133,33 @@ where
     }
 }
 
-/// Defined to allow multiplying an untyped integral literal by a Size, because
-/// multiplication should be commutative.
-impl Mul<Size> for i64
-{
-    type Output = Size;
+macro_rules! impl_mul {
+    ($type:ty) => {
+        impl Mul<Size> for $type
+        {
+            type Output = Size;
 
-    fn mul(self, other: Size) -> Self::Output {
-        Size::from_bytes((self as Intermediate * other.bytes() as Intermediate) as i64)
-    }
+            fn mul(self, other: Size) -> Self::Output {
+                Size::from_bytes((self as Intermediate * other.bytes() as Intermediate) as i64)
+            }
+        }
+
+        impl Mul<&Size> for $type
+        {
+            type Output = Size;
+
+            fn mul(self, other: &Size) -> Self::Output {
+                Size::from_bytes((self as Intermediate * other.bytes() as Intermediate) as i64)
+            }
+        }
+    };
 }
 
-/// Defined to allow multiplying an untyped integral literal by a Size, because
-/// multiplication should be commutative.
-impl Mul<&Size> for i64
-{
-    type Output = Size;
+impl_mul!(i64);
+#[cfg(feature = "std")]
+impl_mul!(f64);
 
-    fn mul(self, other: &Size) -> Self::Output {
-        Size::from_bytes((self as Intermediate * other.bytes() as Intermediate) as i64)
-    }
-}
-
-/// Defined to allow multiplying an untyped floating scalar by a Size, because
-/// multiplication should be commutative.
-impl Mul<Size> for f64
-{
-    type Output = Size;
-
-    fn mul(self, other: Size) -> Self::Output {
-        Size::from_bytes((self as Intermediate * other.bytes() as Intermediate) as i64)
-    }
-}
-
-/// Defined to allow multiplying an untyped floating scalar by a Size, because
-/// multiplication should be commutative.
-impl Mul<&Size> for f64
-{
-    type Output = Size;
-
-    fn mul(self, other: &Size) -> Self::Output {
-        Size::from_bytes((self as Intermediate * other.bytes() as Intermediate) as i64)
-    }
-}
-
-impl<T> Div<T> for &Size
+impl<T> Div<T> for Size
 where
     T: AsIntermediate,
 {
@@ -188,7 +170,7 @@ where
     }
 }
 
-impl<T> Div<T> for Size
+impl<T> Div<T> for &Size
 where
     T: AsIntermediate,
 {
