@@ -179,10 +179,12 @@ mod sealed {
     as_intermediate!(u16);
     as_intermediate!(u32);
     as_intermediate!(u64);
+    as_intermediate!(usize);
     as_intermediate!(i8);
     as_intermediate!(i16);
     as_intermediate!(i32);
     as_intermediate!(i64);
+    as_intermediate!(isize);
     #[cfg(feature = "std")]
     as_intermediate!(f32);
     #[cfg(feature = "std")]
