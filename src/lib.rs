@@ -543,7 +543,7 @@ impl Size {
     #[inline]
     #[deprecated(since = "0.3", note = "Use Size::from_bytes() instead")]
     /// Express a size in bytes.
-    pub fn Bytes<T: AsIntermediate>(t: T) -> Self { Self::from_bytes(t.as_() as i64) }
+    pub fn Bytes<T: AsIntermediate>(t: T) -> Self { Self::from_bytes(t) }
     #[inline]
     #[deprecated(since = "0.3", note = "Use Size::from_kibibytes() instead")]
     /// Express a size in kibibytes. Actual size is 2^10 \* the value.
@@ -596,7 +596,7 @@ impl Size {
     #[inline]
     #[deprecated(since = "0.3", note = "Use Size::from_bytes() instead")]
     /// Express a size in bytes, as a shortcut for using [`Size::Bytes`].
-    pub fn B<T: AsIntermediate>(t: T) -> Self { Self::from_bytes(t.as_() as i64) }
+    pub fn B<T: AsIntermediate>(t: T) -> Self { Self::from_bytes(t) }
     #[inline]
     #[deprecated(since = "0.3", note = "Use Size::from_kib() instead")]
     /// Express a size in kibibytes, as a shortcut for using [`Size::Kibibytes`].
