@@ -673,19 +673,19 @@ impl Style {
     #[doc(hidden)]
     #[allow(non_upper_case_globals)]
     #[deprecated(since = "0.3", note = "Use Style::Default instead")]
-    /// A backwards-compatibile alias for [`Style::Default`]
+    /// A backwards-compatible alias for [`Style::Default`]
     pub const Smart: Style = Style::Default;
 
     #[doc(hidden)]
     #[allow(non_upper_case_globals)]
     #[deprecated(since = "0.3", note = "Use Style::AbbreviatedLowercase instead")]
-    /// A backwards-compatibile alias for [`Style::AbbreviatedLowercase`]
+    /// A backwards-compatible alias for [`Style::AbbreviatedLowercase`]
     pub const AbbreviatedLowerCase: Style = Style::AbbreviatedLowercase;
 
     #[doc(hidden)]
     #[allow(non_upper_case_globals)]
     #[deprecated(since = "0.3", note = "Use Style::FullLowercase instead")]
-    /// A backwards-compatibile alias for [`Style::FullLowercase`]
+    /// A backwards-compatible alias for [`Style::FullLowercase`]
     pub const FullLowerCase: Style = Style::FullLowercase;
 }
 
