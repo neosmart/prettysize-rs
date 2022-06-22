@@ -39,8 +39,7 @@
 use crate::{AsIntermediate, Intermediate, Size};
 use core::ops::{Add, Div, Mul, Sub};
 
-impl Add<Size> for Size
-{
+impl Add<Size> for Size {
     type Output = Size;
 
     fn add(self, other: Size) -> Self::Output {
@@ -48,8 +47,7 @@ impl Add<Size> for Size
     }
 }
 
-impl Add<Size> for &Size
-{
+impl Add<Size> for &Size {
     type Output = Size;
 
     fn add(self, other: Size) -> Self::Output {
@@ -57,8 +55,7 @@ impl Add<Size> for &Size
     }
 }
 
-impl Add<&Size> for Size
-{
+impl Add<&Size> for Size {
     type Output = Size;
 
     fn add(self, other: &Size) -> Self::Output {
@@ -66,8 +63,7 @@ impl Add<&Size> for Size
     }
 }
 
-impl Add<&Size> for &Size
-{
+impl Add<&Size> for &Size {
     type Output = Size;
 
     fn add(self, other: &Size) -> Self::Output {
@@ -75,8 +71,7 @@ impl Add<&Size> for &Size
     }
 }
 
-impl Sub<Size> for Size
-{
+impl Sub<Size> for Size {
     type Output = Size;
 
     fn sub(self, other: Size) -> Self::Output {
@@ -84,8 +79,7 @@ impl Sub<Size> for Size
     }
 }
 
-impl Sub<Size> for &Size
-{
+impl Sub<Size> for &Size {
     type Output = Size;
 
     fn sub(self, other: Size) -> Self::Output {
@@ -93,8 +87,7 @@ impl Sub<Size> for &Size
     }
 }
 
-impl Sub<&Size> for Size
-{
+impl Sub<&Size> for Size {
     type Output = Size;
 
     fn sub(self, other: &Size) -> Self::Output {
@@ -102,8 +95,7 @@ impl Sub<&Size> for Size
     }
 }
 
-impl Sub<&Size> for &Size
-{
+impl Sub<&Size> for &Size {
     type Output = Size;
 
     fn sub(self, other: &Size) -> Self::Output {
@@ -135,21 +127,19 @@ where
 
 macro_rules! impl_mul {
     ($type:ty) => {
-        impl Mul<Size> for $type
-        {
+        impl Mul<Size> for $type {
             type Output = Size;
 
             fn mul(self, other: Size) -> Self::Output {
-                Size::from_bytes((self as Intermediate * other.bytes() as Intermediate) as i64)
+                Size::from_bytes((self.as_() * other.bytes() as Intermediate) as i64)
             }
         }
 
-        impl Mul<&Size> for $type
-        {
+        impl Mul<&Size> for $type {
             type Output = Size;
 
             fn mul(self, other: &Size) -> Self::Output {
-                Size::from_bytes((self as Intermediate * other.bytes() as Intermediate) as i64)
+                Size::from_bytes((self.as_() * other.bytes() as Intermediate) as i64)
             }
         }
     };
