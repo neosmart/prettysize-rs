@@ -100,7 +100,7 @@ released to the general public under the terms of the MIT public license.
 
 ## To-Do
 
-* Providing a `FromStr` impl to parse file sizes,
-* Implementing direct unit-to-unit conversion,
+* Providing a `FromStr` impl to parse file sizes ([coming
+  soon!](https://github.com/neosmart/prettysize-rs/pull/3))
 
 Pull requests are welcome!
