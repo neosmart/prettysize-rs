@@ -154,17 +154,18 @@ mod sealed {
     macro_rules! as_intermediate {
         ($type:ty) => {
             impl AsIntermediate for $type {
-                fn as_(self) -> Intermediate { self as Intermediate }
-            }
-        };
-        // A separate implementation is required for no_std's intermediate i64 to make sure u64::MAX
-        // is clamped to i64::MAX rather than cast directly to -1.
-        ($type:ty, clamp: true) => {
-            impl AsIntermediate for $type {
                 fn as_(self) -> Intermediate {
+                    use core::mem::size_of;
                     const SIGNED_MAX: $type = Intermediate::MAX as $type;
 
-                    if self > SIGNED_MAX {
+                    // A separate implementation is required for no_std's intermediate i64 to make
+                    // sure u64::MAX is clamped to i64::MAX rather than cast directly to -1. The
+                    // first three checks should be elided per impl via compile-time optimization.
+                    if cfg!(not(feature = "std")) // we are in no_std mode
+                        && <$type>::MIN == 0 as $type // it's an unsigned type
+                        && size_of::<Intermediate>() >= size_of::<$type>() // with a greater +range
+                        && self > SIGNED_MAX // and exceeds our max
+                    {
                         Intermediate::MAX
                     } else {
                         self as Intermediate
@@ -177,9 +178,6 @@ mod sealed {
     as_intermediate!(u8);
     as_intermediate!(u16);
     as_intermediate!(u32);
-    #[cfg(not(feature = "std"))]
-    as_intermediate!(u64, clamp: true);
-    #[cfg(feature = "std")]
     as_intermediate!(u64);
     as_intermediate!(i8);
     as_intermediate!(i16);
