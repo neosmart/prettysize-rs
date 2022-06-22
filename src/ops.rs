@@ -8,7 +8,8 @@
 //!
 //! Some examples of supported mathematical operations:
 //!
-//! ```
+#![cfg_attr(not(feature = "std"), doc = "```ignore")]
+#![cfg_attr(feature = "std", doc = "```")]
 //! use size::Size;
 //!
 //! // Perform scalar multiplication/division on a `Size`

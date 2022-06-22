@@ -26,7 +26,8 @@
 //! same API. You can either use the abbreviated form of the unit to instantiate your type, or use
 //! the full unit name to be more expressive. Here's an example:
 //!
-//! ```
+#![cfg_attr(not(feature = "std"), doc = "```ignore")]
+#![cfg_attr(feature = "std", doc = "```")]
 //! use size::Size;
 //!
 //! // Create a strongly-typed size object. We don't even need to specify a numeric type!
@@ -38,7 +39,8 @@
 //! You can obtain a scalar `i64` value equal to the total number of bytes described by a
 //! `Size` instance by calling [`Size::bytes()`] (see link for more info):
 //!
-//! ```
+#![cfg_attr(not(feature = "std"), doc = "```ignore")]
+#![cfg_attr(feature = "std", doc = "```")]
 //! use size::Size;
 //!
 //! let file_size = Size::from_gibibytes(4);
@@ -51,7 +53,7 @@
 //! ```
 //! use size::Size;
 //!
-//! let size1 = Size::from_kib(4.0 as f64);
+//! let size1 = Size::from_kib(4 as u8);
 //! let size2 = Size::from_bytes(4096 as i64);
 //! assert_eq!(size1, size2);
 //!
@@ -67,7 +69,8 @@
 //! [`std::fmt::Display`] and [`std::fmt::Debug`], so you can just directly `format!(...)` or
 //! `println!(...)` with whatever `Size` you have on hand:
 //!
-//! ```
+#![cfg_attr(not(feature = "std"), doc = "```ignore")]
+#![cfg_attr(feature = "std", doc = "```")]
 //! use size::Size;
 //!
 //! let file_size = Size::from_bytes(1_340_249);
@@ -79,7 +82,8 @@
 //! [`Size::to_string()`] function, which accepts parameters that control which units are used
 //! ("standard"/base-10 or SI/base-2) and how the unit should be written out, for example:
 //!
-//! ```
+#![cfg_attr(not(feature = "std"), doc = "```ignore")]
+#![cfg_attr(feature = "std", doc = "```")]
 //! use size::{Size, Base, Style};
 //!
 //! let file_size = Size::from_bytes(1_340_249); // same as before
@@ -92,7 +96,8 @@
 //! You can perform mathematical operations on `Size` types and the type safety makes sure that
 //! what you're doing makes sense:
 //!
-//! ```
+#![cfg_attr(not(feature = "std"), doc = "```ignore")]
+#![cfg_attr(feature = "std", doc = "```")]
 //! use size::Size;
 //!
 //! let sum = Size::from_mib(2) + Size::from_kib(200);
@@ -356,7 +361,8 @@ impl Unit {
 /// A size can be created in terms of any supported unit and an associated numeric value of any
 /// type.
 ///
-/// ```
+#[cfg_attr(not(feature = "std"), doc = "```ignore")]
+#[cfg_attr(feature = "std", doc = "```")]
 /// use size::Size;
 ///
 /// // Identical sizes expressed in different units with different primitive types:
