@@ -193,14 +193,14 @@ mod sealed {
 
 /// A collection of constants for base-2 and base-10 units.
 ///
-/// These can be used in a `const` context in conjunction with the `const` [`Size::from_bytes()`]
+/// These can be used in a `const` context in conjunction with the `const` [`Size::from_const()`]
 /// function to create strongly-sized `Size` objects expressing various sizes, e.g.
 ///
 /// ```
 /// use size::Size;
 /// use size::consts::*;
 ///
-/// pub const TOTAL_SIZE: Size = Size::from_bytes(3 * MiB);
+/// pub const TOTAL_SIZE: Size = Size::from_const(3 * MiB);
 /// ```
 pub mod consts {
     #![allow(non_upper_case_globals)]
@@ -394,11 +394,18 @@ impl Size {
     /// (`(2.5 as i64) * 1024`). However, with `from_bytes()`, there can be no loss of precision
     /// (or, pedantically, even truncation) when `as i64` is used since the file size, expressed in
     /// bytes, must always be a whole number; this means it is safe to perform the integer
-    /// conversion/rounding at the call site itself and `Size::from_bytes(float_val as i64)` would
-    /// necessarily always yield the same result as a hypothetically generic/type-agnostic
+    /// conversion/rounding at the call site itself and `Size::from_const(float_val as i64)` would
+    /// necessarily always yield the same result as the generic/type-agnostic
     /// `Size::from_bytes::<f64>(float_val)`.
-    pub const fn from_bytes(bytes: i64) -> Self {
+    pub const fn from_const(bytes: i64) -> Self {
         Self { bytes }
+    }
+
+    /// Initialize a `Size` from the provided value, in bytes.
+    pub fn from_bytes<T: AsIntermediate>(value: T) -> Self {
+        Self {
+            bytes: value.as_() as i64
+        }
     }
 
     /// Express a size in kilobytes. Actual size is 10^3 \* the value.
