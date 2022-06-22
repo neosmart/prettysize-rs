@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 #[cfg(feature = "std")]
 mod std {
     use size::{Base, Size, Style};

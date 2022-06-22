@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 // This is the code in the release post at
 // https://neosmart.net/blog/2018/prettysize-for-rust/
 extern crate size;

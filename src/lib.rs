@@ -541,82 +541,108 @@ impl Size {
     #![allow(non_snake_case)]
 
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_bytes() instead")]
     /// Express a size in bytes.
     pub fn Bytes<T: AsIntermediate>(t: T) -> Self { Self::from_bytes(t.as_() as i64) }
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_kibibytes() instead")]
     /// Express a size in kibibytes. Actual size is 2^10 \* the value.
     pub fn Kibibytes<T: AsIntermediate>(t: T) -> Self { Self::from_kibibytes(t) }
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_kilobytes() instead")]
     /// Express a size in kilobytes. Actual size is 10^3 \* the value.
     pub fn Kilobytes<T: AsIntermediate>(t: T) -> Self { Self::from_kilobytes(t) }
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_mebibytes() instead")]
     /// Express a size in mebibytes. Actual size is 2^20 \* the value.
     pub fn Mebibytes<T: AsIntermediate>(t: T) -> Self { Self::from_mebibytes(t) }
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_megabytes() instead")]
     /// Express a size in megabytes. Actual size is 10^6 \* the value.
     pub fn Megabytes<T: AsIntermediate>(t: T) -> Self { Self::from_megabytes(t) }
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_gibibytes() instead")]
     /// Express a size in gibibytes. Actual size is 2^30 \* the value.
     pub fn Gibibytes<T: AsIntermediate>(t: T) -> Self { Self::from_gibibytes(t) }
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_gigabytes() instead")]
     /// Express a size in gigabytes. Actual size is 10^9 \* the value.
     pub fn Gigabytes<T: AsIntermediate>(t: T) -> Self { Self::from_gigabytes(t) }
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_tebibytes() instead")]
     /// Express a size in tebibytes. Actual size is 2^40 \* the value.
     pub fn Tebibytes<T: AsIntermediate>(t: T) -> Self { Self::from_tebibytes(t) }
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_terabytes() instead")]
     /// Express a size in terabytes. Actual size is 10^12 \* the value.
     pub fn Terabytes<T: AsIntermediate>(t: T) -> Self { Self::from_terabytes(t) }
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_pebibytes() instead")]
     /// Express a size in pebibytes. Actual size is 2^50 \* the value.
     pub fn Pebibytes<T: AsIntermediate>(t: T) -> Self { Self::from_pebibytes(t) }
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_petabytes() instead")]
     /// Express a size in petabytes. Actual size is 10^15 \* the value.
     pub fn Petabytes<T: AsIntermediate>(t: T) -> Self { Self::from_petabytes(t) }
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_exbibytes() instead")]
     /// Express a size in exbibytes. Actual size is 2^60 \* the value.
     pub fn Exbibytes<T: AsIntermediate>(t: T) -> Self { Self::from_exbibytes(t) }
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_exabytes() instead")]
     /// Express a size in exabytes. Actual size is 10^18 \* the value.
     pub fn Exabytes<T: AsIntermediate>(t: T) -> Self { Self::from_exabytes(t) }
 
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_bytes() instead")]
     /// Express a size in bytes, as a shortcut for using [`Size::Bytes`].
     pub fn B<T: AsIntermediate>(t: T) -> Self { Self::from_bytes(t.as_() as i64) }
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_kib() instead")]
     /// Express a size in kibibytes, as a shortcut for using [`Size::Kibibytes`].
     pub fn KiB<T: AsIntermediate>(t: T) -> Self { Self::from_kib(t) }
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_kb() instead")]
     /// Express a size in kilobytes, as a shortcut for using [`Size::Kilobytes`].
     pub fn KB<T: AsIntermediate>(t: T) -> Self { Self::from_kb(t) }
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_mib() instead")]
     /// Express a size in mebibytes, as a shortcut for using [`Size::Mebibytes`].
     pub fn MiB<T: AsIntermediate>(t: T) -> Self { Self::from_mib(t) }
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_mb() instead")]
     /// Express a size in megabytes, as a shortcut for using [`Size::Megabytes`].
     pub fn MB<T: AsIntermediate>(t: T) -> Self { Self::from_mb(t) }
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_gib() instead")]
     /// Express a size in gibibytes, as a shortcut for using [`Size::Gibibytes`].
     pub fn GiB<T: AsIntermediate>(t: T) -> Self { Self::from_gib(t) }
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_gb() instead")]
     /// Express a size in gigabytes, as a shortcut for using [`Size::Gigabytes`].
     pub fn GB<T: AsIntermediate>(t: T) -> Self { Self::from_gb(t) }
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_tib() instead")]
     /// Express a size in tebibytes, as a shortcut for using [`Size::Tebibytes`].
     pub fn TiB<T: AsIntermediate>(t: T) -> Self { Self::from_tib(t) }
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_tb() instead")]
     /// Express a size in terabytes, as a shortcut for using [`Size::Terabytes`].
     pub fn TB<T: AsIntermediate>(t: T) -> Self { Self::from_tb(t) }
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_pib() instead")]
     /// Express a size in pebibytes, as a shortcut for using [`Size::Pebibytes`].
     pub fn PiB<T: AsIntermediate>(t: T) -> Self { Self::from_pib(t) }
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_pb() instead")]
     /// Express a size in petabytes, as a shortcut for using [`Size::Petabytes`].
     pub fn PB<T: AsIntermediate>(t: T) -> Self { Self::from_pb(t) }
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_eib() instead")]
     /// Express a size in exbibytes, as a shortcut for using [`Size::Exbibytes`].
     pub fn EiB<T: AsIntermediate>(t: T) -> Self { Self::from_eib(t) }
     #[inline]
+    #[deprecated(since = "0.3", note = "Use Size::from_eb() instead")]
     /// Express a size in exabytes, as a shortcut for using [`Size::Exabytes`].
     pub fn EB<T: AsIntermediate>(t: T) -> Self { Self::from_eb(t) }
 }
@@ -646,16 +672,19 @@ pub enum Style {
 impl Style {
     #[doc(hidden)]
     #[allow(non_upper_case_globals)]
+    #[deprecated(since = "0.3", note = "Use Style::Default instead")]
     /// A backwards-compatibile alias for [`Style::Default`]
     pub const Smart: Style = Style::Default;
 
     #[doc(hidden)]
     #[allow(non_upper_case_globals)]
+    #[deprecated(since = "0.3", note = "Use Style::AbbreviatedLowercase instead")]
     /// A backwards-compatibile alias for [`Style::AbbreviatedLowercase`]
     pub const AbbreviatedLowerCase: Style = Style::AbbreviatedLowercase;
 
     #[doc(hidden)]
     #[allow(non_upper_case_globals)]
+    #[deprecated(since = "0.3", note = "Use Style::FullLowercase instead")]
     /// A backwards-compatibile alias for [`Style::FullLowercase`]
     pub const FullLowerCase: Style = Style::FullLowercase;
 }
