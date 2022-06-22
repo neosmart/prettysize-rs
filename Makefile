@@ -15,6 +15,7 @@ bench:
 
 build:
 	@$(CARGO) build
+	@$(CARGO) build --no-default-features
 
 check: build test
 
@@ -35,6 +36,7 @@ run: build
 
 test: build
 	@$(CARGO) test
+	@$(CARGO) test --no-default-features
 
 update:
 	@$(CARGO) update
