@@ -78,16 +78,30 @@
 //! assert_eq!(textual.as_str(), "1.28 MiB");
 //! ```
 //!
+//! `[Size::to_string()`] can be used to directly return a `String` containing the formatted,
+//! human-readable size, instead of needing to use the `format!()` macro or similar:
+//!
+#![cfg_attr(not(feature = "std"), doc = "```ignore")]
+#![cfg_attr(feature = "std", doc = "```")]
+//! use size::Size;
+//!
+//! let file_size = Size::from_bytes(1_340_249);
+//! assert_eq!(file_size.to_string(), "1.28 MiB".to_string());
+//! ```
+//!
 //! For fine-grained control over how a size is formatted and displayed, you can manually use the
-//! [`Size::to_string()`] function, which accepts parameters that control which units are used
-//! ("standard"/base-10 or SI/base-2) and how the unit should be written out, for example:
+//! [`Size::format()`] function, which returns a [`SizeFormatter`] which implements the builder
+//! model to allow you to change one or more properties of how a `Size` is formatted:
 //!
 #![cfg_attr(not(feature = "std"), doc = "```ignore")]
 #![cfg_attr(feature = "std", doc = "```")]
 //! use size::{Size, Base, Style};
 //!
 //! let file_size = Size::from_bytes(1_340_249); // same as before
-//! let textual_size = file_size.to_string(Base::Base10, Style::FullLowercase);
+//! let textual_size = file_size.format()
+//!     .with_base(Base::Base10)
+//!     .with_style(Style::FullLowercase)
+//!     .to_string();
 //! assert_eq!(textual_size, "1.34 megabytes".to_string());
 //! ```
 //!
@@ -692,7 +706,7 @@ impl Style {
 #[cfg(feature = "std")]
 impl std::fmt::Display for Size {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        self.format(fmt, &DEFAULT_BASE, &DEFAULT_STYLE)
+        write!(fmt, "{}", self.to_string())
     }
 }
 
@@ -739,6 +753,88 @@ where
     }
 }
 
+/// A struct that can be used to achieve greater control over how a [`Size`] is formatted as
+/// human-readable text, created by calling [`Size::format()`]. The `SizeFormatter` follows the
+/// builder model and exposes a chaining API for configuration.
+///
+/// After configuration, a `SizeFormatter` may be written directly (via `write!()`, `format!()`,
+/// `println!()`, etc.) because it implements [`Display`](std::fmt::Display), or
+/// [`SizeFormatter::to_string()`] can be used to retrieve a `String` containing the formatted size.
+#[cfg(feature = "std")]
+pub struct SizeFormatter<'a> {
+    size: &'a Size,
+    base: Base,
+    style: Style,
+}
+
+#[cfg(feature = "std")]
+impl<'a> SizeFormatter<'a> {
+    /// Specify the base of the units to be used when generating the textual description of the
+    /// `Size`.
+    ///
+    /// This lets users choose between "standard" base-10 units like "KB" and "MB" or the improved
+    /// SI base-2 units like "KiB" and "MiB". See [`Base`] for more information.
+    pub fn with_base(self, base: Base) -> Self {
+        Self {
+            base,
+            .. self
+        }
+    }
+
+    /// Specify the style used to write the accompanying unit for a formatted file size.
+    ///
+    /// See [`Style`] for more information.
+    pub fn with_style(self, style: Style) -> Self {
+        Self {
+            style,
+            .. self
+        }
+    }
+
+    /// Returns the formatted `Size` as a `String`, formatted according to the current state of the
+    /// `SizeFormatter` instance as modified via [`with_style()`], [`with_base()`], and co.
+    pub fn to_string(&self) -> String {
+        format!("{}", &self)
+    }
+}
+
+#[cfg(feature = "std")]
+impl<'a> std::fmt::Display for SizeFormatter<'a> {
+    fn fmt(&self, mut fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let bytes = match self.size.bytes() {
+            x@ 0.. => x as u64,
+            y => {
+                write!(fmt, "-")?;
+
+                // The absolute magnitude of T::min_value() for a signed number is one more than
+                // that of T::max_value(), meaning T::min_value().abs() will panic.
+                match y.checked_abs() {
+                    Some(abs) => abs as u64,
+                    None => i64::max_value() as u64,
+                }
+            }
+        };
+
+        let rule = match self.base {
+            Base::Base2 => match BASE2_RULES.binary_search_by_key(&bytes, |rule| rule.less_than) {
+                Ok(index) => &BASE2_RULES[index + 1],
+                Err(index) => &BASE2_RULES[index],
+            },
+            Base::Base10 => {
+                match BASE10_RULES.binary_search_by_key(&bytes, |rule| rule.less_than) {
+                    Ok(index) => &BASE10_RULES[index + 1],
+                    Err(index) => &BASE10_RULES[index],
+                }
+            }
+        };
+
+        (rule.formatter)(&mut fmt, bytes)?;
+        rule.unit.format(&mut fmt, bytes, &self.style)?;
+
+        return Ok(());
+    }
+}
+
 impl Size {
     #[inline]
     /// Returns the effective size in bytes of the type, useful for obtaining a plain/scalar
@@ -755,48 +851,23 @@ impl Size {
         self.bytes
     }
 
+    /// Returns a textual representation of the [`Size`] for display purposes. This is a `String`
+    /// equivalent to what `Size`'s `std::fmt::Display` would return.
+    #[cfg(feature = "std")]
+    pub fn to_string(&self) -> String {
+        return format!("{}", self.format());
+    }
+
     /// Returns a textual representation of the [`Size`] for display purposes, giving control over
     /// the returned representation's base (see [`Base::Base2`] and [`Base::Base10`]) and the style
     /// used to express the determined unit (see [`Style`]).
     #[cfg(feature = "std")]
-    pub fn to_string(&self, base: Base, style: Style) -> String {
-        return format!("{:?}", Fmt(|f| self.format(f, &base, &style)));
-    }
-
-    #[cfg(feature = "std")]
-    fn format(&self, mut fmt: &mut fmt::Formatter, base: &Base, style: &Style) -> fmt::Result {
-        let bytes = match self.bytes() {
-            x@ 0.. => x as u64,
-            y => {
-                // TODO: How should this be localized?
-                write!(fmt, "-")?;
-
-                // The absolute magnitude of T::min_value() for a signed number is one more than
-                // that of T::max_value(), meaning T::min_value().abs() will panic.
-                match y.checked_abs() {
-                    Some(abs) => abs as u64,
-                    None => i64::max_value() as u64,
-                }
-            }
-        };
-
-        let rule = match base {
-            Base::Base2 => match BASE2_RULES.binary_search_by_key(&bytes, |rule| rule.less_than) {
-                Ok(index) => &BASE2_RULES[index + 1],
-                Err(index) => &BASE2_RULES[index],
-            },
-            Base::Base10 => {
-                match BASE10_RULES.binary_search_by_key(&bytes, |rule| rule.less_than) {
-                    Ok(index) => &BASE10_RULES[index + 1],
-                    Err(index) => &BASE10_RULES[index],
-                }
-            }
-        };
-
-        (rule.formatter)(&mut fmt, bytes)?;
-        rule.unit.format(&mut fmt, bytes, &style)?;
-
-        return Ok(());
+    pub fn format(& self) -> SizeFormatter<'_> {
+        return SizeFormatter {
+            size: &self,
+            base: DEFAULT_BASE,
+            style: DEFAULT_STYLE,
+        }
     }
 }
 

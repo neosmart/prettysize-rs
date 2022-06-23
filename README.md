@@ -21,8 +21,8 @@ what this crate can do and how to use it.
   `consts::KiB` and `consts::KIBIBYTE` or `consts::GB` and `consts::GIGABYTE`),
 * an `std::Display` impl for `Size` to automatically display sizes in a human-readable
   format, automatically choosing the best size unit and numeric precision to
-  give the nicest results.
-* a `Size.to_string(..)` method that gives you more control over how sizes are converted
+  give the nicest results (you can also use `Size::to_string()` instead).
+* a `Size.format()` method that gives you more control over how sizes are converted
   to a textual representation, letting you to specify the base of the human-readable
   units and their style (smart, abbreviated, or full; plus their lowercase variants).
 * mathematical and logical operations on strongly-typed `Size` values
@@ -37,21 +37,21 @@ Cargo.toml:
 
 ```toml
 [dependencies]
-size = "0.3"
+size = "0.4"
 ```
 
 and in your code:
 
 ```rust
 use size::consts;
-use size::{Base, Size, Style};
+use size::{Base, Size};
 
 fn main() {
   // Create strongly-typed sizes:
   let byte_count = Size::from_kilobytes(42);
   assert_eq!(42_000, byte_count.bytes());
 
-  // Use predefined scalar constants for the various units
+  // Use predefined constants for the various units
   let byte_count = 42 * consts::KiB;
   assert_eq!(43_008, byte_count);
 
@@ -60,17 +60,17 @@ fn main() {
   assert_eq!(byte_count.bytes(), 42_000);
 
   // And for those of you that haven't yet drunk the base-two Kool-Aid:
-  let byte_count = Size::from_kib(42);
-  assert_eq!(byte_count.bytes(), 42_000);
+  let file_size = Size::from_kb(42);
+  assert_eq!(file_size.bytes(), 42_000);
 
-  println!("{}, I say!", byte_count);
+  println!("{}, I say!", file_size);
   // prints "41 KiB, I say!"
 
   // Override the default choice of base-2 units
-  println!("{}, I meant!", byte_count.to_string(Base::Base10, Style::Abbreviated));
+  println!("{}, I meant!", file_size.format().with_base(Base::Base10));
   // prints "42 KB, I meant!"
 
-  // Add and subtract strongly-typed sizes, even from different underlying types
+  // Add and subtract strongly-typed sizes, even with different underlying types
   let sum = Size::from_mb(1.0) + Size::from_kb(200);
   assert_eq!(sum.bytes(), 1_200_000);
 
