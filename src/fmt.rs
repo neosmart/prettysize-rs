@@ -139,19 +139,6 @@ impl std::fmt::Display for Size {
     }
 }
 
-struct Fmt<F>(pub F)
-where
-    F: Fn(&mut fmt::Formatter) -> fmt::Result;
-
-impl<F> fmt::Debug for Fmt<F>
-where
-    F: Fn(&mut fmt::Formatter) -> fmt::Result,
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        (self.0)(f)
-    }
-}
-
 /// A struct that can be used to achieve greater control over how a [`Size`] is formatted as
 /// human-readable text, created by calling [`Size::format()`]. The `SizeFormatter` follows the
 /// builder model and exposes a chaining API for configuration.
