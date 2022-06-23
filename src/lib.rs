@@ -78,7 +78,7 @@
 //! assert_eq!(textual.as_str(), "1.28 MiB");
 //! ```
 //!
-//! `[Size::to_string()`] can be used to directly return a `String` containing the formatted,
+//! [`Size::to_string()`] can be used to directly return a `String` containing the formatted,
 //! human-readable size, instead of needing to use the `format!()` macro or similar:
 //!
 #![cfg_attr(not(feature = "std"), doc = "```ignore")]
@@ -143,7 +143,7 @@ mod tests;
 #[cfg(test)]
 mod tests_nostd;
 #[cfg(feature = "std")]
-mod fmt;
+pub mod fmt;
 
 use crate::consts::*;
 #[cfg(feature = "std")]

@@ -139,83 +139,192 @@ impl std::fmt::Display for Size {
     }
 }
 
-/// A struct that can be used to achieve greater control over how a [`Size`] is formatted as
+mod sealed {
+    use crate::{Size, Style, Base};
+    use super::*;
+
+    pub trait FormatterMode {}
+    pub trait WithSize {
+        fn bytes(&self) -> i64;
+    }
+
+    pub(super) struct ForSize<'a> { pub size: &'a Size }
+    pub(super) struct ForBytes { pub bytes: i64 }
+    pub(super) struct Standalone;
+
+    impl FormatterMode for ForSize<'_> {}
+    impl WithSize for ForSize<'_> {
+        fn bytes(&self) -> i64 {
+            self.size.bytes()
+        }
+    }
+    impl FormatterMode for ForBytes {}
+    impl WithSize for ForBytes {
+        fn bytes(&self) -> i64 {
+            self.bytes
+        }
+    }
+    impl FormatterMode for Standalone {}
+
+    impl<T: FormatterMode> Formattable for SizeFormatter<T> {
+        /// Specify the base of the units to be used when generating the textual description of the
+        /// `Size`.
+        ///
+        /// This lets users choose between "standard" base-10 units like "KB" and "MB" or the improved
+        /// SI base-2 units like "KiB" and "MiB". See [`Base`] for more information.
+        fn with_base(self, base: Base) -> Self {
+            Self {
+                base,
+                .. self
+            }
+        }
+
+        /// Specify the style used to write the accompanying unit for a formatted file size.
+        ///
+        /// See [`Style`] for more information.
+        fn with_style(self, style: Style) -> Self {
+            Self {
+                style,
+                .. self
+            }
+        }
+    }
+
+    pub(super) struct SizeFormatter<T: FormatterMode> {
+        pub(super) mode: T,
+        pub(super) base: Base,
+        pub(super) style: Style,
+    }
+
+    impl<'a, T> std::fmt::Display for SizeFormatter<T>
+    where
+        T: FormatterMode + WithSize
+    {
+        fn fmt(&self, mut fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+            self.inner_fmt(&mut fmt, self.mode.bytes())
+        }
+    }
+
+    impl<T: FormatterMode> SizeFormatter<T> {
+        pub(super) fn inner_fmt(&self, mut fmt: &mut fmt::Formatter, bytes: i64) -> fmt::Result {
+            let bytes = match bytes {
+                x@ 0.. => x as u64,
+                y => {
+                    write!(fmt, "-")?;
+
+                    // The absolute magnitude of T::min_value() for a signed number is one more than
+                    // that of T::max_value(), meaning T::min_value().abs() will panic.
+                    match y.checked_abs() {
+                        Some(abs) => abs as u64,
+                        None => i64::max_value() as u64,
+                    }
+                }
+            };
+
+            let rule = match self.base {
+                Base::Base2 => match BASE2_RULES.binary_search_by_key(&bytes, |rule| rule.less_than) {
+                    Ok(index) => &BASE2_RULES[index + 1],
+                    Err(index) => &BASE2_RULES[index],
+                },
+                Base::Base10 => {
+                    match BASE10_RULES.binary_search_by_key(&bytes, |rule| rule.less_than) {
+                        Ok(index) => &BASE10_RULES[index + 1],
+                        Err(index) => &BASE10_RULES[index],
+                    }
+                }
+            };
+
+            (rule.formatter)(&mut fmt, bytes)?;
+            rule.unit.format(&mut fmt, bytes, &self.style)?;
+
+            return Ok(());
+        }
+    }
+}
+
+/// A type that can be used to achieve greater control over how a [`Size`] is formatted as
 /// human-readable text, created by calling [`Size::format()`]. The `SizeFormatter` follows the
 /// builder model and exposes a chaining API for configuration.
 ///
 /// After configuration, a `SizeFormatter` may be written directly (via `write!()`, `format!()`,
 /// `println!()`, etc.) because it implements [`Display`](std::fmt::Display), or
 /// [`SizeFormatter::to_string()`] can be used to retrieve a `String` containing the formatted size.
-pub struct SizeFormatter<'a> {
-    size: &'a Size,
-    base: Base,
-    style: Style,
+pub struct SizeFormatter {
+    inner: sealed::SizeFormatter<sealed::Standalone>
 }
 
-impl<'a> SizeFormatter<'a> {
+struct FmtRenderer<F: Fn(&mut fmt::Formatter) -> fmt::Result> {
+    formatter: F,
+}
+
+impl<F: Fn(&mut fmt::Formatter) -> fmt::Result> FmtRenderer<F> {
+    pub fn new(formatter: F) -> Self {
+        Self { formatter }
+    }
+}
+
+impl<F: Fn(&mut fmt::Formatter) -> fmt::Result> fmt::Display for FmtRenderer<F> {
+    fn fmt(&self, mut f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        (self.formatter)(&mut f)
+    }
+}
+
+impl SizeFormatter {
+    /// Create a new `SizeFormatter` that can be used to repeatedly format a number of file sizes
+    /// according to its configured fashion.
+    pub fn new() -> Self {
+        Self {
+            inner: sealed::SizeFormatter {
+                mode: sealed::Standalone {},
+                base: DEFAULT_BASE,
+                style: DEFAULT_STYLE,
+            }
+        }
+    }
+
+    /// Formats a provided size in bytes as a string, per the configuration of the current
+    /// `SizeFormatter`.
+    pub fn format(&self, bytes: i64) -> String {
+        format!("{}", FmtRenderer::new(|fmt: &mut fmt::Formatter| {
+            self.inner.inner_fmt(fmt, bytes)
+        }))
+        // format!("{}", sealed::SizeFormatter {
+        //     mode: sealed::ForBytes { bytes },
+        //     style: self.inner.style,
+        //     base: self.inner.base,
+        // })
+    }
+}
+
+impl Formattable for SizeFormatter {
+    fn with_base(self, base: Base) -> Self { Self { inner: self.inner.with_base(base) } }
+    fn with_style(self, style: Style) -> Self { Self { inner: self.inner.with_style(style) } }
+}
+
+/// Set via the builder pattern the values controlling how a `Size` is formatted and converted to
+/// text.
+pub trait Formattable: Sized {
     /// Specify the base of the units to be used when generating the textual description of the
     /// `Size`.
     ///
     /// This lets users choose between "standard" base-10 units like "KB" and "MB" or the improved
     /// SI base-2 units like "KiB" and "MiB". See [`Base`] for more information.
-    pub fn with_base(self, base: Base) -> Self {
-        Self {
-            base,
-            .. self
-        }
-    }
+    fn with_base(self, base: Base) -> Self;
 
     /// Specify the style used to write the accompanying unit for a formatted file size.
     ///
     /// See [`Style`] for more information.
-    pub fn with_style(self, style: Style) -> Self {
-        Self {
-            style,
-            .. self
-        }
-    }
+    fn with_style(self, style: Style) -> Self;
+
 
     /// Returns the formatted `Size` as a `String`, formatted according to the current state of the
-    /// `SizeFormatter` instance as modified via [`with_style()`](Self::with_style),
-    /// [`with_base()`](Self::with_base), and co.
-    pub fn to_string(&self) -> String {
+    /// `SizeFormatter` instance as modified via [`with_style()`](Formattable::with_style),
+    /// [`with_base()`](Formattable::with_base), and co.
+    fn to_string(&self) -> String
+        where
+            Self: std::fmt::Display
+    {
         format!("{}", &self)
-    }
-}
-
-impl<'a> std::fmt::Display for SizeFormatter<'a> {
-    fn fmt(&self, mut fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let bytes = match self.size.bytes() {
-            x@ 0.. => x as u64,
-            y => {
-                write!(fmt, "-")?;
-
-                // The absolute magnitude of T::min_value() for a signed number is one more than
-                // that of T::max_value(), meaning T::min_value().abs() will panic.
-                match y.checked_abs() {
-                    Some(abs) => abs as u64,
-                    None => i64::max_value() as u64,
-                }
-            }
-        };
-
-        let rule = match self.base {
-            Base::Base2 => match BASE2_RULES.binary_search_by_key(&bytes, |rule| rule.less_than) {
-                Ok(index) => &BASE2_RULES[index + 1],
-                Err(index) => &BASE2_RULES[index],
-            },
-            Base::Base10 => {
-                match BASE10_RULES.binary_search_by_key(&bytes, |rule| rule.less_than) {
-                    Ok(index) => &BASE10_RULES[index + 1],
-                    Err(index) => &BASE10_RULES[index],
-                }
-            }
-        };
-
-        (rule.formatter)(&mut fmt, bytes)?;
-        rule.unit.format(&mut fmt, bytes, &self.style)?;
-
-        return Ok(());
     }
 }
 
@@ -229,9 +338,9 @@ impl Size {
     /// Returns a textual representation of the [`Size`] for display purposes, giving control over
     /// the returned representation's base (see [`Base::Base2`] and [`Base::Base10`]) and the style
     /// used to express the determined unit (see [`Style`]).
-    pub fn format(& self) -> SizeFormatter<'_> {
-        return SizeFormatter {
-            size: &self,
+    pub fn format(& self) -> impl fmt::Display + Formattable + '_ {
+        return sealed::SizeFormatter {
+            mode: sealed::ForSize { size: &self },
             base: DEFAULT_BASE,
             style: DEFAULT_STYLE,
         }
