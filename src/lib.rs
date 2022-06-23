@@ -90,8 +90,9 @@
 //! ```
 //!
 //! For fine-grained control over how a size is formatted and displayed, you can manually use the
-//! [`Size::format()`] function, which returns a [`SizeFormatter`] which implements the builder
-//! model to allow you to change one or more properties of how a `Size` is formatted:
+//! [`Size::format()`] function, which returns a [`FormattableSize`](crate::fmt::FormattableSize)
+//! implementing the builder model to allow you to change one or more properties of how a `Size`
+//! is formatted:
 //!
 #![cfg_attr(not(feature = "std"), doc = "```ignore")]
 #![cfg_attr(feature = "std", doc = "```")]
@@ -104,6 +105,11 @@
 //!     .to_string();
 //! assert_eq!(textual_size, "1.34 megabytes".to_string());
 //! ```
+//!
+//! It is also possible to create and configure a standalone [`SizeFormatter`] that can be reused to
+//! format many sizes in a single, consistent style. This should not be seen as an alternative to
+//! wrapping file sizes in strongly-typed `Size` structs, which should always be the initial
+//! instinct.
 //!
 //! ## Mathematical operations
 //!
