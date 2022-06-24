@@ -191,7 +191,7 @@ struct FmtRenderer<F: Fn(&mut fmt::Formatter) -> fmt::Result> {
 }
 
 impl<F: Fn(&mut fmt::Formatter) -> fmt::Result> FmtRenderer<F> {
-    pub fn new(formatter: F) -> Self {
+    pub const fn new(formatter: F) -> Self {
         Self { formatter }
     }
 }
@@ -264,7 +264,7 @@ impl<T: sealed::FormatterSize> SizeFormatter<T> {
 impl SizeFormatter<()> {
     /// Create a new `SizeFormatter` that can be used to repeatedly format a number of file sizes
     /// according to its configured options.
-    pub fn new() -> SizeFormatter<()> {
+    pub const fn new() -> SizeFormatter<()> {
         SizeFormatter {
             size: (),
             base: DEFAULT_BASE,
@@ -357,7 +357,7 @@ impl Size {
     /// `format!()` macro or similar (e.g. `println!` and friends), as the result implements
     /// [`Display`](std::fmt::Display) and will resolve to the same text.
     ///
-    pub fn format(& self) -> FormattableSize {
+    pub const fn format(& self) -> FormattableSize {
         FormattableSize {
             size: &self,
             base: DEFAULT_BASE,
