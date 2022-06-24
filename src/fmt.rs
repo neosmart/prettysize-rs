@@ -365,7 +365,7 @@ impl Size {
     /// `format!()` macro or similar (e.g. `println!` and friends), as the result implements
     /// [`Display`](std::fmt::Display) and will resolve to the same text.
     ///
-    pub const fn format(& self) -> FormattableSize {
+    pub fn format(& self) -> FormattableSize {
         FormattableSize {
             size: &self,
             base: DEFAULT_BASE,
