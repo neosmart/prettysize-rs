@@ -161,11 +161,11 @@ mod sealed {
 ///     .with_base(Base::Base10)
 ///     .with_style(Style::Abbreviated);
 ///
-/// let mut sizes: Vec<String> = Vec::new();
+/// # let mut sizes: Vec<String> = Vec::new();
 /// for raw_size in [ 1024, 2048, 4096 ] {
 ///     let formatted = formatter.format(raw_size);
 ///     println!("{}", &formatted);
-///     sizes.push(formatted);
+/// #   sizes.push(formatted);
 /// }
 ///
 /// // Prints:
@@ -173,9 +173,9 @@ mod sealed {
 /// // 2.05 KB
 /// // 4.10 KB
 ///
-/// assert_eq!(sizes[0].as_str(), "1.02 KB");
-/// assert_eq!(sizes[1].as_str(), "2.05 KB");
-/// assert_eq!(sizes[2].as_str(), "4.10 KB");
+/// # assert_eq!(sizes[0].as_str(), "1.02 KB");
+/// # assert_eq!(sizes[1].as_str(), "2.05 KB");
+/// # assert_eq!(sizes[2].as_str(), "4.10 KB");
 /// ```
 pub struct SizeFormatter<T: sealed::FormatterSize = ()> {
     size: T,
