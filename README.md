@@ -14,7 +14,7 @@ what this crate can do and how to use it.
 
 `PrettySize` provides
 
-* a `Size` enum that can be used to hold a strongly-typed size
+* a `Size` type that can be used to hold a strongly-typed size
   (e.g. `let size = Size::from_gigabytes(4)`) and perform operations on it,
 * definitions for the base-two and base-ten file size units defined as `pub const` in the
   `size::consts` namespace, available both in abbreviated and unabridged forms (i.e.
