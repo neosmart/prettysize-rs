@@ -1,5 +1,13 @@
 //! The `fmt` module contains [`SizeFormatter`] and other types pertaining to formatting a size as
 //! human-readable text.
+//!
+//! You will likely not need to interact with this module directly, as the functionality of a
+//! [`SizeFormatter`] is exposed by simply calling [`Size::format()`]. However, a new
+//! [`SizeFormatter`] can be instantiated directly if you would like a standalone pretty-printer for
+//! raw byte sizes.
+//!
+//! The formatting-related enums in this module ([`Base`] and [`Style`]) are re-exported at the
+//! crate level as `size::Base` and `size::Style`.
 
 use core::fmt;
 use super::*;
