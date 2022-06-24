@@ -139,7 +139,14 @@ impl std::fmt::Display for Size {
     }
 }
 
-/// A standalone size formatter that is configured via the builder pattern (via the various `with_`
+mod sealed {
+    pub trait FormatterSize {}
+
+    impl FormatterSize for () {}
+    impl<'a> FormatterSize for &'a crate::Size {}
+}
+
+/// A standalone size formatter that is configured via the builder pattern (via the various `.with_`
 /// methods) which can then be used to format an integral byte value as a pretty printed `String` in
 /// accordance with the configured properties.
 ///
@@ -170,7 +177,8 @@ impl std::fmt::Display for Size {
 /// assert_eq!(sizes[1].as_str(), "2.05 KB");
 /// assert_eq!(sizes[2].as_str(), "4.10 KB");
 /// ```
-pub struct SizeFormatter {
+pub struct SizeFormatter<T: sealed::FormatterSize = ()> {
+    size: T,
     base: Base,
     style: Style,
 }
@@ -194,16 +202,7 @@ impl<F: Fn(&mut fmt::Formatter) -> fmt::Result> fmt::Display for FmtRenderer<F> 
     }
 }
 
-impl SizeFormatter {
-    /// Create a new `SizeFormatter` that can be used to repeatedly format a number of file sizes
-    /// according to its configured fashion.
-    pub fn new() -> Self {
-        Self {
-            base: DEFAULT_BASE,
-            style: DEFAULT_STYLE,
-        }
-    }
-
+impl<T: sealed::FormatterSize> SizeFormatter<T> {
     /// Specify the base of the units to be used when generating the textual description of the
     /// `Size`.
     ///
@@ -224,14 +223,6 @@ impl SizeFormatter {
             style,
             .. self
         }
-    }
-
-    /// Formats a provided size in bytes as a string, per the configuration of the current
-    /// `SizeFormatter`.
-    pub fn format(&self, bytes: i64) -> String {
-        format!("{}", FmtRenderer::new(|fmt: &mut fmt::Formatter| {
-            self.inner_fmt(fmt, bytes)
-        }))
     }
 
     /// Formats the provided `bytes` value with the configured [`self.Base`] and [`self.Style`].
@@ -270,9 +261,29 @@ impl SizeFormatter {
     }
 }
 
+impl SizeFormatter<()> {
+    /// Create a new `SizeFormatter` that can be used to repeatedly format a number of file sizes
+    /// according to its configured options.
+    pub fn new() -> SizeFormatter<()> {
+        SizeFormatter {
+            size: (),
+            base: DEFAULT_BASE,
+            style: DEFAULT_STYLE,
+        }
+    }
+
+    /// Formats a provided size in bytes as a string, per the configuration of the current
+    /// `SizeFormatter` instance.
+    pub fn format(&self, bytes: i64) -> String {
+        format!("{}", FmtRenderer::new(|fmt: &mut fmt::Formatter| {
+            self.inner_fmt(fmt, bytes)
+        }))
+    }
+}
+
 /// A type that can be used to achieve greater control over how a [`Size`] is formatted as
 /// human-readable text, created by calling [`Size::format()`]. The `SizeFormatter` follows the
-/// builder model and exposes a chaining API for configuration (via the `.with_*()` functions).
+/// builder model and exposes a chaining API for configuration (via the `.with_` functions).
 ///
 /// After configuration, a `FormattableSize` may be passed directly to the `println!()` or `format!()`
 /// macros and their friends because it implements [`Display`](std::fmt::Display), or
@@ -291,37 +302,9 @@ impl SizeFormatter {
 ///
 /// assert_eq!(text.as_str(), "2.00 Megabytes");
 /// ```
-pub struct FormattableSize<'a> {
-    size: &'a Size,
-    formatter: SizeFormatter,
-}
+pub type FormattableSize<'a> = SizeFormatter<&'a Size>;
 
-// The functions here are copied from SizeFormatter rather than being refactored into a trait so
-// that the user does not have to first `use size::fmt::FooTrait` before being able to access them
-// :(
-impl<'a> FormattableSize<'a> {
-    /// Specify the base of the units to be used when generating the textual description of the
-    /// `Size`.
-    ///
-    /// This lets users choose between "standard" base-10 units like "KB" and "MB" or the improved
-    /// SI base-2 units like "KiB" and "MiB". See [`Base`] for more information.
-    pub fn with_base(self, base: Base) -> Self {
-        Self {
-            size: self.size,
-            formatter: self.formatter.with_base(base)
-        }
-    }
-
-    /// Specify the style used to write the accompanying unit for a formatted file size.
-    ///
-    /// See [`Style`] for more information.
-    pub fn with_style(self, style: Style) -> Self {
-        Self {
-            size: self.size,
-            formatter: self.formatter.with_style(style)
-        }
-    }
-
+impl FormattableSize<'_> {
     /// Returns the formatted `Size` as a `String`, formatted according to the current state of the
     /// `SizeFormatter` instance as modified via [`with_style()`](Self::with_style),
     /// [`with_base()`](Self::with_base), and co.
@@ -333,7 +316,7 @@ impl<'a> FormattableSize<'a> {
 
 impl fmt::Display for FormattableSize<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.formatter.inner_fmt(f, self.size.bytes())
+        self.inner_fmt(f, self.size.bytes())
     }
 }
 
@@ -372,12 +355,13 @@ impl Size {
     ///
     /// It is not necessary to call `.to_string()` if you are passing the formatted size to a
     /// `format!()` macro or similar (e.g. `println!` and friends), as the result implements
-    /// [`Display`](std::fmt::Display) and will resolve the same value.
+    /// [`Display`](std::fmt::Display) and will resolve to the same text.
     ///
     pub fn format(& self) -> FormattableSize {
         FormattableSize {
             size: &self,
-            formatter: SizeFormatter::new(),
+            base: DEFAULT_BASE,
+            style: DEFAULT_STYLE,
         }
     }
 }
