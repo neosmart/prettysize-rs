@@ -199,7 +199,7 @@ struct FmtRenderer<F: Fn(&mut fmt::Formatter) -> fmt::Result> {
 }
 
 impl<F: Fn(&mut fmt::Formatter) -> fmt::Result> FmtRenderer<F> {
-    pub const fn new(formatter: F) -> Self {
+    pub fn new(formatter: F) -> Self {
         Self { formatter }
     }
 }
