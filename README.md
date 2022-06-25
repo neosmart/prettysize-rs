@@ -25,11 +25,15 @@ what this crate can do and how to use it.
 * a `Size.format()` method that gives you more control over how sizes are converted
   to a textual representation, letting you to specify the base of the human-readable
   units and their style (smart, abbreviated, or full; plus their lowercase variants).
-* mathematical and logical operations on strongly-typed `Size` values
+* mathematical and logical operations on strongly-typed `Size` values,
+* full support for expressing negative sizes (e.g. the difference between two sizes, or the
+  amount of space reclaimed on a disk)
 
 This crate can also be used in `no_std` mode (by compiling with default features
 disabled). This disables string conversion/formatting but keeps all the strongly-typed
 size conversion and mathematical/logical operations available.
+
+This crate is free of any dependencies.
 
 ## Usage
 
