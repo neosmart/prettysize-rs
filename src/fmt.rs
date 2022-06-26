@@ -170,7 +170,12 @@ mod sealed {
 ///     .with_style(Style::Abbreviated);
 ///
 /// # let mut sizes: Vec<String> = Vec::new();
-/// for raw_size in [ 1024, 2048, 4096 ] {
+/// for raw_size in [ 1024, 2048, 4096 ]
+/// #   // Work around limitation in earlier rustc versions (e.g. 1.50)
+/// #   .iter()
+/// {
+/// #   // Work around limitation in earlier rustc versions (e.g. 1.50)
+/// #   let raw_size = *raw_size;
 ///     let formatted = formatter.format(raw_size);
 ///     println!("{}", &formatted);
 /// #   sizes.push(formatted);
