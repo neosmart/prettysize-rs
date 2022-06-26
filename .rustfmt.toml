@@ -1,2 +1,8 @@
 edition = "2018"
-wrap_comments = true
+# wrap_comments is nice, but introduces trailing whitespace errors!
+wrap_comments = false
+# comment_width defaults to 80, despite a default line_width of 100
+comment_width = 100
+# use_small_heuristics defaults these to 60% of max_width
+fn_call_width=80
+attr_fn_like_width=80

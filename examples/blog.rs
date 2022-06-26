@@ -5,7 +5,7 @@
 extern crate size;
 
 #[cfg(feature = "std")]
-use size::{Size, consts};
+use size::{consts, Size};
 
 #[cfg(feature = "std")]
 fn main() {

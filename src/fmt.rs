@@ -9,8 +9,8 @@
 //! The formatting-related enums in this module ([`Base`] and [`Style`]) are re-exported at the
 //! crate level as `size::Base` and `size::Style`.
 
-use core::fmt;
 use super::*;
+use core::fmt;
 
 /// An enumeration of supported bases to use for generating textual descriptions of sizes.
 ///
@@ -59,6 +59,7 @@ enum Unit {
 }
 
 impl Unit {
+    #[rustfmt::skip]
     const fn text(&self) -> (&'static str, &'static str, &'static str, &'static str) {
         use self::Unit::*;
 
@@ -106,8 +107,8 @@ impl Unit {
 #[non_exhaustive]
 #[derive(Copy, Clone, Debug)]
 pub enum Style {
-    /// The default "smart" style, currently equal to [`Style::FullLowercase`] when the final unit is
-    /// in bytes or [`Style::Abbreviated`] otherwise, e.g. "1024 bytes" and "1.29 GiB"
+    /// The default "smart" style, currently equal to [`Style::FullLowercase`] when the final unit
+    /// is in bytes or [`Style::Abbreviated`] otherwise, e.g. "1024 bytes" and "1.29 GiB"
     Default,
     /// Abbreviated style, e.g. "1024 KB" and "1.29 GiB"
     Abbreviated,
@@ -222,20 +223,14 @@ impl<T: sealed::FormatterSize> SizeFormatter<T> {
     /// This lets users choose between "standard" base-10 units like "KB" and "MB" or the improved
     /// SI base-2 units like "KiB" and "MiB". See [`Base`] for more information.
     pub fn with_base(self, base: Base) -> Self {
-        Self {
-            base,
-            .. self
-        }
+        Self { base, ..self }
     }
 
     /// Specify the style used to write the accompanying unit for a formatted file size.
     ///
     /// See [`Style`] for more information.
     pub fn with_style(self, style: Style) -> Self {
-        Self {
-            style,
-            .. self
-        }
+        Self { style, ..self }
     }
 
     /// Formats the provided `bytes` value with the configured [`self.Base`] and [`self.Style`].
@@ -288,9 +283,10 @@ impl SizeFormatter<()> {
     /// Formats a provided size in bytes as a string, per the configuration of the current
     /// `SizeFormatter` instance.
     pub fn format(&self, bytes: i64) -> String {
-        format!("{}", FmtRenderer::new(|fmt: &mut fmt::Formatter| {
-            self.inner_fmt(fmt, bytes)
-        }))
+        format!(
+            "{}",
+            FmtRenderer::new(|fmt: &mut fmt::Formatter| { self.inner_fmt(fmt, bytes) })
+        )
     }
 }
 
@@ -298,8 +294,8 @@ impl SizeFormatter<()> {
 /// human-readable text, created by calling [`Size::format()`]. The `SizeFormatter` follows the
 /// builder model and exposes a chaining API for configuration (via the `.with_` functions).
 ///
-/// After configuration, a `FormattableSize` may be passed directly to the `println!()` or `format!()`
-/// macros and their friends because it implements [`Display`](std::fmt::Display), or
+/// After configuration, a `FormattableSize` may be passed directly to the `println!()` or
+/// `format!()` macros and their friends because it implements [`Display`](std::fmt::Display), or
 /// [`FormattableSize::to_string()`] can be used to retrieve a `String` containing the formatted
 /// result.
 ///
@@ -321,8 +317,7 @@ impl FormattableSize<'_> {
     /// Returns the formatted `Size` as a `String`, formatted according to the current state of the
     /// `SizeFormatter` instance as modified via [`with_style()`](Self::with_style),
     /// [`with_base()`](Self::with_base), and co.
-    pub fn to_string(&self) -> String
-    {
+    pub fn to_string(&self) -> String {
         format!("{}", &self)
     }
 }
@@ -369,8 +364,7 @@ impl Size {
     /// It is not necessary to call `.to_string()` if you are passing the formatted size to a
     /// `format!()` macro or similar (e.g. `println!` and friends), as the result implements
     /// [`Display`](std::fmt::Display) and will resolve to the same text.
-    ///
-    pub fn format(& self) -> FormattableSize {
+    pub fn format(&self) -> FormattableSize {
         FormattableSize {
             size: &self,
             base: DEFAULT_BASE,

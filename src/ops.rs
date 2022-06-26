@@ -7,7 +7,6 @@
 //! fine.
 //!
 //! Some examples of supported mathematical operations:
-//!
 #![cfg_attr(not(feature = "std"), doc = "```ignore")]
 #![cfg_attr(feature = "std", doc = "```")]
 //! use size::Size;
@@ -25,7 +24,7 @@
 //! let s3 = Size::from_mib(12) - Size::from_mib(14.2_f64);
 //! assert_eq!(s3, Size::from_kib(-2252.8));
 //! ```
-//!
+//! 
 //! Some other things you cannot do are multiply/divide two sizes (did you mean to multiply one size
 //! by a scalar value instead?), add/subtract scalar values from sizes (you can call `size.bytes()`
 //! then do all the scalar math you like, however), or perform mathematical operations that exceed

@@ -87,7 +87,10 @@ fn size_equality() {
 fn size_cmp() {
     // Use legacy/backwards-compatible syntax:
     assert!(Size::Bytes(1) > Size::Bytes(0), "Comparison of two Size types directly");
-    assert!(&Size::KiB(1) >= &Size::KB(1), "Comparison of two Size types via their references");
+    assert!(
+        &Size::KiB(1) >= &Size::KB(1),
+        "Comparison of two Size types via their references"
+    );
 }
 
 #[test]

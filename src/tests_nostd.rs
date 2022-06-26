@@ -29,9 +29,9 @@ fn nostd_neg_sub() {
 #[test]
 fn nostd_bytes() {
     let s1 = Size::from_kib(36);
-    let s2 = Size::from_bytes(36<<10);
+    let s2 = Size::from_bytes(36 << 10);
     assert_eq!(s1.bytes(), s2.bytes());
-    assert_eq!(s1.bytes(), 36<<10);
+    assert_eq!(s1.bytes(), 36 << 10);
 }
 
 #[test]
