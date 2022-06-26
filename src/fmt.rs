@@ -236,7 +236,7 @@ impl<T: sealed::FormatterSize> SizeFormatter<T> {
     /// Formats the provided `bytes` value with the configured [`self.Base`] and [`self.Style`].
     fn inner_fmt(&self, mut fmt: &mut fmt::Formatter, bytes: i64) -> fmt::Result {
         let bytes = match bytes {
-            x@ 0.. => x as u64,
+            x @ 0..=i64::MAX => x as u64,
             y => {
                 write!(fmt, "-")?;
 
