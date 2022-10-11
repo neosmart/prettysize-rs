@@ -41,3 +41,27 @@ fn nostd_integral_limits() {
     assert_eq!(Size::from_bytes(0), Size::Bytes(u64::min_value()));
     assert_eq!(Size::from_bytes(i64::MAX), Size::Bytes(u64::MAX - 1));
 }
+
+#[test]
+fn nostd_add_assign() {
+    let mut s1 = Size::from_kib(12);
+    let s2 = Size::from_kib(24);
+    s1 += s2;
+    assert_eq!(s1.bytes(), Size::KiB(36).bytes());
+}
+
+#[test]
+fn nostd_sub_assign() {
+    let mut s1 = Size::from_kib(24_i32);
+    let s2 = Size::from_kib(12_i64);
+    s1 -= s2;
+    assert_eq!(s1.bytes(), Size::KiB(12).bytes());
+}
+
+#[test]
+fn nostd_neg_sub_assign() {
+    let mut s1 = Size::from_kib(12_u64);
+    let s2 = Size::from_kib(24_i64);
+    s1 -= s2;
+    assert_eq!(s1.bytes(), Size::from_kib(-12).bytes());
+}
