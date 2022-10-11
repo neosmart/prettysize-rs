@@ -105,6 +105,15 @@ fn size_addition() {
 }
 
 #[test]
+fn size_subtraction() {
+    let size = &Size::from_mib(20) - &Size::from_mib(22);
+    assert_eq!(size, Size::Mebibytes(-2));
+
+    let size = Size::from_mib(20) - Size::from_mib(22_f64);
+    assert_eq!(size, Size::Mebibytes(-2));
+}
+
+#[test]
 fn primitive_multiplication() {
     let size = &Size::from_gb(12) * 7;
     assert_eq!(size.bytes(), 84000000000);
@@ -157,4 +166,32 @@ fn overflow_size() {
     } else {
         assert!(result.is_ok());
     }
+}
+
+#[test]
+fn size_add_assign() {
+    let mut size = Size::from_mib(20);
+    size += Size::from_mib(22);
+    assert_eq!(size, Size::Mebibytes(42));
+}
+
+#[test]
+fn size_sub_assign() {
+    let mut size = Size::from_mib(20);
+    size -= Size::from_mib(22);
+    assert_eq!(size, Size::Mebibytes(-2));
+}
+
+#[test]
+fn size_mul_assign() {
+    let mut size = Size::from_gb(12);
+    size *= 7;
+    assert_eq!(size.bytes(), 84000000000);
+}
+
+#[test]
+fn size_div_assign() {
+    let mut size = Size::from_gb(12);
+    size /= 13f64;
+    assert_eq!(size.bytes(), 923076923);
 }

@@ -37,7 +37,7 @@
 //! undefined results in release mode.
 
 use crate::{AsIntermediate, Intermediate, Size};
-use core::ops::{Add, Div, Mul, Sub};
+use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
 impl Add<Size> for Size {
     type Output = Size;
@@ -168,5 +168,49 @@ where
 
     fn div(self, other: T) -> Self::Output {
         Size::from_bytes((self.bytes() as Intermediate / other.as_()) as i64)
+    }
+}
+
+/* Assigns */
+
+impl AddAssign<Size> for Size {
+    fn add_assign(&mut self, other: Size) {
+        *self = *self + other;
+    }
+}
+
+impl AddAssign<&Size> for Size {
+    fn add_assign(&mut self, other: &Size) {
+        *self = *self + other;
+    }
+}
+
+impl SubAssign<Size> for Size {
+    fn sub_assign(&mut self, other: Size) {
+        *self = *self - other;
+    }
+}
+
+impl SubAssign<&Size> for Size {
+    fn sub_assign(&mut self, other: &Size) {
+        *self = *self - other;
+    }
+}
+
+impl<T> MulAssign<T> for Size
+where
+    T: AsIntermediate,
+{
+    fn mul_assign(&mut self, other: T) {
+        *self = *self * other;
+    }
+}
+
+impl<T> DivAssign<T> for Size
+where
+    T: AsIntermediate,
+{
+    fn div_assign(&mut self, other: T) {
+        *self = *self / other;
     }
 }
