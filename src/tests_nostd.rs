@@ -44,10 +44,16 @@ fn nostd_integral_limits() {
 
 #[test]
 fn nostd_add_assign() {
-    let mut s1 = Size::from_kib(12);
-    let s2 = Size::from_kib(24);
-    s1 += s2;
-    assert_eq!(s1.bytes(), Size::KiB(36).bytes());
+    let mut size = Size::from_mib(20);
+    size += Size::from_mib(22);
+    assert_eq!(size, Size::Mebibytes(42));
+}
+
+#[test]
+fn nostd_mul_assign() {
+    let mut size = Size::from_gb(12);
+    size *= 7;
+    assert_eq!(size.bytes(), 84000000000);
 }
 
 #[test]

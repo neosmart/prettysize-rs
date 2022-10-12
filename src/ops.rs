@@ -171,7 +171,7 @@ where
     }
 }
 
-/* Assigns */
+/* XxxAssign impls, only for `Size` and not for `&Size` */
 
 impl AddAssign<Size> for Size {
     fn add_assign(&mut self, other: Size) {

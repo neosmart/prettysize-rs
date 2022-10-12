@@ -169,28 +169,7 @@ fn overflow_size() {
 }
 
 #[test]
-fn size_add_assign() {
-    let mut size = Size::from_mib(20);
-    size += Size::from_mib(22);
-    assert_eq!(size, Size::Mebibytes(42));
-}
-
-#[test]
-fn size_sub_assign() {
-    let mut size = Size::from_mib(20);
-    size -= Size::from_mib(22);
-    assert_eq!(size, Size::Mebibytes(-2));
-}
-
-#[test]
-fn size_mul_assign() {
-    let mut size = Size::from_gb(12);
-    size *= 7;
-    assert_eq!(size.bytes(), 84000000000);
-}
-
-#[test]
-fn size_div_assign() {
+fn size_div_assign_f64() {
     let mut size = Size::from_gb(12);
     size /= 13f64;
     assert_eq!(size.bytes(), 923076923);
