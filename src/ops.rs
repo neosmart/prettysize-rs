@@ -24,7 +24,7 @@
 //! let s3 = Size::from_mib(12) - Size::from_mib(14.2_f64);
 //! assert_eq!(s3, Size::from_kib(-2252.8));
 //! ```
-//! 
+//!
 //! Some other things you cannot do are multiply/divide two sizes (did you mean to multiply one size
 //! by a scalar value instead?), add/subtract scalar values from sizes (you can call `size.bytes()`
 //! then do all the scalar math you like, however), or perform mathematical operations that exceed
@@ -75,7 +75,7 @@ impl Sub<Size> for Size {
     type Output = Size;
 
     fn sub(self, other: Size) -> Self::Output {
-        Size::from_bytes(self.bytes() as i64 - other.bytes() as i64)
+        Size::from_bytes(self.bytes() - other.bytes())
     }
 }
 
@@ -83,7 +83,7 @@ impl Sub<Size> for &Size {
     type Output = Size;
 
     fn sub(self, other: Size) -> Self::Output {
-        Size::from_bytes(self.bytes() as i64 - other.bytes() as i64)
+        Size::from_bytes(self.bytes() - other.bytes())
     }
 }
 
@@ -91,7 +91,7 @@ impl Sub<&Size> for Size {
     type Output = Size;
 
     fn sub(self, other: &Size) -> Self::Output {
-        Size::from_bytes(self.bytes() as i64 - other.bytes() as i64)
+        Size::from_bytes(self.bytes() - other.bytes())
     }
 }
 
@@ -99,7 +99,7 @@ impl Sub<&Size> for &Size {
     type Output = Size;
 
     fn sub(self, other: &Size) -> Self::Output {
-        Size::from_bytes(self.bytes() as i64 - other.bytes() as i64)
+        Size::from_bytes(self.bytes() - other.bytes())
     }
 }
 
