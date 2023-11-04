@@ -34,7 +34,7 @@
 //! // Create another Size instance, this time from a floating-point literal:
 //! let file2_size = Size::from_kb(20.1);
 //! ```
-//! 
+//!
 //! You can obtain a scalar `i64` value equal to the total number of bytes described by a
 //! `Size` instance by calling [`Size::bytes()`] (see link for more info):
 #![cfg_attr(not(feature = "std"), doc = "```ignore")]
@@ -44,7 +44,7 @@
 //! let file_size = Size::from_gibibytes(4);
 //! assert_eq!(file_size.bytes(), 4_294_967_296);
 //! ```
-//! 
+//!
 //! All `Size` types can be directly compared (both for order and equality) to one another (or to
 //! references of one another), regardless of their original type:
 //! ```
@@ -58,7 +58,7 @@
 //! let size2 = Size::from_kb(7);
 //! assert!(&size2 < &size1);
 //! ```
-//! 
+//!
 //! ## Textual representation
 //!
 //! The majority of users will be interested in this crate for its ability to "pretty print" sizes
@@ -73,7 +73,7 @@
 //! let textual = format!("{}", file_size); // "1.28 MiB"
 //! assert_eq!(textual.as_str(), "1.28 MiB");
 //! ```
-//! 
+//!
 //! [`Size::to_string()`] can be used to directly return a `String` containing the formatted,
 //! human-readable size, instead of needing to use the `format!()` macro or similar:
 #![cfg_attr(not(feature = "std"), doc = "```ignore")]
@@ -83,7 +83,7 @@
 //! let file_size = Size::from_bytes(1_340_249);
 //! assert_eq!(file_size.to_string(), "1.28 MiB".to_string());
 //! ```
-//! 
+//!
 //! For fine-grained control over how a size is formatted and displayed, you can manually use the
 //! [`Size::format()`] function, which returns a [`FormattableSize`](crate::fmt::FormattableSize)
 //! implementing the builder model to allow you to change one or more properties of how a `Size`
@@ -99,7 +99,7 @@
 //!     .to_string();
 //! assert_eq!(textual_size, "1.34 megabytes".to_string());
 //! ```
-//! 
+//!
 //! It is also possible to create and configure a standalone [`SizeFormatter`] that can be reused to
 //! format many sizes in a single, consistent style. This should not be seen as an alternative to
 //! wrapping file sizes in strongly-typed `Size` structs, which should always be the initial
@@ -119,7 +119,7 @@
 //! let size = Size::from_gb(4.2) / 2;
 //! assert_eq!(size, Size::from_gb(2.1));
 //! ```
-//! 
+//!
 //! See the documentation of the [`ops`] module for more on this topic.
 //!
 //! ## Crate features
@@ -291,7 +291,7 @@ pub mod consts {
 /// // Identical sizes expressed in different units with different primitive types:
 /// assert_eq!(Size::from_kibibytes(2_u8), Size::from_kilobytes(2.048_f64));
 /// ```
-#[derive(Copy, Clone)]
+#[derive(Clone, Copy, PartialEq, PartialOrd, Eq, Ord, Hash, Default)]
 pub struct Size {
     bytes: i64,
 }
@@ -666,29 +666,5 @@ impl Size {
 impl core::fmt::Debug for Size {
     fn fmt(&self, fmt: &mut core::fmt::Formatter) -> core::fmt::Result {
         write!(fmt, "{} bytes", self.bytes())
-    }
-}
-
-impl PartialEq<Size> for Size {
-    fn eq(&self, other: &Size) -> bool {
-        self.bytes() == other.bytes()
-    }
-}
-
-impl PartialEq<&Size> for Size {
-    fn eq(&self, other: &&Size) -> bool {
-        self.bytes() == other.bytes()
-    }
-}
-
-impl PartialOrd<Size> for Size {
-    fn partial_cmp(&self, other: &Size) -> Option<core::cmp::Ordering> {
-        self.bytes().partial_cmp(&other.bytes())
-    }
-}
-
-impl PartialOrd<&Size> for Size {
-    fn partial_cmp(&self, other: &&Size) -> Option<core::cmp::Ordering> {
-        self.bytes().partial_cmp(&other.bytes())
     }
 }
