@@ -291,7 +291,7 @@ pub mod consts {
 /// // Identical sizes expressed in different units with different primitive types:
 /// assert_eq!(Size::from_kibibytes(2_u8), Size::from_kilobytes(2.048_f64));
 /// ```
-#[derive(Copy, Clone)]
+#[derive(Clone, Copy, PartialEq, PartialOrd, Eq, Ord, Hash, Default)]
 pub struct Size {
     bytes: i64,
 }
@@ -666,29 +666,5 @@ impl Size {
 impl core::fmt::Debug for Size {
     fn fmt(&self, fmt: &mut core::fmt::Formatter) -> core::fmt::Result {
         write!(fmt, "{} bytes", self.bytes())
-    }
-}
-
-impl PartialEq<Size> for Size {
-    fn eq(&self, other: &Size) -> bool {
-        self.bytes() == other.bytes()
-    }
-}
-
-impl PartialEq<&Size> for Size {
-    fn eq(&self, other: &&Size) -> bool {
-        self.bytes() == other.bytes()
-    }
-}
-
-impl PartialOrd<Size> for Size {
-    fn partial_cmp(&self, other: &Size) -> Option<core::cmp::Ordering> {
-        self.bytes().partial_cmp(&other.bytes())
-    }
-}
-
-impl PartialOrd<&Size> for Size {
-    fn partial_cmp(&self, other: &&Size) -> Option<core::cmp::Ordering> {
-        self.bytes().partial_cmp(&other.bytes())
     }
 }
