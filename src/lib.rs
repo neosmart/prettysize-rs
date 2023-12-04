@@ -136,8 +136,6 @@
 //! precision, it is forbidden to pass in floating point values to the `Size` API under `no_std`
 //! mode.
 
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
 #[cfg(feature = "std")]
 pub mod fmt;
 pub mod ops;
@@ -288,7 +286,6 @@ pub mod consts {
 /// type.
 #[cfg_attr(not(feature = "std"), doc = "```ignore")]
 #[cfg_attr(feature = "std", doc = "```")]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 /// use size::Size;
 ///
 /// // Identical sizes expressed in different units with different primitive types:
