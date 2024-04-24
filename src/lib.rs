@@ -139,6 +139,8 @@
 #[cfg(feature = "std")]
 pub mod fmt;
 pub mod ops;
+#[cfg(feature = "serde")]
+mod serde;
 #[cfg(test)]
 mod tests;
 #[cfg(test)]
