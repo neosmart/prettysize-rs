@@ -74,8 +74,8 @@
 //! assert_eq!(textual.as_str(), "1.28 MiB");
 //! ```
 //!
-//! [`Size::to_string()`] can be used to directly return a `String` containing the formatted,
-//! human-readable size, instead of needing to use the `format!()` macro or similar:
+//! [`Size::to_string()`](ToString::to_string) can be used to directly return a `String` containing
+//! the formatted, human-readable size, instead of needing to use the `format!()` macro or similar:
 #![cfg_attr(not(feature = "std"), doc = "```ignore")]
 #![cfg_attr(feature = "std", doc = "```")]
 //! use size::Size;

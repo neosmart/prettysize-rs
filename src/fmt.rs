@@ -296,8 +296,8 @@ impl SizeFormatter<()> {
 ///
 /// After configuration, a `FormattableSize` may be passed directly to the `println!()` or
 /// `format!()` macros and their friends because it implements [`Display`](std::fmt::Display), or
-/// [`FormattableSize::to_string()`] can be used to retrieve a `String` containing the formatted
-/// result.
+/// [`FormattableSize::to_string()`](ToString::to_string) can be used to retrieve a `String`
+/// containing the formatted result.
 ///
 /// Example:
 /// ```
