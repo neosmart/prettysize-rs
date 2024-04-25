@@ -47,8 +47,9 @@ size = "0.4"
 and in your code:
 
 ```rust
-use size::consts;
 use size::{Base, Size};
+// You can use/import consts representing base2/base10 sizes individually
+// as (e.g.) size::KiB, or import all with `use size::consts::*`
 
 fn main() {
   // Create strongly-typed sizes:
@@ -56,7 +57,7 @@ fn main() {
   assert_eq!(42_000, byte_count.bytes());
 
   // Use predefined constants for the various units
-  let byte_count = 42 * consts::KiB;
+  let byte_count = 42 * size::KiB;
   assert_eq!(43_008, byte_count);
 
   // `Size` can take any numeric type you throw at it
