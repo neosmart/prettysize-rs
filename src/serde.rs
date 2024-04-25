@@ -77,3 +77,74 @@ impl<'de> Deserialize<'de> for Size {
         deserializer.deserialize_i64(SizeVisitor)
     }
 }
+
+#[test]
+/// Assert that [`Size`] serializes to its inner value directly
+fn test_serialize() {
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+    struct Foo {
+        size: Size,
+    }
+
+    let foo = Foo {
+        size: Size::from_bytes(1024),
+    };
+    let json = serde_json::to_string(&foo);
+    assert_eq!(json.as_ref().unwrap(), &r#"{"size":1024}"#.to_string());
+}
+
+#[test]
+fn test_deserialize_i64() {
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+    struct Foo {
+        size: Size,
+    }
+
+    let json = r#"{"size": 42}"#;
+    let foo: Foo = serde_json::from_str(json).unwrap();
+    assert_eq!(
+        foo,
+        Foo {
+            size: Size::from_bytes(42)
+        }
+    );
+}
+
+#[test]
+fn test_deserialize_f64() {
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+    struct Foo {
+        size: Size,
+    }
+
+    let json = r#"{"size": 42.00}"#;
+    let foo: Foo = serde_json::from_str(json).unwrap();
+    assert_eq!(
+        foo,
+        Foo {
+            size: Size::from_bytes(42)
+        }
+    );
+}
+
+#[test]
+fn test_deserialize_overflow() {
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+    struct Foo {
+        size: Size,
+    }
+
+    let json = r#"{"size": 2.99792458e118}"#;
+    let foo: Result<Foo, _> = serde_json::from_str(json);
+    assert!(foo.is_err());
+    let msg = foo.unwrap_err().to_string();
+    assert!(msg.contains("out of range"));
+}
