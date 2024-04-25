@@ -156,6 +156,8 @@
 
 #[cfg(feature = "std")]
 pub mod fmt;
+#[cfg(feature = "std")]
+mod from_str;
 pub mod ops;
 #[cfg(feature = "serde")]
 mod serde;
@@ -167,6 +169,8 @@ mod tests_nostd;
 use crate::consts::*;
 #[cfg(feature = "std")]
 pub use crate::fmt::{Base, SizeFormatter, Style};
+#[cfg(feature = "std")]
+pub use crate::from_str::ParseSizeError;
 use crate::sealed::AsIntermediate;
 
 #[cfg(feature = "std")]
