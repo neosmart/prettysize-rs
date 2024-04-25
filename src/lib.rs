@@ -135,6 +135,24 @@
 //! to `i64` so that no implicit floating-point math is performed. To prevent inadvertent loss of
 //! precision, it is forbidden to pass in floating point values to the `Size` API under `no_std`
 //! mode.
+//!
+//! ## Base-2 and Base-10 constants
+//!
+//! You can individually use constants like `size::KiB` or `size::GB` directly or import all
+//! constants into scope with `use size::consts::*` (or just `use size::*`, but that also imports
+//! the types and traits defined by this crate, too).
+//!
+//! ## Serialization support
+//!
+//! If the crate is compiled with the optional (default: disabled) `serde` feature, the `Size` type
+//! may be serialized/deserialized directly to/from payloads via the `serde` crate. The `Size` type
+//! is treated as a transparent new-type around `u64` for serialization purposes (i.e. it serializes
+//! directly to the number of bytes, not as a struct with the number of bytes as a member/field);
+//! this allows deserializing payloads from various APIs or other languages that typically do not
+//! use strongly-typed `Size` objects to denote (file) size.
+//!
+//! As an example, `struct File { name: String, size: Size } ` will serialize to `{ name: "name",
+//! size: 1234 }` instead of `{ name: "name", size: { bytes: 1234 }`.
 
 #[cfg(feature = "std")]
 pub mod fmt;
