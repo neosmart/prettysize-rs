@@ -89,6 +89,17 @@ fn main() {
 }
 ```
 
+## `no_std` usage
+
+Add the crate to `Cargo.toml` with `default-features` disabled for `no_std` support:
+
+```toml
+[dependencies]
+size = { version = "0.4", default-features = false }
+```
+
+Building in `no_std` mode disables support for floating point `Size` operations/conversions as well as string formatting and conversion.
+
 ## About
 
 This project started off as a port of Mahmoud's
