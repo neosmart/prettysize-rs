@@ -100,6 +100,38 @@ size = { version = "0.4", default-features = false }
 
 Building in `no_std` mode disables support for floating point `Size` operations/conversions as well as string formatting and conversion.
 
+## `serde` support
+
+For serialization and deserialization support, add the `size` crate to your `Cargo.toml` with the `serde` feature enabled:
+
+```toml
+[dependencies]
+size = { version = "0.4", features = [ "serde" ] }
+```
+
+**The `Size` type is serialized/deserialized transparently.** This means that it acts as if it were a `u64` field denoting the size in bytes. This was done to allow directly deserializing from network payloads from languages/apis that do not express sizes as strongly typed fields (and vice-versa).
+
+As a concrete example, let's pretend you have the following struct that contains a `Size` field:
+
+```rust
+#[derive(Serialize, Deserialize)]
+struct File {
+    path: PathBuf,
+    size: Size,
+}
+```
+
+Using JSON as an example, the `File` type above will serialize to/from the following:
+
+```json
+{
+    "path:" "/foo/bar",
+    "size:" 1024
+}
+```
+
+As you can see, the `size` field has been serialized directly to a numeric value (and not a `Size` object _containing_ that number value).
+
 ## About
 
 This project started off as a port of Mahmoud's
