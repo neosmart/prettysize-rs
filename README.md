@@ -106,7 +106,7 @@ Add the crate to `Cargo.toml` with `default-features` disabled for `no_std` supp
 
 ```toml
 [dependencies]
-size = { version = "0.4", default-features = false }
+size = { version = ..., default-features = false }
 ```
 
 Building in `no_std` mode disables support for floating point `Size` operations/conversions as well as string formatting and conversion.
@@ -117,7 +117,7 @@ For serialization and deserialization support, add the `size` crate to your `Car
 
 ```toml
 [dependencies]
-size = { version = "0.4", features = [ "serde" ] }
+size = { version = ..., features = [ "serde" ] }
 ```
 
 **The `Size` type is serialized/deserialized transparently.** This means that it acts as if it were a `u64` field denoting the size in bytes. This was done to allow directly deserializing from network payloads from languages/apis that do not express sizes as strongly typed fields (and vice-versa).
