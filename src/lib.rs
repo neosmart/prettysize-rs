@@ -122,6 +122,13 @@
 //!
 //! See the documentation of the [`ops`] module for more on this topic.
 //!
+//! ## Parsing sizes from text
+//!
+//! The [`Size::from_str()`] function can be used to convert the most commonly encountered textual
+//! representations of file sizes into properly typed `Size` objects, with flexible support for
+//! various input whitespace formatting, abbreviated/full unit names, mixed upper/lower-case
+//! representation, etc.
+//!
 //! ## Crate features
 //!
 //! This crate currently has one feature (`std`), enabled by default. If compiled with
