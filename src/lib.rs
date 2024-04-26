@@ -131,10 +131,13 @@
 //!
 //! ## Crate features
 //!
-//! This crate currently has one feature (`std`), enabled by default. If compiled with
-//! `--no-default-features` or used as a dependency with default features disabled, the crate
-//! becomes `no_std` compatible. When used in `no_std` mode, the following restrictions and
-//! limitations are observed:
+//! The following crate features may be chosen:
+//! * `std` (enabled by default)
+//! * `serde`
+//!
+//! If compiled without the `std` feature (i.e. with `--no-default-features` or used as a dependency
+//! with default features disabled), the crate becomes `no_std` compatible. When used in `no_std`
+//! mode, the following restrictions and limitations are observed:
 //!
 //! * All formatting/stringification of `Size` types is disabled.
 //! * `Size` no longer implements [`std::fmt::Display`] (`core::fmt::Debug` is still implemented).
@@ -142,6 +145,8 @@
 //! to `i64` so that no implicit floating-point math is performed. To prevent inadvertent loss of
 //! precision, it is forbidden to pass in floating point values to the `Size` API under `no_std`
 //! mode.
+//! * The ability to parse strings into `Size` objects (`Size::from_str()` and the `FromStr` impl)
+//! are removed.
 //!
 //! ## Base-2 and Base-10 constants
 //!
