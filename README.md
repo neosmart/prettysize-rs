@@ -90,6 +90,16 @@ fn main() {
 }
 ```
 
+## Parsing and formatting
+
+The `size` crate supports parsing textual representations of file sizes into strongly typed `Size` objects, both via the `Size::from_str()` function and its `FromStr` implementation that lets you call `"1234 kilobytes".parse()`.
+
+The `Size` type implements `std::fmt::Display` (in addition to many other traits), which provides a facility to generate properly formatted textual representations of file sizes via the `Size::to_string()` impl of the `ToString` trait or when used in a `format!(..., Size)` context.
+
+By default, `Size` objects are formatted as base-2 (KiB, MiB, etc) with heuristically chosen precision and units. The member function `Size::format()` can be used to override the unit base (e.g. MB vs MiB) and whether or not abbreviated unit names are used (e.g. KiB vs Kebibyte).
+
+Feel free to open a GitHub issue or PR if you need further control over formatting (precision, case, etc)!
+
 ## `no_std` usage
 
 Add the crate to `Cargo.toml` with `default-features` disabled for `no_std` support:
@@ -148,7 +158,6 @@ released to the general public under the terms of the MIT public license.
 
 ## To-Do
 
-* Providing a `FromStr` impl to parse file sizes ([coming
-  soon!](https://github.com/neosmart/prettysize-rs/pull/3))
+*This section is currently empty 🎉*
 
 Pull requests are welcome!
