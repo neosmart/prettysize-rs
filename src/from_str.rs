@@ -70,10 +70,11 @@ impl FromStr for Size {
         let (number_str, unit) = match s.split_once(' ') {
             None => {
                 // Possibly in the format 2mib (no separating space)
-                // Try to split at the first non-numeric value.
-                match s.find(|c: char| !c.is_ascii_digit() && c != '.') {
+                // Try to split after the last digit in the input. This supports the (unadvertised)
+                // ability to parse scientific notation w/o spaces between scalar and unit.
+                match s.rfind(|c: char| !c.is_ascii_alphabetic()).map(|i| i + 1) {
                     None => (s, ""), // just a number, no unit
-                    Some(idx) => s.split_at(dbg!(idx)),
+                    Some(idx) => s.split_at(idx),
                 }
             }
             Some((num, unit)) => (num, unit),
@@ -156,5 +157,18 @@ mod tests {
         for input in tests {
             assert_eq!(dbg!(Size::from_str(input)), Err(ParseSizeError));
         }
+    }
+
+    #[test]
+    fn parse_boundary() {
+        assert_eq!(Size::from_str("42.0"), Ok(Size::from_bytes(42)));
+        assert_eq!(Size::from_str("42.0kib "), Ok(Size::from_bytes(42 * KiB)));
+    }
+
+    #[test]
+    fn parse_scientific() {
+        assert_eq!(Size::from_str("0.423E3"), Ok(Size::from_bytes(423)));
+        assert_eq!(Size::from_str("423E-3 mb"), Ok(Size::from_bytes(423_000)));
+        assert_eq!(Size::from_str("0.423e3kb"), Ok(Size::from_bytes(423_000)));
     }
 }
