@@ -173,7 +173,7 @@ mod tests;
 #[cfg(test)]
 mod tests_nostd;
 
-use crate::consts::*;
+pub use crate::consts::*;
 #[cfg(feature = "std")]
 pub use crate::fmt::{Base, SizeFormatter, Style};
 #[cfg(feature = "std")]
