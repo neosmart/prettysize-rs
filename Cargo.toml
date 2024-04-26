@@ -12,7 +12,7 @@ license = "MIT"
 edition = "2018"
 
 [dependencies]
-serde = { version = "1.0.198", default-features = false, optional = true, features = [ "derive"] }
+serde = { version = "1.0", default-features = false, optional = true, features = [ "derive"] }
 
 [features]
 default = [ "std" ]

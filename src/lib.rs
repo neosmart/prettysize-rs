@@ -241,7 +241,7 @@ mod sealed {
 /// A collection of constants for base-2 and base-10 units.
 ///
 /// These can be used in a `const` context in conjunction with the `const` [`Size::from_const()`]
-/// function to create strongly-sized `Size` objects expressing various sizes, e.g.
+/// function to create strongly-sized [`Size`] objects expressing various sizes, e.g.
 ///
 /// ```
 /// use size::Size;
@@ -249,6 +249,9 @@ mod sealed {
 ///
 /// pub const TOTAL_SIZE: Size = Size::from_const(3 * MiB);
 /// ```
+///
+/// You can use these directly from the root `size` namespace (e.g. `size::KiB`) or import all size
+/// constants with `use size::consts::*` to get access to them all in the scope.
 pub mod consts {
     #![allow(non_upper_case_globals)]
 
