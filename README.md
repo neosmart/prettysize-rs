@@ -158,7 +158,6 @@ released to the general public under the terms of the MIT public license.
 
 ## To-Do
 
-* Providing a `FromStr` impl to parse file sizes ([coming
-  soon!](https://github.com/neosmart/prettysize-rs/pull/3))
+*This section is currently empty 🎉*
 
 Pull requests are welcome!
