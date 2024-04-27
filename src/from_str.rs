@@ -71,8 +71,8 @@ impl FromStr for Size {
             Some(idx) => s.split_at(idx),
         };
 
-        let number: f64 = num_str.trim().parse().map_err(|_| ParseSizeError)?;
-        let unit = unit.trim().to_lowercase();
+        let number: f64 = num_str.trim_end().parse().map_err(|_| ParseSizeError)?;
+        let unit = unit.to_lowercase();
 
         let multiplier = match unit.as_str().trim_end_matches('s') {
             "" | "b" | "byte" => B,
