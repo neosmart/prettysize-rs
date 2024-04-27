@@ -1,6 +1,6 @@
 [package]
 name = "size"
-version = "0.5.0-preview1"
+version = "0.5.0-preview2"
 authors = ["Mahmoud Al-Qudsi <mqudsi@neosmart.net>", "NeoSmart Technologies"]
 description = "A crate for expressing, formatting, and interacting with file sizes"
 homepage = "https://github.com/neosmart/prettysize-rs"
