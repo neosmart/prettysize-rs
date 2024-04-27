@@ -28,9 +28,11 @@ what this crate can do and how to use it.
 * mathematical and logical operations on strongly-typed `Size` values,
 * full support for expressing negative sizes (e.g. the difference between two sizes, or the
   amount of space reclaimed on a disk)
+* serialization to/from bare byte fields in network payloads or other api requests/responses
+* parsing sizes from text representation in a wide variety of formats
 
 This crate can also be used in `no_std` mode (by compiling with default features
-disabled). This disables string conversion/formatting but keeps all the strongly-typed
+disabled). This disables string conversion/formatting/parsing but keeps all the strongly-typed
 size conversion and mathematical/logical operations available.
 
 This crate is free of any dependencies.
@@ -87,6 +89,10 @@ fn main() {
   let size1 = Size::from_gigabytes(2);
   let size2 = Size::from_gibibytes(1.99);
   assert!(size1 < size2);
+
+  // Parse sizes from textual representations
+  let size1 = Size::from_str("12 KiB").unwrap();
+  let size2 = Size::from_str("42mb").unwrap();
 }
 ```
 
@@ -142,6 +148,16 @@ Using JSON as an example, the `File` type above will serialize to/from the follo
 ```
 
 As you can see, the `size` field has been serialized directly to a numeric value (and not a `Size` object _containing_ that number value).
+
+## Parsing sizes from strings
+
+The `FromStr` impl or the static `Size::from_str()` member function can be used to parse sizes from text, and support a wide variety of input formats and representations:
+
+```rust
+let size1 = Size::from_str("123456").unwrap();
+let size2 = Size::from_str("17mib").unwrap();
+let size3 = Size::from_str("12.8 KB").unwrap();
+```
 
 ## About
 
