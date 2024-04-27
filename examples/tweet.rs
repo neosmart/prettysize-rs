@@ -25,10 +25,10 @@ fn main() {
     // Serialize and and deserialize from byte values or strings
     let _: File = serde_json::from_str(
         r#"{
-        "name": "Hello.txt",
-        "size": "12.92 gigabytes",
-        "disk_size": 12920000000
-    }"#,
+            "name": "Hello.txt",
+            "size": "12.92 gigabytes",
+            "disk_size": 12920000000
+        }"#,
     )
     .unwrap();
 }

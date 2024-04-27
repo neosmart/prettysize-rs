@@ -62,8 +62,7 @@ impl<'de> de::Visitor<'de> for SizeVisitor {
     where
         E: de::Error,
     {
-        Size::from_str(value)
-            .map_err(|_| E::custom(format!("Invalid size: \"{value}\"")))
+        Size::from_str(value).map_err(|_| E::custom(format!("Invalid size: \"{value}\"")))
     }
 }
 
