@@ -57,6 +57,14 @@ impl<'de> de::Visitor<'de> for SizeVisitor {
             })
         }
     }
+
+    fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+    where
+        E: de::Error,
+    {
+        Size::from_str(value)
+            .map_err(|_| E::custom(format!("Invalid size: \"{value}\"")))
+    }
 }
 
 impl Serialize for Size {
@@ -73,8 +81,7 @@ impl<'de> Deserialize<'de> for Size {
     where
         D: Deserializer<'de>,
     {
-        // Name is misleading; does not mean only SizeVisitor::visit_i64 is called!
-        deserializer.deserialize_i64(SizeVisitor)
+        deserializer.deserialize_any(SizeVisitor)
     }
 }
 
