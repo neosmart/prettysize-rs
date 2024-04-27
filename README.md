@@ -157,6 +157,7 @@ The `FromStr` impl or the static `Size::from_str()` member function can be used 
 let size1 = Size::from_str("123456").unwrap();
 let size2 = Size::from_str("17mib").unwrap();
 let size3 = Size::from_str("12.8 KB").unwrap();
+let size4 = Size::from_str("18.9 gigabytes").unwrap();
 ```
 
 ## About
