@@ -63,25 +63,17 @@ impl FromStr for Size {
 
     fn from_str(s: &str) -> Result<Size, Self::Err> {
         let s = s.trim();
-        if s.is_empty() {
-            return Err(ParseSizeError);
-        }
 
-        let (number_str, unit) = match s.split_once(' ') {
-            None => {
-                // Possibly in the format 2mib (no separating space)
-                // Try to split after the last digit in the input. This supports the (unadvertised)
-                // ability to parse scientific notation w/o spaces between scalar and unit.
-                match s.rfind(|c: char| !c.is_ascii_alphabetic()).map(|i| i + 1) {
-                    None => (s, ""), // just a number, no unit
-                    Some(idx) => s.split_at(idx),
-                }
-            }
-            Some((num, unit)) => (num, unit),
+        // Try to split before the first unit char in the input. This supports the (unadvertised)
+        // ability to parse scientific notation w/o spaces between scalar and unit.
+        let (num_str, unit) = match s.rfind(|c: char| !c.is_ascii_alphabetic()).map(|i| i + 1) {
+            None => (s, ""), // just a number, no unit
+            Some(idx) => s.split_at(idx),
         };
-        let number: f64 = number_str.parse().map_err(|_| ParseSizeError)?;
 
+        let number: f64 = num_str.trim().parse().map_err(|_| ParseSizeError)?;
         let unit = unit.trim().to_lowercase();
+
         let multiplier = match unit.as_str().trim_end_matches('s') {
             "" | "b" | "byte" => B,
             "kb" | "kilobyte" => KB,
