@@ -328,14 +328,20 @@ impl SizeFormatter<()> {
     }
 }
 
-/// A type that can be used to achieve greater control over how a [`Size`] is formatted as
-/// human-readable text, created by calling [`Size::format()`]. The `SizeFormatter` follows the
-/// builder model and exposes a chaining API for configuration (via the `.with_` functions).
+/// Result of [`Size::format()`], allowing customization of size pretty printing.
+///
+/// This is a specialization of [`SizeFormatter`] that can be used to achieve greater control over
+/// how a specific [`Size`] value is formatted as human-readable text, created by calling
+/// [`Size::format()`]. The `SizeFormatter` follows the builder model and exposes a chaining API for
+/// configuration (via the `.with_` functions).
 ///
 /// After configuration, a `FormattableSize` may be passed directly to the `println!()` or
 /// `format!()` macros and their friends because it implements [`Display`](std::fmt::Display), or
 /// [`FormattableSize::to_string()`](ToString::to_string) can be used to retrieve a `String`
 /// containing the formatted result.
+///
+/// To configure once and repeatedly print sizes in the same format, create a standalone
+/// [`SizeFormatter`] instead of using `Size::format()`.
 ///
 /// Example:
 /// ```
@@ -343,12 +349,16 @@ impl SizeFormatter<()> {
 ///
 /// let size = Size::from_mib(1.907349);
 /// let text = size.format()
-///     .with_base(Base::Base10)
-///     .with_style(Style::Full)
+///     .with_base(Base::Base10) // use base-10 sizes
+///     .with_style(Style::Full) // print full unit names
+///     .with_scale(Some(2)) // two digits after the decimal
 ///     .to_string();
 ///
 /// assert_eq!(text.as_str(), "2.00 Megabytes");
 /// ```
+///
+/// The call to `.to_string()` can be omitted if you are passing the `SizeFormatter`/
+/// `FormattableSize` to any of the format macros like `println!()` and co.
 pub type FormattableSize<'a> = SizeFormatter<&'a Size>;
 
 impl fmt::Display for FormattableSize<'_> {
