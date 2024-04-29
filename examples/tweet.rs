@@ -1,8 +1,13 @@
-use serde::{Deserialize, Serialize};
-use size::consts::*; // Import consts like KB, MiB, etc.
-use size::Size; // Core type for all size operations
+// Work around https://github.com/rust-lang/cargo/issues/9208
+#[cfg(not(feature = "serde"))]
+fn main() { panic!("Requisite feature is not enabled!") }
 
+#[cfg(feature = "serde")]
 fn main() {
+    use serde::{Deserialize, Serialize};
+    use size::consts::*; // Import consts like KB, MiB, etc.
+    use size::Size; // Core type for all size operations
+
     // Flexible construction options
     let s = Size::from_bytes(440 * KB) + Size::from_mib(12.9);
     println!("The pretty file size {s}"); // 13.3 MiB
