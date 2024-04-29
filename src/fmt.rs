@@ -167,8 +167,12 @@ mod sealed {
 /// use size::{Base, Size, SizeFormatter, Style};
 ///
 /// let formatter = SizeFormatter::new()
+///     // Use base-10 units like MB and KB, not MiB and KiB
 ///     .with_base(Base::Base10)
-///     .with_style(Style::Abbreviated);
+///     // Use abbreviated unit names (e.g. MB and not megabyte)
+///     .with_style(Style::Abbreviated)
+///     // Print sizes with two digits after the decimal point (e.g. 2.00 KiB, not 2 KiB)
+///     .with_scale(Some(2));
 ///
 /// # let mut sizes: Vec<String> = Vec::new();
 /// for raw_size in [ 1024, 2048, 4096 ]
@@ -234,7 +238,39 @@ impl<T: sealed::FormatterSize> SizeFormatter<T> {
         Self { style, ..self }
     }
 
-    /// Formats the provided `bytes` value with the configured [`self.Base`] and [`self.Style`].
+    /// Specify the scale/precision of the formatted sizes.
+    ///
+    /// Sets the number of digits after the decimal point for formatted sizes. A value of `Some(0)`
+    /// prints whole numbers only while a value of `None` uses the default formatting which uses a
+    /// different scale/precision for sizes depending on the chosen unit.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use size::Size;
+    ///
+    /// let formatted = Size::from_bytes(42_000)
+    ///     .format()
+    ///     .with_scale(Some(3))
+    ///     .to_string();
+    /// assert_eq!(&formatted, "41.016 KiB");
+    /// ```
+    ///
+    /// Sizes that are printed as a whole number of bytes do not have a scale:
+    /// ```
+    /// use size::SizeFormatter;
+    ///
+    /// let bytes = SizeFormatter::new()
+    ///     .with_scale(Some(2))
+    ///     .format(123);
+    /// assert_eq!(&bytes, "123 bytes");
+    /// ```
+    pub fn with_scale(self, scale: Option<usize>) -> Self {
+        Self { scale, ..self }
+    }
+
+    /// Formats the provided `bytes` value with the configured [`self.base`], [`self.style`], and
+    /// [`self.scale`].
     fn inner_fmt(&self, fmt: &mut fmt::Formatter, bytes: i64) -> fmt::Result {
         let bytes = match bytes {
             x @ 0..=i64::MAX => x as u64,
@@ -322,9 +358,10 @@ impl fmt::Display for FormattableSize<'_> {
 }
 
 impl Size {
-    /// Returns a textual representation of the [`Size`] for display purposes, giving control over
-    /// the returned representation's base (see [`Base::Base2`] and [`Base::Base10`]) and the style
-    /// used to express the determined unit (see [`Style`]).
+    /// Returns a textual representation of the [`Size`] for display purposes.
+    ///
+    /// Gives the caller control over the returned value's scale, base (see [`Base::Base2`] and
+    /// [`Base::Base10`]), and the style used to express the determined unit (see [`Style`]).
     ///
     /// Example:
     /// ```
@@ -334,6 +371,7 @@ impl Size {
     /// let text = size.format()
     ///     .with_base(Base::Base10)
     ///     .with_style(Style::Full)
+    ///     .with_scale(Some(2))
     ///     .to_string();
     ///
     /// assert_eq!(text.as_str(), "2.00 Megabytes");
