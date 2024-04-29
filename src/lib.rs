@@ -194,6 +194,8 @@ type Intermediate = i64;
 const DEFAULT_BASE: Base = Base::Base2;
 #[cfg(feature = "std")]
 const DEFAULT_STYLE: Style = Style::Default;
+#[cfg(feature = "std")]
+const DEFAULT_SCALE: Option<usize> = None;
 
 mod sealed {
     use super::Intermediate;
