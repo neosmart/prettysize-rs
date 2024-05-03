@@ -197,6 +197,12 @@ pub struct SizeFormatter<T: sealed::FormatterSize = ()> {
     style: Style,
 }
 
+impl Default for SizeFormatter<()> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Makes it possible to obtain a string from an `fmt(f: &mut Formatter)` function by initializing
 /// this type as a wrapper around said format function, then using `format!("{}", foo)` on the
 /// resulting object.

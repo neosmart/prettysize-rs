@@ -1,6 +1,8 @@
 // Work around https://github.com/rust-lang/cargo/issues/9208
 #[cfg(not(feature = "serde"))]
-fn main() { panic!("Requisite feature is not enabled!") }
+fn main() {
+    panic!("Requisite feature is not enabled!")
+}
 
 #[cfg(feature = "serde")]
 fn main() {
