@@ -19,15 +19,15 @@ fn negative_tests() {
 
 #[test]
 fn integral_limits() {
-    assert_eq!("8 EiB", format!("{}", Size::from_bytes(i64::max_value())));
-    assert_eq!("-8 EiB", format!("{}", Size::from_bytes(i64::min_value())));
+    assert_eq!("8 EiB", format!("{}", Size::from_bytes(i64::MAX)));
+    assert_eq!("-8 EiB", format!("{}", Size::from_bytes(i64::MIN)));
 
-    assert_eq!("8 EiB", format!("{}", Size::from_kib(u64::max_value())));
-    assert_eq!("0 bytes", format!("{}", Size::from_kib(u64::min_value())));
+    assert_eq!("8 EiB", format!("{}", Size::from_kib(u64::MAX)));
+    assert_eq!("0 bytes", format!("{}", Size::from_kib(u64::MIN)));
 
     // Also test for the old-style API, which does no math at the point of creation
-    assert_eq!("8 EiB", format!("{}", Size::Bytes(u64::max_value())));
-    assert_eq!("0 bytes", format!("{}", Size::Bytes(u64::min_value())));
+    assert_eq!("8 EiB", format!("{}", Size::Bytes(u64::MAX)));
+    assert_eq!("0 bytes", format!("{}", Size::Bytes(u64::MIN)));
 }
 
 #[test]

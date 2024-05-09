@@ -37,8 +37,8 @@ fn nostd_bytes() {
 #[test]
 fn nostd_integral_limits() {
     // Test the old-style API, which does no math at the point of creation
-    assert_eq!(Size::from_bytes(i64::max_value()), Size::Bytes(u64::max_value()));
-    assert_eq!(Size::from_bytes(0), Size::Bytes(u64::min_value()));
+    assert_eq!(Size::from_bytes(i64::MAX), Size::Bytes(u64::MAX));
+    assert_eq!(Size::from_bytes(0), Size::Bytes(u64::MIN));
     assert_eq!(Size::from_bytes(i64::MAX), Size::Bytes(u64::MAX - 1));
 }
 

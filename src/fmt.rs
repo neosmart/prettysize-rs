@@ -246,11 +246,11 @@ impl<T: sealed::FormatterSize> SizeFormatter<T> {
             y => {
                 write!(fmt, "-")?;
 
-                // The absolute magnitude of T::min_value() for a signed number is one more than
-                // that of T::max_value(), meaning T::min_value().abs() will panic.
+                // The absolute magnitude of T::MIN for a signed number is one more than
+                // that of T::MAX, meaning T::MIN.abs() will panic.
                 match y.checked_abs() {
                     Some(abs) => abs as u64,
-                    None => i64::max_value() as u64,
+                    None => i64::MAX as u64,
                 }
             }
         };
@@ -443,7 +443,7 @@ const BASE10_RULES: [FormatRule; 17] = [
         unit: Unit::Petabyte,
     },
     FormatRule {
-        less_than: u64::max_value(),
+        less_than: u64::MAX,
         formatter: |fmt, bytes| write!(fmt, "{:0}", bytes as f64 / (EXABYTE as f64)),
         unit: Unit::Exabyte,
     },
@@ -531,7 +531,7 @@ const BASE2_RULES: [FormatRule; 17] = [
         unit: Unit::Pebibyte,
     },
     FormatRule {
-        less_than: u64::max_value(),
+        less_than: u64::MAX,
         formatter: |fmt, bytes| write!(fmt, "{:0}", bytes as f64 / (EXBIBYTE as f64)),
         unit: Unit::Exbibyte,
     },

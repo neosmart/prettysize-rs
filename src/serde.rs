@@ -23,7 +23,7 @@ impl<'de> de::Visitor<'de> for SizeVisitor {
     where
         E: de::Error,
     {
-        if value > std::i64::MAX as u64 {
+        if value > i64::MAX as u64 {
             Err(E::custom(format!("u64 size {} is out of range", value)))
         } else {
             Ok(Size {
@@ -36,7 +36,7 @@ impl<'de> de::Visitor<'de> for SizeVisitor {
     where
         E: de::Error,
     {
-        if value.is_infinite() || value > std::i64::MAX as f32 || value < std::i64::MIN as f32 {
+        if value.is_infinite() || value > i64::MAX as f32 || value < i64::MIN as f32 {
             Err(E::custom(format!("f32 size {} is out of range", value)))
         } else {
             Ok(Size {
@@ -49,7 +49,7 @@ impl<'de> de::Visitor<'de> for SizeVisitor {
     where
         E: de::Error,
     {
-        if value.is_infinite() || value > std::i64::MAX as f64 || value < std::i64::MIN as f64 {
+        if value.is_infinite() || value > i64::MAX as f64 || value < i64::MIN as f64 {
             Err(E::custom(format!("f64 size {} is out of range", value)))
         } else {
             Ok(Size {

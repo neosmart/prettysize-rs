@@ -1,4 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), allow(clippy::unnecessary_cast))]
 #![warn(missing_docs)]
 
 //! This crate provides an ergonomic, type-safe, and aesthetically-pleasing [`Size`] type that can

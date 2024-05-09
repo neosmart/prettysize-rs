@@ -37,6 +37,7 @@ impl Size {
     /// let size = Size::from_str("12.34 KB").unwrap();
     /// assert_eq!(size.bytes(), 12_340);
     /// ```
+    #[allow(clippy::should_implement_trait)]
     pub fn from_str(s: &str) -> Result<Size, crate::ParseSizeError> {
         FromStr::from_str(s)
     }
