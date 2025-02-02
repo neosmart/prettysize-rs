@@ -151,7 +151,7 @@ As you can see, the `size` field has been serialized directly to a numeric value
 
 ## Parsing sizes from strings
 
-The `FromStr` impl or the static `Size::from_str()` member function can be used to parse sizes from text, and support a wide variety of input formats and representations:
+The `FromStr` impl or the static `Size::from_str()` member function can be used to parse sizes from text, and supports a wide variety of input formats and representations:
 
 ```rust
 let size1 = Size::from_str("123456").unwrap();
