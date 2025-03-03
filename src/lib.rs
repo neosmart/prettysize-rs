@@ -339,6 +339,9 @@ pub struct Size {
 }
 
 impl Size {
+    /// Zero value (0 bytes)
+    pub const ZERO: Self = Self { bytes: 0 };
+
     /// Initialize a `Size` from the provided value, in bytes. This is a constant function and may
     /// be used in a `const` context.
     ///

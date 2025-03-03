@@ -114,6 +114,17 @@ fn size_subtraction() {
 }
 
 #[test]
+fn size_summation() {
+    let sizes = vec![Size::from_mib(20), Size::from_mib(22)];
+
+    // sum references
+    assert_eq!(sizes.iter().sum::<Size>(), Size::Mebibytes(42));
+
+    // sum owned values
+    assert_eq!(sizes.into_iter().sum::<Size>(), Size::Mebibytes(42));
+}
+
+#[test]
 fn primitive_multiplication() {
     let size = &Size::from_gb(12) * 7;
     assert_eq!(size.bytes(), 84000000000);
