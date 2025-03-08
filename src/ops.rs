@@ -38,6 +38,7 @@
 
 use crate::{AsIntermediate, Intermediate, Size};
 use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+use std::iter::Sum;
 
 impl Add<Size> for Size {
     type Output = Size;
@@ -100,6 +101,18 @@ impl Sub<&Size> for &Size {
 
     fn sub(self, other: &Size) -> Self::Output {
         Size::from_bytes(self.bytes() - other.bytes())
+    }
+}
+
+impl Sum for Size {
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.fold(Self::ZERO, |total, size| total + size)
+    }
+}
+
+impl<'a> Sum<&'a Size> for Size {
+    fn sum<I: Iterator<Item = &'a Size>>(iter: I) -> Self {
+        iter.fold(Self::ZERO, |total, size| total + size)
     }
 }
 
