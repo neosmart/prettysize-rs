@@ -38,7 +38,7 @@
 
 use crate::{AsIntermediate, Intermediate, Size};
 use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
-use std::iter::Sum;
+use core::iter::Sum;
 
 impl Add<Size> for Size {
     type Output = Size;
