@@ -63,10 +63,14 @@ impl FromStr for Size {
     type Err = ParseSizeError;
 
     fn from_str(s: &str) -> Result<Size, Self::Err> {
+        if !s.is_ascii() {
+            return Err(ParseSizeError);
+        }
+
         let s = s.trim();
 
         // Try to split before the first unit char in the input. This supports the (unadvertised)
-        // ability to parse scientific notation w/o spaces between scalar and unit.
+        // ability to parse scientific notation w/o spaces between scalar and unit (e.g. "4.2e-3kb")
         let (num_str, unit) = match s.rfind(|c: char| !c.is_ascii_alphabetic()).map(|i| i + 1) {
             None => (s, ""), // just a number, no unit
             Some(idx) => s.split_at(idx),
@@ -163,5 +167,17 @@ mod tests {
         assert_eq!(Size::from_str("0.423E3"), Ok(Size::from_bytes(423)));
         assert_eq!(Size::from_str("423E-3 mb"), Ok(Size::from_bytes(423_000)));
         assert_eq!(Size::from_str("0.423e3kb"), Ok(Size::from_bytes(423_000)));
+    }
+
+    #[test]
+    fn parse_unicode_inputs() {
+        let tests = vec![
+            "1.5 GB 😱",      // emoji
+            "1234\u{200d}MB", // zero-width joiner
+        ];
+
+        for input in tests {
+            assert_eq!(dbg!(Size::from_str(input)), Err(ParseSizeError));
+        }
     }
 }
