@@ -45,7 +45,7 @@ Cargo.toml:
 
 ```toml
 [dependencies]
-size = "0.5.0-preview2"
+size = "0.6"
 ```
 
 and in your code:
