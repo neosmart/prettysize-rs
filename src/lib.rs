@@ -544,6 +544,25 @@ impl Size {
     pub const fn bytes(&self) -> i64 {
         self.bytes
     }
+
+    /// Returns the unsigned byte size as an unsigned value, like [`Size::bytes()`] but returning a
+    /// `u64` instead of an `i64`.
+    ///
+    /// While this removes the need for casting or converting the result to an unsigned value if that
+    /// is what you are dealing with, **it will panic if the conversion cannot be performed
+    /// cleanly**.
+    ///
+    /// Example:
+    /// ```
+    /// use size::Size;
+    /// assert_eq!(Size::from_mib(4_u8).ubytes(), 4_194_304 as u64);
+    /// ```
+    pub const fn ubytes(&self) -> u64 {
+        if self.bytes < 0 {
+            panic!("Out-of-range error converting signed Size to u64!");
+        }
+        self.bytes as u64
+    }
 }
 
 // The original `size` approach was a rust enum with each unit expressed as a different variant, but
