@@ -140,7 +140,9 @@
 //! with default features disabled), the crate becomes `no_std` compatible. When used in `no_std`
 //! mode, the following restrictions and limitations are observed:
 //!
-//! * All formatting/stringification of `Size` types is disabled.
+//! * `String`-allocating formatting/stringification of `Size` types is disabled, (e.g.
+//! `SizeFormatter::format()` and `Size::to_string()` are no longer available, though `Size` continues
+//! to implement `core::fmt::Display`.
 //! * The intermediate type used for mathematical operations on `Size` types is changed from `f64`
 //! to `i64` so that no implicit floating-point math is performed. To prevent inadvertent loss of
 //! precision, it is forbidden to pass in floating point values to the `Size` API under `no_std`

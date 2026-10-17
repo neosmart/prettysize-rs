@@ -21,7 +21,8 @@ what this crate can do and how to use it.
   `consts::KiB` and `consts::KIBIBYTE` or `consts::GB` and `consts::GIGABYTE`),
 * an `fmt::Display` impl for `Size` to automatically display sizes in a human-readable
   format, automatically choosing the best size unit and numeric precision to
-  give the nicest results (you can also use `Size::to_string()` instead).
+  give the nicest results (available in both `std` and `no_std` modes). In `std` mode,
+  you can also use `Size::to_string()` instead.
 * a `Size.format()` method that gives you more control over how sizes are converted
   to a textual representation, letting you to specify the base of the human-readable
   units and their style (smart, abbreviated, or full; plus their lowercase variants).
@@ -32,8 +33,9 @@ what this crate can do and how to use it.
 * parsing sizes from text representation in a wide variety of formats
 
 This crate can also be used in `no_std` mode (by compiling with default features
-disabled). This disables string conversion/formatting/parsing but keeps all the strongly-typed
-size conversion and mathematical/logical operations available.
+disabled). This disables string conversion/parsing as well as `String`-allocating string
+conversions like `Size::to_string()`, but keeps all the strongly-typed size conversion
+and mathematical/logical operations available.
 
 This crate is free of any dependencies.
 
@@ -100,7 +102,7 @@ fn main() {
 
 The `size` crate supports parsing textual representations of file sizes into strongly typed `Size` objects, both via the `Size::from_str()` function and its `FromStr` implementation that lets you call `"1234 kilobytes".parse()`.
 
-The `Size` type implements `fmt::Display` (in addition to many other traits), which provides a facility to generate properly formatted textual representations of file sizes via the `Size::to_string()` impl of the `ToString` trait or when used in a `format!(..., Size)` context.
+The `Size` type implements `fmt::Display` (in addition to many other traits), which provides a facility to generate properly formatted textual representations of file sizes via `Display` impl for `Size`, as well as `Size::to_string()` and `format!(..., Size)` support when `std` is available.
 
 By default, `Size` objects are formatted as base-2 (KiB, MiB, etc) with heuristically chosen precision and units. The member function `Size::format()` can be used to override the unit base (e.g. MB vs MiB) and whether or not abbreviated unit names are used (e.g. KiB vs Kebibyte).
 
@@ -115,7 +117,7 @@ Add the crate to `Cargo.toml` with `default-features` disabled for `no_std` supp
 size = { version = ..., default-features = false }
 ```
 
-Building in `no_std` mode disables support for floating point `Size` operations/conversions as well as string formatting and conversion.
+Building in `no_std` mode disables support for floating point `Size` operations/conversions as well as some advanced string formatting and conversion, though human-readable formatting via `core::fmt::Display` remains available.
 
 ## `serde` support
 
@@ -142,8 +144,8 @@ Using JSON as an example, the `File` type above will serialize to/from the follo
 
 ```json
 {
-    "path:" "/foo/bar",
-    "size:" 1024
+    "path": "/foo/bar",
+    "size": 1024
 }
 ```
 
