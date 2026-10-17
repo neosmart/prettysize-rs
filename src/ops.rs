@@ -37,8 +37,8 @@
 //! undefined results in release mode.
 
 use crate::{AsIntermediate, Intermediate, Size};
-use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 use core::iter::Sum;
+use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
 impl Add<Size> for Size {
     type Output = Size;

@@ -63,19 +63,25 @@ impl FromStr for Size {
     type Err = ParseSizeError;
 
     fn from_str(s: &str) -> Result<Size, Self::Err> {
+        if !s.is_ascii() {
+            return Err(ParseSizeError);
+        }
+
         let s = s.trim();
 
         // Try to split before the first unit char in the input. This supports the (unadvertised)
-        // ability to parse scientific notation w/o spaces between scalar and unit.
+        // ability to parse scientific notation w/o spaces between scalar and unit (e.g. "4.2e-3kb")
         let (num_str, unit) = match s.rfind(|c: char| !c.is_ascii_alphabetic()).map(|i| i + 1) {
-            None => (s, ""), // just a number, no unit
+            None => (s, ""), // (presumably) just a number, no unit
             Some(idx) => s.split_at(idx),
         };
 
         let number: f64 = num_str.trim_end().parse().map_err(|_| ParseSizeError)?;
         let unit = unit.to_lowercase();
+        // Allow only a single trailing 's'
+        let unit = unit.strip_suffix('s').unwrap_or(&unit);
 
-        let multiplier = match unit.as_str().trim_end_matches('s') {
+        let multiplier = match unit {
             "" | "b" | "byte" => B,
             "kb" | "kilobyte" => KB,
             "mb" | "megabyte" => MB,
@@ -94,7 +100,20 @@ impl FromStr for Size {
             _ => return Err(ParseSizeError),
         };
 
-        Ok(Size::from_bytes(number * multiplier as f64))
+        // Reject invalid or out-of-range byte values
+        let bytes = number * multiplier as f64;
+        // i64::MIN is -2^63 exactly in f64, but i64::MAX as f64 rounds up to 2^63
+        // (9223372036854775808.0), which is 1 more than i64::MAX!
+        if !bytes.is_finite() || bytes < i64::MIN as f64 || bytes >= i64::MAX as f64 {
+            return Err(ParseSizeError);
+        }
+
+        // Disallow fractional values iff the unit is bytes
+        if multiplier == B && bytes.fract() != 0.0 {
+            return Err(ParseSizeError);
+        }
+
+        return Ok(Size::from_bytes(bytes));
     }
 }
 
@@ -155,6 +174,7 @@ mod tests {
     #[test]
     fn parse_boundary() {
         assert_eq!(Size::from_str("42.0"), Ok(Size::from_bytes(42)));
+        assert_eq!(Size::from_str("42."), Ok(Size::from_bytes(42)));
         assert_eq!(Size::from_str("42.0kib "), Ok(Size::from_bytes(42 * KiB)));
     }
 
@@ -163,5 +183,31 @@ mod tests {
         assert_eq!(Size::from_str("0.423E3"), Ok(Size::from_bytes(423)));
         assert_eq!(Size::from_str("423E-3 mb"), Ok(Size::from_bytes(423_000)));
         assert_eq!(Size::from_str("0.423e3kb"), Ok(Size::from_bytes(423_000)));
+    }
+
+    #[test]
+    fn parse_impossible_sizes() {
+        assert_eq!(Size::from_str("mb"), Err(ParseSizeError), "Can't have partial byte literals");
+        assert_eq!(Size::from_str("0.4b"), Err(ParseSizeError), "Can't have partial byte literals");
+        assert_eq!(Size::from_str("NaN b"), Err(ParseSizeError), "Can't have non-finite values");
+        assert_eq!(Size::from_str("2e63 b"), Err(ParseSizeError), "Can't overflow i64::MAX");
+        assert_eq!(Size::from_str("-2.1e63 b"), Err(ParseSizeError), "Can't underflow i64::MIN");
+        assert_eq!(
+            Size::from_str("1e-1 bytes"),
+            Err(ParseSizeError),
+            "Can't have partial (scientific) byte literals"
+        );
+    }
+
+    #[test]
+    fn parse_unicode_inputs() {
+        let tests = vec![
+            "1.5 GB 😱",      // emoji
+            "1234\u{200d}MB", // zero-width joiner
+        ];
+
+        for input in tests {
+            assert_eq!(dbg!(Size::from_str(input)), Err(ParseSizeError));
+        }
     }
 }

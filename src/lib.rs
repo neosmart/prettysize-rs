@@ -210,7 +210,7 @@ mod sealed {
                     // A separate implementation is required for no_std's intermediate i64 to make
                     // sure u64::MAX is clamped to i64::MAX rather than cast directly to -1. The
                     // first three checks should be elided per impl via compile-time optimization.
-                    if cfg!(not(feature = "std")) // we are in no_std mode
+                    if cfg!(not(feature = "std")) // we are not in no_std mode
                         && <$type>::MIN == 0 as $type // it's an unsigned type
                         && size_of::<Intermediate>() >= size_of::<$type>() // with a greater +range
                         && self > SIGNED_MAX // and exceeds our max
@@ -335,6 +335,16 @@ pub struct Size {
 impl Size {
     /// Zero value (0 bytes)
     pub const ZERO: Self = Self { bytes: 0 };
+
+    /// Alias for [`Size::from_bytes()`].
+    pub fn new<T: AsIntermediate>(value: T) -> Self {
+        Size::from_bytes(value)
+    }
+
+    /// Alias for [`Size::from_const()`].
+    pub const fn const_new(bytes: i64) -> Self {
+        Self { bytes }
+    }
 
     /// Initialize a `Size` from the provided value, in bytes. This is a constant function and may
     /// be used in a `const` context.
