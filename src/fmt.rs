@@ -234,7 +234,7 @@ impl<T: sealed::FormatterSize> SizeFormatter<T> {
     ///
     /// # Examples
     ///
-    #[cfg_attr(not(feature = "std"), doc = "```ignore")]
+    #[cfg_attr(not(feature = "std"), doc = "```")]
     #[cfg_attr(feature = "std", doc = "```")]
     /// use size::Size;
     ///
@@ -325,11 +325,13 @@ impl SizeFormatter<()> {
 /// [`SizeFormatter`] instead of using `Size::format()`.
 ///
 /// Example:
-#[cfg_attr(not(feature = "std"), doc = "```ignore")]
-#[cfg_attr(feature = "std", doc = "```")]
+/// ```
 /// use size::{Base, Size, Style};
 ///
+/// # #[cfg(feature = "std")]
 /// let size = Size::from_mib(1.907349);
+/// # #[cfg(not(feature = "std"))]
+/// # let size = Size::from_bytes(2000000);
 /// let text = size.format()
 ///     .with_base(Base::Base10) // use base-10 sizes
 ///     .with_style(Style::Full) // print full unit names
@@ -356,15 +358,17 @@ impl Size {
     /// [`Base::Base10`]), and the style used to express the determined unit (see [`Style`]).
     ///
     /// Example:
-    #[cfg_attr(not(feature = "std"), doc = "```ignore")]
-    #[cfg_attr(feature = "std", doc = "```")]
+    /// ```
     /// use size::{Base, Size, Style};
     ///
+    /// # #[cfg(feature = "std")]
     /// let size = Size::from_mib(1.907349);
+    /// # #[cfg(not(feature = "std"))]
+    /// # let size = Size::from_bytes(2000000);
     /// let text = size.format()
-    ///     .with_base(Base::Base10)
-    ///     .with_style(Style::Full)
-    ///     .with_scale(Some(2))
+    ///     .with_base(Base::Base10) // use base-10 sizes
+    ///     .with_style(Style::Full) // print full unit names
+    ///     .with_scale(Some(2)) // two digits after the decimal
     ///     .to_string();
     ///
     /// assert_eq!(text.as_str(), "2.00 Megabytes");
