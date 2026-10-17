@@ -64,7 +64,7 @@
 //!
 //! The majority of users will be interested in this crate for its ability to "pretty print" sizes
 //! with little ceremony and great results. All `Size` instances implement both
-//! [`std::fmt::Display`] and [`std::fmt::Debug`], so you can just directly `format!(...)` or
+//! [`core::fmt::Display`] and [`core::fmt::Debug`], so you can just directly `format!(...)` or
 //! `println!(...)` with whatever `Size` you have on hand:
 #![cfg_attr(not(feature = "std"), doc = "```ignore")]
 #![cfg_attr(feature = "std", doc = "```")]
@@ -141,7 +141,6 @@
 //! mode, the following restrictions and limitations are observed:
 //!
 //! * All formatting/stringification of `Size` types is disabled.
-//! * `Size` no longer implements [`std::fmt::Display`] (`core::fmt::Debug` is still implemented).
 //! * The intermediate type used for mathematical operations on `Size` types is changed from `f64`
 //! to `i64` so that no implicit floating-point math is performed. To prevent inadvertent loss of
 //! precision, it is forbidden to pass in floating point values to the `Size` API under `no_std`
@@ -167,7 +166,6 @@
 //! As an example, `struct File { name: String, size: Size } ` will serialize to `{ name: "name",
 //! size: 1234 }` instead of `{ name: "name", size: { bytes: 1234 }`.
 
-#[cfg(feature = "std")]
 pub mod fmt;
 #[cfg(feature = "std")]
 mod from_str;
@@ -180,7 +178,6 @@ mod tests;
 mod tests_nostd;
 
 pub use crate::consts::*;
-#[cfg(feature = "std")]
 pub use crate::fmt::{Base, SizeFormatter, Style};
 #[cfg(feature = "std")]
 pub use crate::from_str::ParseSizeError;
@@ -191,11 +188,8 @@ type Intermediate = f64;
 #[cfg(not(feature = "std"))]
 type Intermediate = i64;
 
-#[cfg(feature = "std")]
 const DEFAULT_BASE: Base = Base::Base2;
-#[cfg(feature = "std")]
 const DEFAULT_STYLE: Style = Style::Default;
-#[cfg(feature = "std")]
 const DEFAULT_SCALE: Option<usize> = None;
 
 mod sealed {

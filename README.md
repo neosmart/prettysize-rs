@@ -19,7 +19,7 @@ what this crate can do and how to use it.
 * definitions for the base-two and base-ten file size units defined as `pub const` in the
   `size::consts` namespace, available both in abbreviated and unabridged forms (i.e.
   `consts::KiB` and `consts::KIBIBYTE` or `consts::GB` and `consts::GIGABYTE`),
-* an `std::Display` impl for `Size` to automatically display sizes in a human-readable
+* an `fmt::Display` impl for `Size` to automatically display sizes in a human-readable
   format, automatically choosing the best size unit and numeric precision to
   give the nicest results (you can also use `Size::to_string()` instead).
 * a `Size.format()` method that gives you more control over how sizes are converted
@@ -100,7 +100,7 @@ fn main() {
 
 The `size` crate supports parsing textual representations of file sizes into strongly typed `Size` objects, both via the `Size::from_str()` function and its `FromStr` implementation that lets you call `"1234 kilobytes".parse()`.
 
-The `Size` type implements `std::fmt::Display` (in addition to many other traits), which provides a facility to generate properly formatted textual representations of file sizes via the `Size::to_string()` impl of the `ToString` trait or when used in a `format!(..., Size)` context.
+The `Size` type implements `fmt::Display` (in addition to many other traits), which provides a facility to generate properly formatted textual representations of file sizes via the `Size::to_string()` impl of the `ToString` trait or when used in a `format!(..., Size)` context.
 
 By default, `Size` objects are formatted as base-2 (KiB, MiB, etc) with heuristically chosen precision and units. The member function `Size::format()` can be used to override the unit base (e.g. MB vs MiB) and whether or not abbreviated unit names are used (e.g. KiB vs Kebibyte).
 

@@ -142,7 +142,7 @@ impl Style {
     pub const FullLowerCase: Style = Style::FullLowercase;
 }
 
-impl std::fmt::Display for Size {
+impl fmt::Display for Size {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         write!(fmt, "{}", self.format())
     }
@@ -163,7 +163,8 @@ mod sealed {
 /// approach, but it may come in handy when you have many sizes and all need to be formatted in an
 /// identical and manually-specified fashion.
 ///
-/// ```
+#[cfg_attr(not(feature = "std"), doc = "```ignore")]
+#[cfg_attr(feature = "std", doc = "```")]
 /// use size::{Base, Size, SizeFormatter, Style};
 ///
 /// let formatter = SizeFormatter::new()
@@ -208,25 +209,6 @@ impl Default for SizeFormatter<()> {
     }
 }
 
-/// Makes it possible to obtain a string from an `fmt(f: &mut Formatter)` function by initializing
-/// this type as a wrapper around said format function, then using `format!("{}", foo)` on the
-/// resulting object.
-struct FmtRenderer<F: Fn(&mut fmt::Formatter) -> fmt::Result> {
-    formatter: F,
-}
-
-impl<F: Fn(&mut fmt::Formatter) -> fmt::Result> FmtRenderer<F> {
-    pub fn new(formatter: F) -> Self {
-        Self { formatter }
-    }
-}
-
-impl<F: Fn(&mut fmt::Formatter) -> fmt::Result> fmt::Display for FmtRenderer<F> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        (self.formatter)(f)
-    }
-}
-
 impl<T: sealed::FormatterSize> SizeFormatter<T> {
     /// Specify the base of the units to be used when generating the textual description of the
     /// `Size`.
@@ -252,7 +234,8 @@ impl<T: sealed::FormatterSize> SizeFormatter<T> {
     ///
     /// # Examples
     ///
-    /// ```
+    #[cfg_attr(not(feature = "std"), doc = "```ignore")]
+    #[cfg_attr(feature = "std", doc = "```")]
     /// use size::Size;
     ///
     /// let formatted = Size::from_bytes(42_000)
@@ -263,7 +246,8 @@ impl<T: sealed::FormatterSize> SizeFormatter<T> {
     /// ```
     ///
     /// Sizes that are printed as a whole number of bytes do not have a scale:
-    /// ```
+    #[cfg_attr(not(feature = "std"), doc = "```ignore")]
+    #[cfg_attr(feature = "std", doc = "```")]
     /// use size::SizeFormatter;
     ///
     /// let bytes = SizeFormatter::new()
@@ -323,15 +307,6 @@ impl SizeFormatter<()> {
             scale: DEFAULT_SCALE,
         }
     }
-
-    /// Formats a provided size in bytes as a string, per the configuration of the current
-    /// `SizeFormatter` instance.
-    pub fn format(&self, bytes: i64) -> String {
-        format!(
-            "{}",
-            FmtRenderer::new(|fmt: &mut fmt::Formatter| { self.inner_fmt(fmt, bytes) })
-        )
-    }
 }
 
 /// Result of [`Size::format()`], allowing customization of size pretty printing.
@@ -342,7 +317,7 @@ impl SizeFormatter<()> {
 /// configuration (via the `.with_` functions).
 ///
 /// After configuration, a `FormattableSize` may be passed directly to the `println!()` or
-/// `format!()` macros and their friends because it implements [`Display`](std::fmt::Display), or
+/// `format!()` macros and their friends because it implements [`Display`](core::fmt::Display), or
 /// [`FormattableSize::to_string()`](ToString::to_string) can be used to retrieve a `String`
 /// containing the formatted result.
 ///
@@ -350,7 +325,8 @@ impl SizeFormatter<()> {
 /// [`SizeFormatter`] instead of using `Size::format()`.
 ///
 /// Example:
-/// ```
+#[cfg_attr(not(feature = "std"), doc = "```ignore")]
+#[cfg_attr(feature = "std", doc = "```")]
 /// use size::{Base, Size, Style};
 ///
 /// let size = Size::from_mib(1.907349);
@@ -380,7 +356,8 @@ impl Size {
     /// [`Base::Base10`]), and the style used to express the determined unit (see [`Style`]).
     ///
     /// Example:
-    /// ```
+    #[cfg_attr(not(feature = "std"), doc = "```ignore")]
+    #[cfg_attr(feature = "std", doc = "```")]
     /// use size::{Base, Size, Style};
     ///
     /// let size = Size::from_mib(1.907349);
@@ -395,7 +372,7 @@ impl Size {
     ///
     /// It is not necessary to call `.to_string()` if you are passing the formatted size to a
     /// `format!()` macro or similar (e.g. `println!` and friends), as the result implements
-    /// [`Display`](std::fmt::Display) and will resolve to the same text.
+    /// [`Display`](core::fmt::Display) and will resolve to the same text.
     pub fn format(&self) -> FormattableSize<'_> {
         FormattableSize {
             size: self,
@@ -651,3 +628,38 @@ const BASE2_RULES: [FormatRule; 17] = [
         unit: Unit::Exbibyte,
     },
 ];
+
+#[cfg(feature = "std")]
+mod std {
+    use super::*;
+
+    /// Makes it possible to obtain a string from an `fmt(f: &mut Formatter)` function by initializing
+    /// this type as a wrapper around said format function, then using `format!("{}", foo)` on the
+    /// resulting object.
+    struct FmtRenderer<F: Fn(&mut fmt::Formatter) -> fmt::Result> {
+        formatter: F,
+    }
+
+    impl<F: Fn(&mut fmt::Formatter) -> fmt::Result> FmtRenderer<F> {
+        pub fn new(formatter: F) -> Self {
+            Self { formatter }
+        }
+    }
+
+    impl<F: Fn(&mut fmt::Formatter) -> fmt::Result> fmt::Display for FmtRenderer<F> {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            (self.formatter)(f)
+        }
+    }
+
+    impl SizeFormatter<()> {
+        /// Formats a provided size in bytes as a string, per the configuration of the current
+        /// `SizeFormatter` instance.
+        pub fn format(&self, bytes: i64) -> String {
+            format!(
+                "{}",
+                FmtRenderer::new(|fmt: &mut fmt::Formatter| { self.inner_fmt(fmt, bytes) })
+            )
+        }
+    }
+}
