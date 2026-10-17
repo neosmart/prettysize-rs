@@ -396,7 +396,7 @@ impl Size {
     /// It is not necessary to call `.to_string()` if you are passing the formatted size to a
     /// `format!()` macro or similar (e.g. `println!` and friends), as the result implements
     /// [`Display`](std::fmt::Display) and will resolve to the same text.
-    pub fn format(&self) -> FormattableSize {
+    pub fn format(&self) -> FormattableSize<'_> {
         FormattableSize {
             size: self,
             base: DEFAULT_BASE,
